@@ -51,14 +51,10 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({
   };
 
   if (!open) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      onClick={onClose}
-    >
+    <div className="modal-overlay" onClick={onClose}>
       <div
-        className="bg-dark-900 rounded-lg p-8 w-full max-w-md shadow-lg relative"
+        className="bg-dark-900 rounded-lg p-8 w-full max-w-md shadow-lg relative modal-content"
         onClick={(e) => e.stopPropagation()}
       >
         <button
