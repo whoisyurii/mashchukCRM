@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (email: string, password: string) => {
     try {
-      // ❗️ axios бросит исключение сам, если статус не 2xx
+      // axios will throw an error if the request fails, so we can catch it here
       const { user, token } = await authService.login({ email, password });
 
       setUser(user);
@@ -54,12 +54,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
     } catch (err) {
-      // подчисти всё, если хоть что-то пошло не так
+      // clean up in case of error
       setUser(null);
       setToken(null);
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      throw err; // без этого catch в Login не узнает об ошибке
+      throw err; // re-throw the error to handle it in the component
     }
   };
 

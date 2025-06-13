@@ -53,8 +53,14 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-dark-900 rounded-lg p-8 w-full max-w-md shadow-lg relative">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      onClick={onClose}
+    >
+      <div
+        className="bg-dark-900 rounded-lg p-8 w-full max-w-md shadow-lg relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-white"
           onClick={onClose}

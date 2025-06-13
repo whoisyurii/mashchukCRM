@@ -1,35 +1,35 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Building2, 
-  Users, 
-  DollarSign, 
+import React from "react";
+import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Building2,
+  Users,
+  DollarSign,
   Settings,
-  LogOut
-} from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+  LogOut,
+} from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Companies', href: '/companies', icon: Building2 },
-  { name: 'Users', href: '/users', icon: Users },
-  { name: 'Capital', href: '/capital', icon: DollarSign },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Companies", href: "/companies", icon: Building2 },
+  { name: "Users", href: "/users", icon: Users },
+  { name: "Capital", href: "/capital", icon: DollarSign },
+  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export const Sidebar: React.FC = () => {
   const { logout } = useAuth();
 
   return (
-    <div className="w-64 bg-dark-900 border-r border-dark-700 flex flex-col">
-      <div className="h-[73px] px-6 border-b border-dark-700 flex items-center">
+    <div className="w-20 md:w-56 bg-dark-900 border-r border-dark-700 flex flex-col">
+      <div className="h-20 px-6 border-b border-dark-700 flex items-center">
         <div className="flex items-center gap-2">
           <Building2 className="w-8 h-8 text-emerald-500" />
-          <span className="text-xl font-semibold">Acme Co</span>
+          <span className="text-xl font-semibold hidden md:inline">MyCRM</span>
         </div>
       </div>
-      
+
       <nav className="flex-1 p-4 space-y-2">
         {navigation.map((item) => (
           <NavLink
@@ -38,13 +38,13 @@ export const Sidebar: React.FC = () => {
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'text-gray-300 hover:text-white hover:bg-dark-800'
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                  : "text-gray-300 hover:text-white hover:bg-dark-800"
               }`
             }
           >
             <item.icon className="w-5 h-5" />
-            {item.name}
+            <span className="hidden md:inline">{item.name}</span>
           </NavLink>
         ))}
       </nav>
@@ -55,7 +55,7 @@ export const Sidebar: React.FC = () => {
           className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-dark-800 transition-colors"
         >
           <LogOut className="w-5 h-5" />
-          Sign Out
+          <span className="hidden md:inline">Sign Out</span>
         </button>
       </div>
     </div>
