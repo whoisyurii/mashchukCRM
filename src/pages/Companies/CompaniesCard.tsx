@@ -1,10 +1,10 @@
 import React from "react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { Badge } from "../components/ui/Badge";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { Badge } from "../../components/ui/Badge";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 
-// Типы для компании и пагинации
+// types for company data and pagination
 export interface Company {
   id: string;
   name: string;
@@ -173,7 +173,7 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
               {/* previous page button */}
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
               >
@@ -188,7 +188,7 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
                     <Button
                       key={pageNum}
                       variant={page === pageNum ? "primary" : "outline"}
-                      size="sm"
+                      size="icon"
                       onClick={() => setPage(pageNum)}
                     >
                       {pageNum}
@@ -199,7 +199,7 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
               {/* next page */}
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 onClick={() => setPage(page + 1)}
                 disabled={page === data.pagination.totalPages}
               >

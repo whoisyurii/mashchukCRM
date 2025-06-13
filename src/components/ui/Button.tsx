@@ -1,39 +1,51 @@
-import React from 'react';
+import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg" | "icon";
   children: React.ReactNode;
+  fixed?: boolean; // new prop for fixed width/height
 }
 
 export const Button: React.FC<ButtonProps> = ({
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   children,
-  className = '',
+  className = "",
+  fixed = false,
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-950 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+  const baseClasses =
+    "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-950 disabled:opacity-50 disabled:cursor-not-allowed";
+
   const variantClasses = {
-    primary: 'bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500',
-    secondary: 'bg-dark-700 hover:bg-dark-600 text-white focus:ring-dark-500',
-    outline: 'border border-dark-600 hover:bg-dark-800 text-white focus:ring-dark-500',
-    ghost: 'hover:bg-dark-800 text-gray-300 hover:text-white focus:ring-dark-500',
+    primary:
+      "bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500",
+    secondary: "bg-dark-700 hover:bg-dark-600 text-white focus:ring-dark-500",
+    outline:
+      "border border-dark-600 hover:bg-dark-800 text-white focus:ring-dark-500",
+    ghost:
+      "hover:bg-dark-800 text-gray-300 hover:text-white focus:ring-dark-500",
   };
-  
+
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
+    sm: "px-3 py-1.5 text-sm",
+    md: "px-4 py-2 text-sm",
+    lg: "px-6 py-3 text-base",
+    icon: "w-8 h-8 p-0", // for pagination and icon buttons
   };
+
+  // If fixed, always use w-10 h-10 for perfect square
+  const fixedClasses = fixed ? "w-8 h-8 p-0" : "";
 
   return (
     <button
-      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${fixedClasses} ${className}`}
       {...props}
     >
-      {children}
+      <span className="flex items-center justify-center w-full h-full">
+        {children}
+      </span>
     </button>
   );
 };

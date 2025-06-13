@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { Companies } from "./Companies";
+import { Companies } from "../Companies";
 
 function ErrorFallback({ error }: { error: Error }) {
   return (

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { CompaniesCard, CompaniesData } from "./CompaniesCard";
 import { Plus } from "lucide-react";
-import { companyService } from "../services/companyService";
-import { Button } from "../components/ui/Button";
+import { companyService } from "../../services/companyService";
+import { Button } from "../../components/ui/Button";
 import { useQuery } from "@tanstack/react-query";
+import { CompanyModal } from "./CompanyModal";
 
 export const Companies: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -12,6 +13,7 @@ export const Companies: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [statusFilter, setStatusFilter] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   // debounce input
   useEffect(() => {
@@ -55,12 +57,12 @@ export const Companies: React.FC = () => {
           <h1 className="text-2xl font-bold text-white">Companies</h1>
           <p className="text-gray-400 mt-1">Manage your company portfolio</p>
         </div>
-        <Button>
+        <Button onClick={() => setShowModal(true)}>
           <Plus className="w-4 h-4 mr-2" />
           New Company
         </Button>
       </div>
-
+      <CompanyModal open={showModal} onClose={() => setShowModal(false)} />
       <CompaniesCard
         data={data}
         isLoading={isLoading}
