@@ -13,11 +13,12 @@ interface LoginForm {
 
 export const Login: React.FC = () => {
   const { login, user } = useAuth();
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
     setError,
+    formState: { errors, isSubmitting },
   } = useForm<LoginForm>();
 
   if (user) {
@@ -27,10 +28,10 @@ export const Login: React.FC = () => {
   const onSubmit = async (data: LoginForm) => {
     try {
       await login(data.email, data.password);
-    } catch (error: any) {
-      setError("root", {
-        message: error.response?.data?.message || "Login failed",
-      });
+    } catch (err: any) {
+      const message = err.response?.data?.message || "Login failed";
+      // put the error in the form root
+      setError("root", { type: "server", message });
     }
   };
 
@@ -55,8 +56,12 @@ export const Login: React.FC = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          {errors.root && (
+        <form
+          className="mt-8 space-y-6"
+          noValidate
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          {errors.root?.message && (
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
               <p className="text-sm text-red-400">{errors.root.message}</p>
             </div>
