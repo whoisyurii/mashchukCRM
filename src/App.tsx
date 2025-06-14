@@ -6,6 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Layout } from "./components/layout/Layout";
 import { Login } from "./pages/Login";
@@ -91,6 +92,28 @@ function App() {
         <Router>
           <AppRoutes />
         </Router>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: "#1F2937",
+              color: "#F9FAFB",
+              border: "1px solid #374151",
+            },
+            success: {
+              iconTheme: {
+                primary: "#10B981",
+                secondary: "#F9FAFB",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "#EF4444",
+                secondary: "#F9FAFB",
+              },
+            },
+          }}
+        />
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -13,7 +13,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Companies", href: "/companies", icon: Building2 },
   { name: "Users", href: "/users", icon: Users },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Profile", href: "/profile", icon: Settings },
 ];
 
 export const Sidebar: React.FC = () => {
