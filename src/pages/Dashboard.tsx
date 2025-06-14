@@ -283,7 +283,7 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Модалки вынесены за пределы space-y-6 */}
+      {/* modal is out of overall flow */}
       <CompanyModal open={showModal} onClose={() => setShowModal(false)} />
       <AddAdminModal
         isOpen={showAdminModal}
