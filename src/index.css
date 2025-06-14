@@ -16,6 +16,7 @@
   z-index: 50;
   padding: 1rem;
   overflow-y: auto;
+  margin: 0 !important; /* Override space-y margins */
 }
 
 .modal-content {

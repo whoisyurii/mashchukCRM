@@ -9,7 +9,7 @@ export interface Company {
   id: string;
   name: string;
   service: string;
-  status: "Active" | "Inactive";
+  status: "Active";
   createdAt: string;
 }
 
@@ -81,7 +81,7 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
                 className="w-full bg-dark-800 border border-dark-600 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
-          </div>
+          </div>{" "}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -89,7 +89,6 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
           >
             <option value="">All Status</option>
             <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
           </select>
         </div>
 

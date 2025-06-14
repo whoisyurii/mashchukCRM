@@ -3,7 +3,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'SuperAdmin' | 'Admin' | 'User';
+  role: "SuperAdmin" | "Admin" | "User";
   avatar?: string;
   createdAt: string;
 }
@@ -13,7 +13,7 @@ export interface Company {
   name: string;
   service: string;
   capital: number;
-  status: 'Active' | 'Inactive';
+  status: "Active";
   createdAt: string;
 }
 

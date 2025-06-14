@@ -5,8 +5,10 @@ import { companyService } from "../../services/companyService";
 import { Button } from "../../components/ui/Button";
 import { useQuery } from "@tanstack/react-query";
 import { CompanyModal } from "./CompanyModal";
+import { useAuth } from "../../contexts/AuthContext";
 
 export const Companies: React.FC = () => {
+  const { user } = useAuth();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
@@ -57,10 +59,12 @@ export const Companies: React.FC = () => {
           <h1 className="text-2xl font-bold text-white">Companies</h1>
           <p className="text-gray-400 mt-1">Manage your company portfolio</p>
         </div>
-        <Button onClick={() => setShowModal(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Company
-        </Button>
+        {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
+          <Button onClick={() => setShowModal(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Company
+          </Button>
+        )}
       </div>
       <CompanyModal open={showModal} onClose={() => setShowModal(false)} />
       <CompaniesCard

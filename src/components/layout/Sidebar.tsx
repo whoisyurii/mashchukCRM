@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   Building2,
   Users,
-  DollarSign,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -14,7 +13,6 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Companies", href: "/companies", icon: Building2 },
   { name: "Users", href: "/users", icon: Users },
-  { name: "Capital", href: "/capital", icon: DollarSign },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 

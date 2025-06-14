@@ -12,13 +12,15 @@ import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { Companies } from "./pages/Companies/Companies";
+import { Users } from "./pages/Users";
 import { Profile } from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+const ProtectedRoute: React.FC<{
+  children: React.ReactNode;
+  allowedRoles?: string[];
+}> = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -31,6 +33,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Layout>{children}</Layout>;
@@ -54,6 +60,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <Companies />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute allowedRoles={["SuperAdmin"]}>
+            <Users />
           </ProtectedRoute>
         }
       />

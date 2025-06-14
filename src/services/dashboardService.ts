@@ -17,26 +17,32 @@ export const dashboardService = {
     return response.data;
   },
 
-  createAdmin: async (adminData: {
+  createUser: async (userData: {
     email: string;
     firstName: string;
     lastName: string;
     password: string;
+    role: string;
   }) => {
-    const response = await api.post("/dashboard/admins", adminData);
+    const response = await api.post("/users", userData);
     return response.data;
   },
 
-  updateAdmin: async (
+  updateUser: async (
     id: string,
-    adminData: { email: string; firstName: string; lastName: string }
+    userData: {
+      email: string;
+      firstName: string;
+      lastName: string;
+      role: string;
+    }
   ) => {
-    const response = await api.put(`/dashboard/admins/${id}`, adminData);
+    const response = await api.put(`/users/${id}`, userData);
     return response.data;
   },
 
-  deleteAdmin: async (id: string) => {
-    const response = await api.delete(`/dashboard/admins/${id}`);
+  deleteUser: async (id: string) => {
+    const response = await api.delete(`/users/${id}`);
     return response.data;
   },
 };

@@ -1,19 +1,10 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  TrendingUp,
-  Users,
-  Building2,
-  DollarSign,
-  Plus,
-  Edit2,
-  Trash2,
-} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { Users, Building2, DollarSign } from "lucide-react";
 import { dashboardService } from "../services/dashboardService";
 import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
 import { CompanyModal } from "./Companies/CompanyModal";
-import { AddAdminModal } from "./Dashboard/AddAdminModal";
 import { useAuth } from "../contexts/AuthContext";
 
 const StatCard: React.FC<{
@@ -21,18 +12,18 @@ const StatCard: React.FC<{
   value: string;
   icon: React.ReactNode;
   trend?: string;
-}> = ({ title, value, icon, trend }) => (
-  <Card>
+  onClick?: () => void;
+}> = ({ title, value, icon, onClick }) => (
+  <Card
+    className={
+      onClick ? "cursor-pointer hover:bg-dark-800 transition-colors" : ""
+    }
+    onClick={onClick}
+  >
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium text-gray-400">{title}</p>
         <p className="text-2xl font-bold text-white mt-1">{value}</p>
-        {/* {trend && (
-          <p className="text-sm text-emerald-400 flex items-center gap-1 mt-1">
-            <TrendingUp className="w-3 h-3" />
-            {trend}
-          </p>
-        )} */}
       </div>
       <div className="p-3 bg-emerald-500/10 rounded-lg">{icon}</div>
     </div>
@@ -41,10 +32,44 @@ const StatCard: React.FC<{
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const [showAdminModal, setShowAdminModal] = useState(false);
-  const [editingAdmin, setEditingAdmin] = useState<any>(null);
+
+  // Mock data for recent actions
+  const recentActions = [
+    {
+      id: "1",
+      action: "User created new company",
+      user: "John Doe",
+      target: "Tech Solutions Inc.",
+      timestamp: "2 hours ago",
+      type: "create",
+    },
+    {
+      id: "2",
+      action: "Admin updated user profile",
+      user: "Jane Smith",
+      target: "Bob Johnson",
+      timestamp: "4 hours ago",
+      type: "update",
+    },
+    {
+      id: "3",
+      action: "SuperAdmin added new admin",
+      user: "Admin System",
+      target: "Alice Wilson",
+      timestamp: "1 day ago",
+      type: "create",
+    },
+    {
+      id: "4",
+      action: "User updated company capital",
+      user: "Mike Brown",
+      target: "Apex Dynamics Co.",
+      timestamp: "2 days ago",
+      type: "update",
+    },
+  ];
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats"],
@@ -63,13 +88,6 @@ export const Dashboard: React.FC = () => {
     enabled: user?.role === "User",
   });
 
-  const deleteAdminMutation = useMutation({
-    mutationFn: dashboardService.deleteAdmin,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-admins"] });
-    },
-  });
-
   if (statsLoading || adminsLoading || companiesLoading) {
     return (
       <div className="animate-pulse space-y-6">
@@ -84,12 +102,6 @@ export const Dashboard: React.FC = () => {
       </div>
     );
   }
-
-  const handleDeleteAdmin = (adminId: string) => {
-    if (confirm("Are you sure you want to delete this admin?")) {
-      deleteAdminMutation.mutate(adminId);
-    }
-  };
 
   return (
     <>
@@ -108,26 +120,25 @@ export const Dashboard: React.FC = () => {
               title="Total Users"
               value={stats?.totalUsers?.toLocaleString() || "0"}
               icon={<Users className="w-6 h-6 text-emerald-500" />}
-              // trend="+12% from last month"
             />
             <StatCard
               title="Total Companies"
               value={stats?.totalCompanies?.toLocaleString() || "0"}
               icon={<Building2 className="w-6 h-6 text-emerald-500" />}
-              // trend="+8% from last month"
             />
             <StatCard
               title="Total Capital"
               value={`$${(stats?.totalCapital || 0).toLocaleString()}`}
               icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
-              // trend="+23% from last month"
             />
-            <StatCard
-              title="Active Companies"
-              value={stats?.activeCompanies?.toLocaleString() || "0"}
-              icon={<Building2 className="w-6 h-6 text-emerald-500" />}
-              // trend="+5% from last month"
-            />
+            {user?.role === "SuperAdmin" && (
+              <StatCard
+                title="Administrators"
+                value={admins?.length?.toString() || "0"}
+                icon={<Users className="w-6 h-6 text-emerald-500" />}
+                onClick={() => navigate("/users")}
+              />
+            )}
           </div>
         )}
 
@@ -152,48 +163,39 @@ export const Dashboard: React.FC = () => {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* SuperAdmin: Admins Management */}
-          {user?.role === "SuperAdmin" && (
+          {/* SuperAdmin/Admin: Recent Actions */}
+          {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
             <Card>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-white">
-                  Administrators
+                  Recent Actions
                 </h3>
-                <Button size="sm" onClick={() => setShowAdminModal(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Admin
-                </Button>
               </div>
               <div className="space-y-3">
-                {admins?.map((admin: any) => (
+                {recentActions.map((action) => (
                   <div
-                    key={admin.id}
+                    key={action.id}
                     className="flex items-center justify-between p-3 bg-dark-800 rounded-lg"
                   >
                     <div>
                       <span className="text-sm font-medium text-white">
-                        {admin.firstName} {admin.lastName}
+                        {action.action}
                       </span>
-                      <p className="text-xs text-gray-400">{admin.email}</p>
+                      <p className="text-xs text-gray-400">
+                        by {action.user} → {action.target}
+                      </p>
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          setEditingAdmin(admin);
-                          setShowAdminModal(true);
-                        }}
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDeleteAdmin(admin.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-400">
+                        {action.timestamp}
+                      </p>
+                      <div
+                        className={`inline-block w-2 h-2 rounded-full ${
+                          action.type === "create"
+                            ? "bg-emerald-500"
+                            : "bg-blue-500"
+                        }`}
+                      ></div>
                     </div>
                   </div>
                 ))}
@@ -208,25 +210,37 @@ export const Dashboard: React.FC = () => {
                 My Companies
               </h3>
               <div className="space-y-3">
-                {userCompanies?.map((company: any) => (
-                  <div
-                    key={company.id}
-                    className="flex items-center justify-between p-3 bg-dark-800 rounded-lg"
-                  >
-                    <div>
-                      <span className="text-sm font-medium text-white">
-                        {company.name}
-                      </span>
-                      <p className="text-xs text-gray-400">{company.service}</p>
+                {userCompanies?.map(
+                  (company: {
+                    id: string;
+                    name: string;
+                    service: string;
+                    capital: number;
+                    status: string;
+                  }) => (
+                    <div
+                      key={company.id}
+                      className="flex items-center justify-between p-3 bg-dark-800 rounded-lg"
+                    >
+                      <div>
+                        <span className="text-sm font-medium text-white">
+                          {company.name}
+                        </span>
+                        <p className="text-xs text-gray-400">
+                          {company.service}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-emerald-400">
+                          ${company.capital.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {company.status}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-emerald-400">
-                        ${company.capital.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-gray-400">{company.status}</p>
-                    </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </Card>
           )}
@@ -285,14 +299,6 @@ export const Dashboard: React.FC = () => {
 
       {/* modal is out of overall flow */}
       <CompanyModal open={showModal} onClose={() => setShowModal(false)} />
-      <AddAdminModal
-        isOpen={showAdminModal}
-        onClose={() => {
-          setShowAdminModal(false);
-          setEditingAdmin(null);
-        }}
-        editingAdmin={editingAdmin}
-      />
     </>
   );
 };

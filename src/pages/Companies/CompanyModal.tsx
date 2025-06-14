@@ -3,6 +3,8 @@ import { companyService } from "../../services/companyService";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface CompanyModalProps {
   open: boolean;
@@ -13,6 +15,8 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({
   open,
   onClose,
 }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     service: "",
@@ -22,6 +26,28 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
+
+  // Check access - only SuperAdmin and Admin can create companies
+  if (open && user?.role === "User") {
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div
+          className="bg-dark-900 rounded-lg p-8 w-full max-w-md shadow-lg relative modal-content"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="text-center">
+            <h2 className="text-xl font-bold mb-4 text-white">Access Denied</h2>
+            <p className="text-gray-400 mb-6">
+              You don't have permission to create companies. Error 401.
+            </p>
+            <Button onClick={() => navigate("/dashboard")} className="w-full">
+              Go to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -91,7 +117,7 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Status
-            </label>
+            </label>{" "}
             <select
               name="status"
               value={form.status}
@@ -99,7 +125,6 @@ export const CompanyModal: React.FC<CompanyModalProps> = ({
               className="w-full rounded-md border border-gray-700 bg-dark-800 text-white p-2"
             >
               <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
             </select>
           </div>
           {formError && <div className="text-red-400 text-sm">{formError}</div>}
