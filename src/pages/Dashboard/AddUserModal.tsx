@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { dashboardService } from "../../services/dashboardService";
-import { companyService } from "../../services/companyService";
 import { useAuth } from "../../contexts/AuthContext";
+import { useCompaniesQuery } from "../../hooks/useCompaniesQuery";
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -50,11 +50,10 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
       });
     }
   }, [editingUser, isOpen]);
-
   // Fetch companies for selection
-  const { data: companiesData } = useQuery({
-    queryKey: ["companies"],
-    queryFn: () => companyService.getCompanies({ page: 1, limit: 100 }),
+  const { data: companiesData } = useCompaniesQuery({
+    page: 1,
+    limit: 100,
     enabled: isOpen,
   });
   const addUserMutation = useMutation({

@@ -1,66 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import {
-  Search,
-  Calendar,
-  User,
-  Building2,
-  Edit3,
-  Trash2,
-  Plus,
-} from "lucide-react";
+import { Search, Calendar } from "lucide-react";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import { historyService, HistoryAction } from "../services/historyService";
-
-const getActionIcon = (type: string, action: string) => {
-  if (action === "created") {
-    switch (type) {
-      case "company":
-        return <Building2 className="w-4 h-4 text-emerald-400" />;
-      case "user":
-        return <User className="w-4 h-4 text-emerald-400" />;
-      default:
-        return <Plus className="w-4 h-4 text-emerald-400" />;
-    }
-  } else if (action === "updated") {
-    return <Edit3 className="w-4 h-4 text-blue-400" />;
-  } else if (action === "deleted") {
-    return <Trash2 className="w-4 h-4 text-red-400" />;
-  } else {
-    return <Edit3 className="w-4 h-4 text-gray-500" />;
-  }
-};
-
-const getActionColor = (action: string) => {
-  switch (action) {
-    case "created":
-      return "text-emerald-400";
-    case "updated":
-      return "text-blue-400";
-    case "deleted":
-      return "text-red-400";
-    default:
-      return "text-gray-400";
-  }
-};
-
-const formatDate = (timestamp: string) => {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diffInHours = Math.floor(
-    (now.getTime() - date.getTime()) / (1000 * 60 * 60)
-  );
-
-  if (diffInHours < 24) {
-    return `${diffInHours}h ago`;
-  } else if (diffInHours < 168) {
-    return `${Math.floor(diffInHours / 24)}d ago`;
-  } else {
-    return date.toLocaleDateString();
-  }
-};
+import {
+  getActionIcon,
+  getActionColor,
+  formatDate,
+} from "../utils/action-helpers";
+import { useHistoryQuery } from "../hooks/useHistoryQuery";
 
 export const History: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -83,23 +31,16 @@ export const History: React.FC = () => {
   useEffect(() => {
     setPage(1);
   }, [typeFilter, actionFilter]);
-
   const {
     data: historyData,
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ["history", page, search, typeFilter, actionFilter],
-    queryFn: () =>
-      historyService.getHistory({
-        page,
-        limit: itemsPerPage,
-        search,
-        type: typeFilter || undefined,
-        action: actionFilter || undefined,
-        sortBy: "createdAt",
-        sortOrder: "desc",
-      }),
+  } = useHistoryQuery({
+    page,
+    search,
+    typeFilter,
+    actionFilter,
+    limit: itemsPerPage,
   });
 
   if (isLoading) {

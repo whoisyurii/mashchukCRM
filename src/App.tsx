@@ -10,7 +10,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Layout } from "./components/layout/Layout";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
-import { Dashboard } from "./pages/Dashboard";
+import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Companies } from "./pages/Companies/Companies";
 import { Users } from "./pages/Users";
 import { Profile } from "./pages/Profile";

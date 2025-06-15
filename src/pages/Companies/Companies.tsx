@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { CompaniesCard, CompaniesData } from "./CompaniesCard";
+import { CompaniesCard } from "./CompaniesCard";
 import { Plus } from "lucide-react";
-import { companyService } from "../../services/companyService";
 import { Button } from "../../components/ui/Button";
-import { useQuery } from "@tanstack/react-query";
 import { CompanyModal } from "./CompanyModal";
 import { useAuth } from "../../contexts/AuthContext";
+import { useCompaniesQuery } from "../../hooks/useCompaniesQuery";
 
 export const Companies: React.FC = () => {
   const { user } = useAuth();
@@ -25,18 +24,14 @@ export const Companies: React.FC = () => {
     return () => clearTimeout(handler);
   }, [searchInput]);
 
-  // useQuery / useSuspenseQuery + Suspense (for query what is surely always defined and NO undefined data will be returned) / useQueries({queries: []}) --- returns us a bunch of stuff, the main is data we want to work on, as well as boolean helpers; error; enabled (with enabled:no and state on, setOn)
-  const { data, isLoading } = useQuery<CompaniesData>({
-    queryKey: ["companies", page, search, sortBy, sortOrder, statusFilter], // query keys array allows us to cache things we assigned keys to, like page, search and other states from useState up there, so it will not be refetched again in case of new request
-    queryFn: () =>
-      companyService.getCompanies({
-        page,
-        limit: 5, // set to 5 on each page
-        search,
-        sortBy,
-        sortOrder,
-        status: statusFilter,
-      }),
+  // useCompaniesQuery hook
+  const { data, isLoading } = useCompaniesQuery({
+    page,
+    search,
+    sortBy,
+    sortOrder,
+    statusFilter,
+    limit: 5,
   });
 
   const handleSort = (column: string) => {
