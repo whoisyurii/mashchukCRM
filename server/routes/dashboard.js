@@ -1,23 +1,28 @@
 import express from "express";
 import bcrypt from "bcryptjs";
-import { companies } from "../data/companies.js";
-import { users } from "../data/users.js";
 import { authenticateToken, requireRole } from "../middleware/auth.js";
+import { PrismaClient } from "@prisma/client";
+import { createActionHistory } from "./history.js";
+
+const prisma = new PrismaClient();
 
 const router = express.Router();
 
 // Get dashboard statistics
-router.get("/stats", authenticateToken, (req, res) => {
+router.get("/stats", authenticateToken, async (req, res) => {
   try {
     const userRole = req.user.role;
 
     if (userRole === "SuperAdmin" || userRole === "Admin") {
       // For SuperAdmin and Admin - show all stats
-      const totalUsers = users.length;
-      const totalCompanies = companies.length;
-      const activeCompanies = companies.filter(
-        (c) => c.status === "Active"
-      ).length;
+      const [totalUsers, totalCompanies, activeCompanies, companies] =
+        await Promise.all([
+          prisma.user.count(),
+          prisma.company.count(),
+          prisma.company.count({ where: { status: "Active" } }),
+          prisma.company.findMany({ select: { capital: true } }),
+        ]);
+
       const totalCapital = companies.reduce(
         (sum, company) => sum + company.capital,
         0
@@ -31,23 +36,37 @@ router.get("/stats", authenticateToken, (req, res) => {
       });
     } else {
       // For User - show only accessible companies
-      const userCompanies = companies.filter((c) => c.userId === req.user.id);
-      const totalCompanies = userCompanies.length;
-      const activeCompanies = userCompanies.filter(
-        (c) => c.status === "Active"
-      ).length;
+      const [userCompanies, activeUserCompanies] = await Promise.all([
+        prisma.company.findMany({
+          where: {
+            OR: [
+              { userId: req.user.id },
+              { userId: null }, // Include unassigned companies for now
+            ],
+          },
+          select: { capital: true, status: true },
+        }),
+        prisma.company.count({
+          where: {
+            status: "Active",
+            OR: [{ userId: req.user.id }, { userId: null }],
+          },
+        }),
+      ]);
+
       const totalCapital = userCompanies.reduce(
         (sum, company) => sum + company.capital,
         0
       );
 
       res.json({
-        totalCompanies,
-        activeCompanies,
+        totalCompanies: userCompanies.length,
+        activeCompanies: activeUserCompanies,
         totalCapital,
       });
     }
   } catch (error) {
+    console.error("Error fetching dashboard stats:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -57,13 +76,22 @@ router.get(
   "/admins",
   authenticateToken,
   requireRole(["SuperAdmin"]),
-  (req, res) => {
+  async (req, res) => {
     try {
-      const admins = users
-        .filter((user) => user.role === "Admin")
-        .map(({ password, ...admin }) => admin);
+      const admins = await prisma.user.findMany({
+        where: { role: "Admin" },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          createdAt: true,
+        },
+      });
       res.json(admins);
     } catch (error) {
+      console.error("Error fetching admins:", error);
       res.status(500).json({ message: "Server error" });
     }
   }
@@ -74,30 +102,56 @@ router.post(
   "/admins",
   authenticateToken,
   requireRole(["SuperAdmin"]),
-  (req, res) => {
+  async (req, res) => {
     try {
       const { email, firstName, lastName, password } = req.body;
 
       // Check if user already exists
-      const existingUser = users.find((u) => u.email === email);
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
+
       if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
       }
 
-      const newAdmin = {
-        id: (users.length + 1).toString(),
-        email,
-        firstName,
-        lastName,
-        password: bcrypt.hashSync(password, 10),
-        role: "Admin",
-        createdAt: new Date().toISOString(),
-      };
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-      users.push(newAdmin);
-      const { password: _, ...adminWithoutPassword } = newAdmin;
-      res.status(201).json(adminWithoutPassword);
+      const newAdmin = await prisma.user.create({
+        data: {
+          email,
+          firstName,
+          lastName,
+          password: hashedPassword,
+          role: "Admin",
+        },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+
+      // Log action history
+      try {
+        await createActionHistory({
+          action: "created",
+          type: "user",
+          details: `Created new admin account`,
+          target: newAdmin.email,
+          userId: req.user.id,
+        });
+      } catch (historyError) {
+        console.error("Error logging action history:", historyError);
+        // Don't fail the main operation if history logging fails
+      }
+
+      res.status(201).json(newAdmin);
     } catch (error) {
+      console.error("Error creating admin:", error);
       res.status(500).json({ message: "Server error" });
     }
   }
@@ -108,22 +162,49 @@ router.put(
   "/admins/:id",
   authenticateToken,
   requireRole(["SuperAdmin"]),
-  (req, res) => {
+  async (req, res) => {
     try {
       const { id } = req.params;
       const { email, firstName, lastName } = req.body;
 
-      const adminIndex = users.findIndex(
-        (u) => u.id === id && u.role === "Admin"
-      );
-      if (adminIndex === -1) {
+      const admin = await prisma.user.findFirst({
+        where: { id, role: "Admin" },
+      });
+
+      if (!admin) {
         return res.status(404).json({ message: "Admin not found" });
       }
 
-      users[adminIndex] = { ...users[adminIndex], email, firstName, lastName };
-      const { password, ...adminWithoutPassword } = users[adminIndex];
-      res.json(adminWithoutPassword);
+      const updatedAdmin = await prisma.user.update({
+        where: { id },
+        data: { email, firstName, lastName },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+
+      // Log action history
+      try {
+        await createActionHistory({
+          action: "updated",
+          type: "user",
+          details: `Updated admin profile`,
+          target: updatedAdmin.email,
+          userId: req.user.id,
+        });
+      } catch (historyError) {
+        console.error("Error logging action history:", historyError);
+        // Don't fail the main operation if history logging fails
+      }
+
+      res.json(updatedAdmin);
     } catch (error) {
+      console.error("Error updating admin:", error);
       res.status(500).json({ message: "Server error" });
     }
   }
@@ -134,20 +215,39 @@ router.delete(
   "/admins/:id",
   authenticateToken,
   requireRole(["SuperAdmin"]),
-  (req, res) => {
+  async (req, res) => {
     try {
       const { id } = req.params;
-      const adminIndex = users.findIndex(
-        (u) => u.id === id && u.role === "Admin"
-      );
 
-      if (adminIndex === -1) {
+      const admin = await prisma.user.findFirst({
+        where: { id, role: "Admin" },
+      });
+
+      if (!admin) {
         return res.status(404).json({ message: "Admin not found" });
       }
 
-      users.splice(adminIndex, 1);
+      await prisma.user.delete({
+        where: { id },
+      });
+
+      // Log action history
+      try {
+        await createActionHistory({
+          action: "deleted",
+          type: "user",
+          details: `Deleted admin account`,
+          target: admin.email,
+          userId: req.user.id,
+        });
+      } catch (historyError) {
+        console.error("Error logging action history:", historyError);
+        // Don't fail the main operation if history logging fails
+      }
+
       res.json({ message: "Admin deleted successfully" });
     } catch (error) {
+      console.error("Error deleting admin:", error);
       res.status(500).json({ message: "Server error" });
     }
   }
@@ -158,11 +258,20 @@ router.get(
   "/user-companies",
   authenticateToken,
   requireRole(["User"]),
-  (req, res) => {
+  async (req, res) => {
     try {
-      const userCompanies = companies.filter((c) => c.userId === req.user.id);
+      // Get companies assigned to the user or all companies if user is not assigned specific ones
+      const userCompanies = await prisma.company.findMany({
+        where: {
+          OR: [
+            { userId: req.user.id },
+            { userId: null }, // Include unassigned companies for now
+          ],
+        },
+      });
       res.json(userCompanies);
     } catch (error) {
+      console.error("Error fetching user companies:", error);
       res.status(500).json({ message: "Server error" });
     }
   }

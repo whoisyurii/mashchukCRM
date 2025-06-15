@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.js";
 import companyRoutes from "./routes/companies.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import userRoutes from "./routes/users.js";
+import historyRoutes from "./routes/history.js";
 
 // i use express for backend in this project
 const app = express();
@@ -19,6 +20,7 @@ app.use("/api/auth", authRoutes); // Authentication routes
 app.use("/api/companies", companyRoutes); // Company-related routes
 app.use("/api/dashboard", dashboardRoutes); // Dashboard-related routes
 app.use("/api/users", userRoutes); // User-related routes
+app.use("/api/history", historyRoutes); // History-related routes
 
 // server health check endpoint
 app.get("/api/health", (req, res) => {

@@ -1,7 +1,10 @@
 import express from "express";
 import bcrypt from "bcryptjs";
-import { users } from "../data/users.js";
 import { authenticateToken, requireRole } from "../middleware/auth.js";
+import { PrismaClient } from "@prisma/client";
+import { createActionHistory } from "./history.js";
+
+const prisma = new PrismaClient();
 
 const router = express.Router();
 
@@ -10,11 +13,21 @@ router.get(
   "/",
   authenticateToken,
   requireRole(["SuperAdmin", "Admin"]),
-  (req, res) => {
+  async (req, res) => {
     try {
-      const usersWithoutPasswords = users.map(({ password, ...user }) => user);
-      res.json(usersWithoutPasswords);
+      const users = await prisma.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+      res.json(users);
     } catch (error) {
+      console.error("Error fetching users:", error);
       res.status(500).json({ message: "Server error" });
     }
   }
@@ -30,7 +43,10 @@ router.post(
       const { email, password, firstName, lastName, role = "User" } = req.body;
 
       // Check if user already exists
-      const existingUser = users.find((u) => u.email === email);
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
+
       if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
       }
@@ -39,51 +55,107 @@ router.post(
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create new user
-      const newUser = {
-        id: Date.now().toString(),
-        email,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        role,
-        createdAt: new Date().toISOString(),
-      };
+      const newUser = await prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          firstName,
+          lastName,
+          role,
+        },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          createdAt: true,
+        },
+      });
 
-      users.push(newUser);
+      // Log action history
+      try {
+        await createActionHistory({
+          action: "created",
+          type: "user",
+          details: `Created new user account`,
+          target: newUser.email,
+          userId: req.user.id,
+        });
+      } catch (historyError) {
+        console.error("Error logging action history:", historyError);
+        // Don't fail the main operation if history logging fails
+      }
 
-      // Return user without password
-      const { password: _, ...userWithoutPassword } = newUser;
-      res.status(201).json(userWithoutPassword);
+      res.status(201).json(newUser);
     } catch (error) {
+      console.error("Error creating user:", error);
       res.status(500).json({ message: "Server error" });
     }
   }
 );
 
 // Get current user profile
-router.get("/me", authenticateToken, (req, res) => {
+router.get("/me", authenticateToken, async (req, res) => {
   try {
-    const { password, ...userWithoutPassword } = req.user;
-    res.json(userWithoutPassword);
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
   } catch (error) {
+    console.error("Error fetching user profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
 // Update user profile
-router.put("/me", authenticateToken, (req, res) => {
+router.put("/me", authenticateToken, async (req, res) => {
   try {
-    const userIndex = users.findIndex((u) => u.id === req.user.id);
-    if (userIndex === -1) {
-      return res.status(404).json({ message: "User not found" });
+    const { password, role, ...allowedUpdates } = req.body;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: allowedUpdates,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    // Log action history
+    try {
+      await createActionHistory({
+        action: "updated",
+        type: "profile",
+        details: "Updated profile information",
+        target: updatedUser.email,
+        userId: req.user.id,
+      });
+    } catch (historyError) {
+      console.error("Error logging action history:", historyError);
+      // Don't fail the main operation if history logging fails
     }
 
-    const { password, role, ...allowedUpdates } = req.body;
-    users[userIndex] = { ...users[userIndex], ...allowedUpdates };
-
-    const { password: _, ...userWithoutPassword } = users[userIndex];
-    res.json(userWithoutPassword);
+    res.json(updatedUser);
   } catch (error) {
+    console.error("Error updating user profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -99,13 +171,15 @@ router.put("/change-password", authenticateToken, async (req, res) => {
         .json({ message: "Current password and new password are required" });
     }
 
-    const userIndex = users.findIndex((u) => u.id === req.user.id);
-    if (userIndex === -1) {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+    });
+
+    if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     // Verify current password
-    const user = users[userIndex];
     const isCurrentPasswordValid = await bcrypt.compare(
       currentPassword,
       user.password
@@ -118,10 +192,28 @@ router.put("/change-password", authenticateToken, async (req, res) => {
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
     // Update user password
-    users[userIndex].password = hashedNewPassword;
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { password: hashedNewPassword },
+    });
+
+    // Log action history
+    try {
+      await createActionHistory({
+        action: "updated",
+        type: "profile",
+        details: "Changed password",
+        target: req.user.email,
+        userId: req.user.id,
+      });
+    } catch (historyError) {
+      console.error("Error logging action history:", historyError);
+      // Don't fail the main operation if history logging fails
+    }
 
     res.json({ message: "Password changed successfully" });
   } catch (error) {
+    console.error("Error changing password:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

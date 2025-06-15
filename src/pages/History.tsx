@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Search,
-  Filter,
   Calendar,
   User,
   Building2,
@@ -12,109 +12,24 @@ import {
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import { useAuth } from "../contexts/AuthContext";
-
-interface HistoryAction {
-  id: string;
-  action: string;
-  type: "company" | "profile" | "user";
-  details: string;
-  user: {
-    firstName: string;
-    lastName: string;
-    role: string;
-  };
-  timestamp: string;
-  target?: string;
-}
-
-// Mock data for history actions
-const mockHistoryData: HistoryAction[] = [
-  {
-    id: "1",
-    action: "created",
-    type: "company",
-    details: "Created new company 'Tech Solutions Ltd'",
-    user: { firstName: "John", lastName: "Doe", role: "Admin" },
-    timestamp: "2024-01-15T10:30:00Z",
-    target: "Tech Solutions Ltd",
-  },
-  {
-    id: "2",
-    action: "updated",
-    type: "profile",
-    details: "Updated profile information",
-    user: { firstName: "Jane", lastName: "Smith", role: "User" },
-    timestamp: "2024-01-15T09:15:00Z",
-  },
-  {
-    id: "3",
-    action: "deleted",
-    type: "company",
-    details: "Deleted company 'Old Corp'",
-    user: { firstName: "Admin", lastName: "User", role: "SuperAdmin" },
-    timestamp: "2024-01-14T16:45:00Z",
-    target: "Old Corp",
-  },
-  {
-    id: "4",
-    action: "created",
-    type: "user",
-    details: "Created new user account",
-    user: { firstName: "Admin", lastName: "User", role: "SuperAdmin" },
-    timestamp: "2024-01-14T14:20:00Z",
-    target: "new.user@example.com",
-  },
-  {
-    id: "5",
-    action: "updated",
-    type: "company",
-    details: "Updated company information for 'Innovate Inc'",
-    user: { firstName: "Sarah", lastName: "Johnson", role: "Admin" },
-    timestamp: "2024-01-14T11:30:00Z",
-    target: "Innovate Inc",
-  },
-  {
-    id: "6",
-    action: "updated",
-    type: "profile",
-    details: "Changed password",
-    user: { firstName: "Mike", lastName: "Wilson", role: "User" },
-    timestamp: "2024-01-13T15:10:00Z",
-  },
-  {
-    id: "7",
-    action: "created",
-    type: "company",
-    details: "Created new company 'StartupCo'",
-    user: { firstName: "Emily", lastName: "Davis", role: "Admin" },
-    timestamp: "2024-01-13T13:45:00Z",
-    target: "StartupCo",
-  },
-  {
-    id: "8",
-    action: "updated",
-    type: "user",
-    details: "Updated user role permissions",
-    user: { firstName: "Admin", lastName: "User", role: "SuperAdmin" },
-    timestamp: "2024-01-12T10:15:00Z",
-    target: "user@example.com",
-  },
-];
+import { historyService, HistoryAction } from "../services/historyService";
 
 const getActionIcon = (type: string, action: string) => {
-  if (action === "created")
-    return <Plus className="w-4 h-4 text-emerald-500" />;
-  if (action === "updated") return <Edit3 className="w-4 h-4 text-blue-500" />;
-  if (action === "deleted") return <Trash2 className="w-4 h-4 text-red-500" />;
-
-  switch (type) {
-    case "company":
-      return <Building2 className="w-4 h-4 text-emerald-500" />;
-    case "user":
-      return <User className="w-4 h-4 text-blue-500" />;
-    default:
-      return <Edit3 className="w-4 h-4 text-gray-500" />;
+  if (action === "created") {
+    switch (type) {
+      case "company":
+        return <Building2 className="w-4 h-4 text-emerald-400" />;
+      case "user":
+        return <User className="w-4 h-4 text-emerald-400" />;
+      default:
+        return <Plus className="w-4 h-4 text-emerald-400" />;
+    }
+  } else if (action === "updated") {
+    return <Edit3 className="w-4 h-4 text-blue-400" />;
+  } else if (action === "deleted") {
+    return <Trash2 className="w-4 h-4 text-red-400" />;
+  } else {
+    return <Edit3 className="w-4 h-4 text-gray-500" />;
   }
 };
 
@@ -148,7 +63,6 @@ const formatDate = (timestamp: string) => {
 };
 
 export const History: React.FC = () => {
-  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -160,30 +74,64 @@ export const History: React.FC = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setSearch(searchInput);
+      setPage(1); // Reset to first page when search changes
     }, 500);
     return () => clearTimeout(handler);
   }, [searchInput]);
 
-  // Filter and paginate data
-  const filteredData = mockHistoryData.filter((item) => {
-    const matchesSearch =
-      !search ||
-      item.details.toLowerCase().includes(search.toLowerCase()) ||
-      item.user.firstName.toLowerCase().includes(search.toLowerCase()) ||
-      item.user.lastName.toLowerCase().includes(search.toLowerCase()) ||
-      (item.target && item.target.toLowerCase().includes(search.toLowerCase()));
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [typeFilter, actionFilter]);
 
-    const matchesType = !typeFilter || item.type === typeFilter;
-    const matchesAction = !actionFilter || item.action === actionFilter;
-
-    return matchesSearch && matchesType && matchesAction;
+  const {
+    data: historyData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["history", page, search, typeFilter, actionFilter],
+    queryFn: () =>
+      historyService.getHistory({
+        page,
+        limit: itemsPerPage,
+        search,
+        type: typeFilter || undefined,
+        action: actionFilter || undefined,
+        sortBy: "createdAt",
+        sortOrder: "desc",
+      }),
   });
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const paginatedData = filteredData.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
+  if (isLoading) {
+    return (
+      <div className="animate-pulse space-y-6">
+        <div className="h-8 bg-dark-800 rounded w-1/3"></div>
+        <div className="h-4 bg-dark-800 rounded w-2/3"></div>
+        <div className="space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-20 bg-dark-800 rounded"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+        <p className="text-gray-400">Error loading history</p>
+        <p className="text-red-400 text-sm mt-2">
+          {error instanceof Error ? error.message : "Unknown error"}
+        </p>
+      </div>
+    );
+  }
+
+  const { data: historyActions = [], pagination } = historyData || {
+    data: [],
+    pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -236,13 +184,13 @@ export const History: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {paginatedData.length === 0 ? (
+            {historyActions.length === 0 ? (
               <div className="text-center py-12">
                 <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-400">No actions found</p>
               </div>
             ) : (
-              paginatedData.map((action) => (
+              historyActions.map((action) => (
                 <div
                   key={action.id}
                   className="flex items-start gap-4 p-4 bg-dark-800 rounded-lg hover:bg-dark-700 transition-colors"
@@ -280,7 +228,7 @@ export const History: React.FC = () => {
 
                       <div className="text-right">
                         <p className="text-xs text-gray-500">
-                          {formatDate(action.timestamp)}
+                          {formatDate(action.createdAt)}
                         </p>
                       </div>
                     </div>
@@ -290,36 +238,38 @@ export const History: React.FC = () => {
             )}
           </div>
 
-          {totalPages > 1 && (
+          {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between mt-6 pt-6 border-t border-dark-700">
               <p className="text-sm text-gray-400">
-                Showing {(page - 1) * itemsPerPage + 1} to{" "}
-                {Math.min(page * itemsPerPage, filteredData.length)} of{" "}
-                {filteredData.length} actions
+                Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+                {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
+                of {pagination.total} actions
               </p>
 
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={page === 1}
-                  onClick={() => setPage(page - 1)}
+                  disabled={pagination.page === 1}
+                  onClick={() => setPage(pagination.page - 1)}
                 >
                   Previous
                 </Button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
                   .filter(
                     (p) =>
-                      p === 1 || p === totalPages || Math.abs(p - page) <= 1
+                      p === 1 ||
+                      p === pagination.totalPages ||
+                      Math.abs(p - pagination.page) <= 1
                   )
                   .map((p, i, arr) => (
                     <React.Fragment key={p}>
                       {i > 0 && arr[i - 1] !== p - 1 && (
-                        <span className="px-2 py-1 text-gray-400">...</span>
-                      )}
+                        <span className="text-gray-400 px-2">...</span>
+                      )}{" "}
                       <Button
-                        variant={p === page ? "primary" : "outline"}
+                        variant={p === pagination.page ? "primary" : "outline"}
                         size="sm"
                         onClick={() => setPage(p)}
                       >
@@ -331,8 +281,8 @@ export const History: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={page === totalPages}
-                  onClick={() => setPage(page + 1)}
+                  disabled={pagination.page === pagination.totalPages}
+                  onClick={() => setPage(pagination.page + 1)}
                 >
                   Next
                 </Button>

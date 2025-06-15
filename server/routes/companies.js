@@ -1,11 +1,14 @@
 import express from "express";
-import { companies } from "../data/companies.js";
 import { authenticateToken } from "../middleware/auth.js";
+import { PrismaClient } from "@prisma/client";
+import { createActionHistory } from "./history.js";
+
+const prisma = new PrismaClient();
 
 const router = express.Router();
 
 // Get all companies with pagination, search, and filtering
-router.get("/", authenticateToken, (req, res) => {
+router.get("/", authenticateToken, async (req, res) => {
   try {
     const {
       page = 1,
@@ -16,75 +19,73 @@ router.get("/", authenticateToken, (req, res) => {
       status = "",
     } = req.query;
 
-    let filteredCompanies = [...companies];
+    const skip = (page - 1) * limit;
+    const take = parseInt(limit);
 
-    // Apply search filter
+    // Build where clause for search and status
+    const where = {};
+
     if (search) {
-      filteredCompanies = filteredCompanies.filter(
-        (company) =>
-          company.name.toLowerCase().includes(search.toLowerCase()) ||
-          company.service.toLowerCase().includes(search.toLowerCase())
-      );
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { service: { contains: search, mode: "insensitive" } },
+      ];
     }
 
-    // Apply status filter
     if (status) {
-      filteredCompanies = filteredCompanies.filter(
-        (company) => company.status === status
-      );
+      where.status = status;
     }
 
-    // Apply sorting
-    filteredCompanies.sort((a, b) => {
-      let aValue = a[sortBy];
-      let bValue = b[sortBy];
+    // Build orderBy clause
+    const orderBy = {};
+    orderBy[sortBy] = sortOrder;
 
-      if (sortBy === "createdAt") {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
-      }
-
-      if (sortOrder === "asc") {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-
-    // Apply pagination
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + parseInt(limit);
-    const paginatedCompanies = filteredCompanies.slice(startIndex, endIndex);
+    // Get companies with pagination
+    const [companies, totalCount] = await Promise.all([
+      prisma.company.findMany({
+        where,
+        orderBy,
+        skip,
+        take,
+      }),
+      prisma.company.count({ where }),
+    ]);
 
     res.json({
-      data: paginatedCompanies,
+      data: companies,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        total: filteredCompanies.length,
-        totalPages: Math.ceil(filteredCompanies.length / limit),
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / limit),
       },
     });
   } catch (error) {
+    console.error("Error fetching companies:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
 // Get single company
-router.get("/:id", authenticateToken, (req, res) => {
+router.get("/:id", authenticateToken, async (req, res) => {
   try {
-    const company = companies.find((c) => c.id === req.params.id);
+    const company = await prisma.company.findUnique({
+      where: { id: req.params.id },
+    });
+
     if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
+
     res.json(company);
   } catch (error) {
+    console.error("Error fetching company:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
 // Create company
-router.post("/", authenticateToken, (req, res) => {
+router.post("/", authenticateToken, async (req, res) => {
   try {
     // Check if user has permission to create companies
     if (req.user.role === "User") {
@@ -96,48 +97,105 @@ router.post("/", authenticateToken, (req, res) => {
 
     const { name, service, capital, status } = req.body;
 
-    const newCompany = {
-      id: (companies.length + 1).toString(),
-      name,
-      service,
-      capital: parseInt(capital),
-      status: status || "Active",
-      createdAt: new Date().toISOString(),
-    };
+    const newCompany = await prisma.company.create({
+      data: {
+        name,
+        service,
+        capital: parseInt(capital),
+        status: status || "Active",
+      },
+    });
 
-    companies.push(newCompany);
+    // Log action history
+    try {
+      await createActionHistory({
+        action: "created",
+        type: "company",
+        details: `Created new company '${newCompany.name}'`,
+        target: newCompany.name,
+        userId: req.user.id,
+      });
+    } catch (historyError) {
+      console.error("Error logging action history:", historyError);
+      // Don't fail the main operation if history logging fails
+    }
+
     res.status(201).json(newCompany);
   } catch (error) {
+    console.error("Error creating company:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
 // Update company
-router.put("/:id", authenticateToken, (req, res) => {
+router.put("/:id", authenticateToken, async (req, res) => {
   try {
-    const companyIndex = companies.findIndex((c) => c.id === req.params.id);
-    if (companyIndex === -1) {
+    const company = await prisma.company.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
 
-    companies[companyIndex] = { ...companies[companyIndex], ...req.body };
-    res.json(companies[companyIndex]);
+    const updatedCompany = await prisma.company.update({
+      where: { id: req.params.id },
+      data: req.body,
+    });
+
+    // Log action history
+    try {
+      await createActionHistory({
+        action: "updated",
+        type: "company",
+        details: `Updated company information for '${updatedCompany.name}'`,
+        target: updatedCompany.name,
+        userId: req.user.id,
+      });
+    } catch (historyError) {
+      console.error("Error logging action history:", historyError);
+      // Don't fail the main operation if history logging fails
+    }
+
+    res.json(updatedCompany);
   } catch (error) {
+    console.error("Error updating company:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
 // Delete company
-router.delete("/:id", authenticateToken, (req, res) => {
+router.delete("/:id", authenticateToken, async (req, res) => {
   try {
-    const companyIndex = companies.findIndex((c) => c.id === req.params.id);
-    if (companyIndex === -1) {
+    const company = await prisma.company.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
 
-    companies.splice(companyIndex, 1);
+    await prisma.company.delete({
+      where: { id: req.params.id },
+    });
+
+    // Log action history
+    try {
+      await createActionHistory({
+        action: "deleted",
+        type: "company",
+        details: `Deleted company '${company.name}'`,
+        target: company.name,
+        userId: req.user.id,
+      });
+    } catch (historyError) {
+      console.error("Error logging action history:", historyError);
+      // Don't fail the main operation if history logging fails
+    }
+
     res.json({ message: "Company deleted successfully" });
   } catch (error) {
+    console.error("Error deleting company:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
