@@ -59,7 +59,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-dark-900 border-b border-dark-700 h-20 px-6 flex items-center">
+    <header className="bg-dark-950 border-b border-dark-800 h-20 px-6 flex items-center">
       <div className="flex items-center justify-between w-full">
         <div className="max-md:hidden flex items-center gap-2 text-emerald-400">
           <span className="text-sm font-medium">{date}</span>
@@ -77,12 +77,12 @@ export const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-dark-800 transition-colors">
+          {/* <button className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-dark-800 transition-colors">
             <Bell className="w-5 h-5" />
           </button>
           <button className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-dark-800 transition-colors">
             <HelpCircle className="w-5 h-5" />
-          </button>
+          </button> */}
 
           {/* Profile Dropdown */}
           <div className="relative ml-4" ref={dropdownRef}>
@@ -120,8 +120,8 @@ export const Header: React.FC = () => {
 
             {/* Dropdown Menu */}
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-56 bg-dark-800 border border-dark-600 rounded-lg shadow-lg z-50">
-                <div className="p-3 border-b border-dark-600">
+              <div className="absolute right-0 mt-2 w-54 bg-dark-800 border border-dark-800 rounded-lg shadow-lg z-50">
+                <div className="p-3 border-b border-dark-700">
                   <p className="text-sm font-medium text-white">
                     {user?.firstName} {user?.lastName}
                   </p>
@@ -149,7 +149,7 @@ export const Header: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="border-t border-dark-600 py-2">
+                <div className="border-t border-dark-700 py-2">
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-dark-700 transition-colors"

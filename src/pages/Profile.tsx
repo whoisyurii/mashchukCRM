@@ -312,12 +312,13 @@ export const Profile: React.FC = () => {
                 Email Address
               </label>
               <Input
+                disabled
                 type="email"
                 value={profileData.email}
                 onChange={(e) =>
                   setProfileData((prev) => ({ ...prev, email: e.target.value }))
                 }
-                placeholder="Enter email address"
+                placeholder="Contact superadmin to change email "
                 required
               />
             </div>

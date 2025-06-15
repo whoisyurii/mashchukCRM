@@ -109,7 +109,7 @@ export const Dashboard: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           <p className="text-gray-400 mt-1">
-            Welcome back! Here's what's happening with your business.
+            Welcome back, {user?.role} {user?.firstName}.
           </p>
         </div>
 
@@ -120,7 +120,16 @@ export const Dashboard: React.FC = () => {
               title="Total Users"
               value={stats?.totalUsers?.toLocaleString() || "0"}
               icon={<Users className="w-6 h-6 text-emerald-500" />}
+              onClick={() => navigate("/users")}
             />
+            {user?.role === "SuperAdmin" && (
+              <StatCard
+                title="Administrators"
+                value={admins?.length?.toString() || "0"}
+                icon={<Users className="w-6 h-6 text-emerald-500" />}
+                onClick={() => navigate("/users")}
+              />
+            )}
             <StatCard
               title="Total Companies"
               value={stats?.totalCompanies?.toLocaleString() || "0"}
@@ -131,14 +140,6 @@ export const Dashboard: React.FC = () => {
               value={`$${(stats?.totalCapital || 0).toLocaleString()}`}
               icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
             />
-            {user?.role === "SuperAdmin" && (
-              <StatCard
-                title="Administrators"
-                value={admins?.length?.toString() || "0"}
-                icon={<Users className="w-6 h-6 text-emerald-500" />}
-                onClick={() => navigate("/users")}
-              />
-            )}
           </div>
         )}
 
@@ -163,13 +164,18 @@ export const Dashboard: React.FC = () => {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {" "}
           {/* SuperAdmin/Admin: Recent Actions */}
           {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
-            <Card>
+            <Card
+              className="cursor-pointer hover:bg-dark-800 transition-colors"
+              onClick={() => navigate("/history")}
+            >
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-white">
-                  Recent Actions
+                  Actions History
                 </h3>
+                <span className="text-xs text-emerald-400">View all →</span>
               </div>
               <div className="space-y-3">
                 {recentActions.map((action) => (
@@ -202,7 +208,6 @@ export const Dashboard: React.FC = () => {
               </div>
             </Card>
           )}
-
           {/* User: Companies List */}
           {user?.role === "User" && (
             <Card>
@@ -244,7 +249,6 @@ export const Dashboard: React.FC = () => {
               </div>
             </Card>
           )}
-
           {/* User: Price Chart Placeholder */}
           {user?.role === "User" && (
             <Card>
@@ -256,7 +260,6 @@ export const Dashboard: React.FC = () => {
               </div>
             </Card>
           )}
-
           {/* Quick Actions for Admin/SuperAdmin */}
           {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
             <Card>

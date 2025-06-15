@@ -5,7 +5,7 @@ export const companies = [
     service: "Software Development",
     capital: 5000000,
     status: "Active",
-    userId: "3", // Bob Johnson (User)
+    userId: "3",
     createdAt: "2023-01-15T10:00:00Z",
   },
   {
@@ -14,7 +14,7 @@ export const companies = [
     service: "Cloud Services",
     capital: 7500000,
     status: "Active",
-    userId: "3", // Bob Johnson (User)
+    userId: "3",
     createdAt: "2023-03-08T09:15:00Z",
   },
   {
@@ -23,7 +23,7 @@ export const companies = [
     service: "Investment Management",
     capital: 12000000,
     status: "Active",
-    userId: null, // No specific user assigned
+    userId: null,
     createdAt: "2023-02-22T16:45:00Z",
   },
   {
@@ -32,7 +32,7 @@ export const companies = [
     service: "Manufacturing",
     capital: 8900000,
     status: "Active",
-    userId: null, // No specific user assigned
+    userId: null,
     createdAt: "2023-04-05T13:30:00Z",
   },
   {
@@ -41,7 +41,7 @@ export const companies = [
     service: "AI & Machine Learning",
     capital: 15000000,
     status: "Active",
-    userId: null, // No specific user assigned
+    userId: null,
     createdAt: "2023-01-29T08:00:00Z",
   },
   {
@@ -50,7 +50,7 @@ export const companies = [
     service: "Strategic Planning",
     capital: 4200000,
     status: "Active",
-    userId: null, // No specific user assigned
+    userId: null,
     createdAt: "2023-03-18T15:20:00Z",
   },
   {
@@ -59,7 +59,7 @@ export const companies = [
     service: "Product Development",
     capital: 3800000,
     status: "Active",
-    userId: null, // No specific user assigned
+    userId: null,
     createdAt: "2023-02-01T12:10:00Z",
   },
 ];
