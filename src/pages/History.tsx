@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Search, Calendar } from "lucide-react";
 import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
-import {
-  getActionIcon,
-  getActionColor,
-  formatDate,
-} from "../utils/action-helpers";
+import { Badge } from "../components/ui/Badge";
+import { Pagination } from "../components/ui/Pagination";
+import { getActionIcon, formatDate } from "../utils/action-helpers";
 import { useHistoryQuery } from "../hooks/useHistoryQuery";
 
 export const History: React.FC = () => {
@@ -16,7 +13,7 @@ export const History: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState("");
   const [actionFilter, setActionFilter] = useState("");
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   // Debounce search
   useEffect(() => {
@@ -122,8 +119,7 @@ export const History: React.FC = () => {
                 <option value="deleted">Deleted</option>
               </select>
             </div>
-          </div>
-
+          </div>{" "}
           <div className="space-y-3">
             {historyActions.length === 0 ? (
               <div className="text-center py-12">
@@ -131,105 +127,93 @@ export const History: React.FC = () => {
                 <p className="text-gray-400">No actions found</p>
               </div>
             ) : (
-              historyActions.map((action) => (
-                <div
-                  key={action.id}
-                  className="flex items-start gap-4 p-4 bg-dark-800 rounded-lg hover:bg-dark-700 transition-colors"
-                >
-                  <div className="flex-shrink-0 mt-1">
-                    {getActionIcon(action.type, action.action)}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-white font-medium">
-                          <span className={getActionColor(action.action)}>
-                            {action.action.charAt(0).toUpperCase() +
-                              action.action.slice(1)}
-                          </span>{" "}
-                          {action.type}
-                          {action.target && (
-                            <span className="text-emerald-400 ml-1">
-                              "{action.target}"
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-gray-400 text-sm mt-1">
-                          {action.details}
-                        </p>
-                        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                          <span>
-                            by {action.user.firstName} {action.user.lastName}
-                          </span>
-                          <span className="w-1 h-1 bg-gray-500 rounded-full"></span>
-                          <span className="capitalize">{action.user.role}</span>
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">
-                          {formatDate(action.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6 pt-6 border-t border-dark-700">
-              <p className="text-sm text-gray-400">
-                Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-                {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
-                of {pagination.total} actions
-              </p>
-
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={pagination.page === 1}
-                  onClick={() => setPage(pagination.page - 1)}
-                >
-                  Previous
-                </Button>
-
-                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                  .filter(
-                    (p) =>
-                      p === 1 ||
-                      p === pagination.totalPages ||
-                      Math.abs(p - pagination.page) <= 1
-                  )
-                  .map((p, i, arr) => (
-                    <React.Fragment key={p}>
-                      {i > 0 && arr[i - 1] !== p - 1 && (
-                        <span className="text-gray-400 px-2">...</span>
-                      )}{" "}
-                      <Button
-                        variant={p === pagination.page ? "primary" : "outline"}
-                        size="sm"
-                        onClick={() => setPage(p)}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-dark-700">
+                      <th className="text-left py-3 px-4 font-medium text-gray-300">
+                        Action
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-300">
+                        Type
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-300">
+                        Target
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-300">
+                        User
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-300">
+                        Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historyActions.map((action) => (
+                      <tr
+                        key={action.id}
+                        className="border-b border-dark-800 hover:bg-dark-800/50"
                       >
-                        {p}
-                      </Button>
-                    </React.Fragment>
-                  ))}
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={pagination.page === pagination.totalPages}
-                  onClick={() => setPage(pagination.page + 1)}
-                >
-                  Next
-                </Button>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0">
+                              {getActionIcon(action.type, action.action)}
+                            </div>
+                            <div>
+                              <span className="font-medium text-white capitalize">
+                                {action.action}
+                              </span>
+                              {action.details && (
+                                <p className="text-xs text-gray-400 mt-1">
+                                  {action.details}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <Badge
+                            className={
+                              action.type === "company"
+                                ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                : action.type === "user"
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                : "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                            }
+                          >
+                            {action.type}
+                          </Badge>
+                        </td>
+                        <td className="py-4 px-4 text-gray-300">
+                          {action.target || "-"}
+                        </td>
+                        <td className="py-4 px-4">
+                          <div>
+                            <span className="text-white">
+                              {action.user.firstName} {action.user.lastName}
+                            </span>
+                            <p className="text-xs text-gray-400 capitalize">
+                              {action.user.role}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 text-gray-300 text-sm">
+                          {formatDate(action.createdAt)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          )}
+            )}
+          </div>{" "}
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.total}
+            itemsPerPage={pagination.limit}
+            onPageChange={setPage}
+          />
         </div>
       </Card>
     </div>

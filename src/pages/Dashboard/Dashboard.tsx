@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, Building2, DollarSign } from "lucide-react";
 import { Card } from "../../components/ui/Card";
+import { StatsCard } from "../../components/ui/StatsCard";
+import { DashboardSkeleton } from "../../components/ui/DashboardSkeleton";
+import { HistorySkeleton } from "../../components/ui/HistorySkeleton";
 import { CompanyModal } from "../Companies/CompanyModal";
 import { useAuth } from "../../contexts/AuthContext";
 // helpers
@@ -25,20 +28,8 @@ export const Dashboard: React.FC = () => {
     isHistoryLoading,
     isLoading,
   } = useDashboardQueries();
-
   if (isLoading) {
-    return (
-      <div className="animate-pulse space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-dark-900 border border-dark-700 rounded-lg p-6 h-24"
-            />
-          ))}
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
@@ -53,123 +44,49 @@ export const Dashboard: React.FC = () => {
         {/* Stats Section */}
         {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card
-              className="cursor-pointer hover:bg-dark-800 transition-colors"
+            <StatsCard
+              title="Total Users"
+              value={stats?.totalUsers?.toLocaleString() || "0"}
+              icon={<Users className="w-6 h-6 text-emerald-500" />}
               onClick={() => navigate("/users")}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">
-                    Total Users
-                  </p>
-                  <p className="text-2xl font-bold text-white">
-                    {stats?.totalUsers?.toLocaleString() || "0"}
-                  </p>
-                </div>
-                <div className="p-3 bg-emerald-500/10 rounded-lg">
-                  <Users className="w-6 h-6 text-emerald-500" />
-                </div>
-              </div>
-            </Card>
+            />
             {user?.role === "SuperAdmin" && (
-              <Card
-                className="cursor-pointer hover:bg-dark-800 transition-colors"
+              <StatsCard
+                title="Administrators"
+                value={admins?.length?.toString() || "0"}
+                icon={<Users className="w-6 h-6 text-emerald-500" />}
                 onClick={() => navigate("/users")}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-400">
-                      Administrators
-                    </p>
-                    <p className="text-2xl font-bold text-white">
-                      {admins?.length?.toString() || "0"}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-emerald-500/10 rounded-lg">
-                    <Users className="w-6 h-6 text-emerald-500" />
-                  </div>
-                </div>
-              </Card>
+              />
             )}
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">
-                    Total Companies
-                  </p>
-                  <p className="text-2xl font-bold text-white">
-                    {stats?.totalCompanies?.toLocaleString() || "0"}
-                  </p>
-                </div>
-                <div className="p-3 bg-emerald-500/10 rounded-lg">
-                  <Building2 className="w-6 h-6 text-emerald-500" />
-                </div>
-              </div>
-            </Card>
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">
-                    Total Capital
-                  </p>
-                  <p className="text-2xl font-bold text-white">
-                    ${(stats?.totalCapital || 0).toLocaleString()}
-                  </p>
-                </div>
-                <div className="p-3 bg-emerald-500/10 rounded-lg">
-                  <DollarSign className="w-6 h-6 text-emerald-500" />
-                </div>
-              </div>
-            </Card>
+            <StatsCard
+              title="Total Companies"
+              value={stats?.totalCompanies?.toLocaleString() || "0"}
+              icon={<Building2 className="w-6 h-6 text-emerald-500" />}
+            />
+            <StatsCard
+              title="Total Capital"
+              value={`$${(stats?.totalCapital || 0).toLocaleString()}`}
+              icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
+            />
           </div>
-        )}
+        )}{" "}
         {user?.role === "User" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">
-                    My Companies
-                  </p>
-                  <p className="text-2xl font-bold text-white">
-                    {stats?.totalCompanies?.toLocaleString() || "0"}
-                  </p>
-                </div>
-                <div className="p-3 bg-emerald-500/10 rounded-lg">
-                  <Building2 className="w-6 h-6 text-emerald-500" />
-                </div>
-              </div>
-            </Card>
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">
-                    Total Capital
-                  </p>
-                  <p className="text-2xl font-bold text-white">
-                    ${(stats?.totalCapital || 0).toLocaleString()}
-                  </p>
-                </div>
-                <div className="p-3 bg-emerald-500/10 rounded-lg">
-                  <DollarSign className="w-6 h-6 text-emerald-500" />
-                </div>
-              </div>
-            </Card>
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-400">
-                    Active Companies
-                  </p>
-                  <p className="text-2xl font-bold text-white">
-                    {stats?.activeCompanies?.toLocaleString() || "0"}
-                  </p>
-                </div>
-                <div className="p-3 bg-emerald-500/10 rounded-lg">
-                  <Building2 className="w-6 h-6 text-emerald-500" />
-                </div>
-              </div>
-            </Card>
+            <StatsCard
+              title="My Companies"
+              value={stats?.totalCompanies?.toLocaleString() || "0"}
+              icon={<Building2 className="w-6 h-6 text-emerald-500" />}
+            />
+            <StatsCard
+              title="Total Capital"
+              value={`$${(stats?.totalCapital || 0).toLocaleString()}`}
+              icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
+            />
+            <StatsCard
+              title="Active Companies"
+              value={stats?.activeCompanies?.toLocaleString() || "0"}
+              icon={<Building2 className="w-6 h-6 text-emerald-500" />}
+            />
           </div>
         )}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -185,21 +102,10 @@ export const Dashboard: React.FC = () => {
                   Actions History
                 </h3>
                 <span className="text-xs text-emerald-400">View all →</span>
-              </div>
+              </div>{" "}
               <div className="space-y-3">
                 {isHistoryLoading ? (
-                  // Loading skeleton
-                  [...Array(4)].map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="flex items-center justify-between p-3 bg-dark-800 rounded-lg">
-                        <div className="flex-1">
-                          <div className="h-4 bg-dark-700 rounded w-3/4 mb-2"></div>
-                          <div className="h-3 bg-dark-700 rounded w-1/2"></div>
-                        </div>
-                        <div className="w-16 h-8 bg-dark-700 rounded"></div>
-                      </div>
-                    </div>
-                  ))
+                  <HistorySkeleton />
                 ) : recentActions.length === 0 ? (
                   <div className="text-center py-4">
                     <p className="text-gray-400 text-sm">No recent actions</p>

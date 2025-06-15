@@ -160,6 +160,50 @@ router.put("/me", authenticateToken, async (req, res) => {
   }
 });
 
+// Update user by ID (SuperAdmin only)
+router.put(
+  "/:id",
+  authenticateToken,
+  requireRole(["SuperAdmin"]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { password, ...updateData } = req.body;
+
+      const updatedUser = await prisma.user.update({
+        where: { id },
+        data: updateData,
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+
+      // Log action history
+      try {
+        await createActionHistory({
+          action: "updated",
+          type: "user",
+          details: `Updated user account`,
+          target: updatedUser.email,
+          userId: req.user.id,
+        });
+      } catch (historyError) {
+        console.error("Error logging action history:", historyError);
+      }
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
+
 // Change password
 router.put("/change-password", authenticateToken, async (req, res) => {
   try {
@@ -217,5 +261,61 @@ router.put("/change-password", authenticateToken, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+// Delete user (SuperAdmin only)
+router.delete(
+  "/:id",
+  authenticateToken,
+  requireRole(["SuperAdmin"]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Don't allow self-deletion
+      if (id === req.user.id) {
+        return res
+          .status(400)
+          .json({ message: "Cannot delete your own account" });
+      }
+
+      // Get user info before deletion for history
+      const userToDelete = await prisma.user.findUnique({
+        where: { id },
+        select: {
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      });
+
+      if (!userToDelete) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Delete user
+      await prisma.user.delete({
+        where: { id },
+      });
+
+      // Log action history
+      try {
+        await createActionHistory({
+          action: "deleted",
+          type: "user",
+          details: `Deleted user account`,
+          target: userToDelete.email,
+          userId: req.user.id,
+        });
+      } catch (historyError) {
+        console.error("Error logging action history:", historyError);
+      }
+
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
 
 export default router;

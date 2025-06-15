@@ -1,39 +1,15 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import {
-  Search,
-  Plus,
-  Edit2,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Search, Plus, Edit2, Trash2 } from "lucide-react";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Badge } from "../components/ui/Badge";
+import { Pagination } from "../components/ui/Pagination";
 import { AddUserModal } from "./Dashboard/AddUserModal";
-
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: "SuperAdmin" | "Admin" | "User";
-  createdAt: string;
-}
-
-const getUsersFromAPI = async (): Promise<User[]> => {
-  const response = await fetch("http://localhost:3001/api/users", {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Failed to fetch users");
-  }
-  return response.json();
-};
+import { useUsersQuery, useUserOperations } from "../hooks/useUsersQueries";
+import { User } from "../services/userService";
+import { getRoleBadgeColor } from "../utils/user-helpers";
+import { filterUsers, paginateArray } from "../utils/filtering-helpers";
 
 export const Users: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
@@ -41,45 +17,17 @@ export const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
+  const { data: users = [], isLoading } = useUsersQuery();
+  const { deleteUser, isDeleting } = useUserOperations();
 
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ["users"],
-    queryFn: getUsersFromAPI,
-  });
-
-  // Filter users based on search and role filter
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesRole = roleFilter === "" || user.role === roleFilter;
-
-    return matchesSearch && matchesRole;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedUsers = filteredUsers.slice(
-    startIndex,
-    startIndex + itemsPerPage
+  // Filter and paginate users
+  const filteredUsers = filterUsers(users, searchTerm, roleFilter);
+  const { paginatedItems: paginatedUsers, totalPages } = paginateArray(
+    filteredUsers,
+    currentPage,
+    itemsPerPage
   );
-
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case "SuperAdmin":
-        return "bg-red-500/10 text-red-400 border-red-500/20";
-      case "Admin":
-        return "bg-yellow-600/10 text-yellow-400 border-yellow-500/20";
-      case "User":
-        return "bg-emerald-400/10 text-emerald-400 border-emerald-500/20";
-      default:
-        return "bg-gray-500/10 text-gray-400 border-gray-500/20";
-    }
-  };
 
   if (isLoading) {
     return (
@@ -129,7 +77,6 @@ export const Users: React.FC = () => {
               <option value="User">User</option>
             </select>
           </div>
-
           {/* Users Table */}
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -185,20 +132,12 @@ export const Users: React.FC = () => {
                           }}
                         >
                           <Edit2 className="w-4 h-4" />
-                        </Button>
+                        </Button>{" "}
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => {
-                            if (
-                              confirm(
-                                "Are you sure you want to delete this user?"
-                              )
-                            ) {
-                              // TODO: Implement delete user
-                              console.log("Delete user:", user.id);
-                            }
-                          }}
+                          onClick={() => deleteUser(user)}
+                          disabled={isDeleting}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -208,45 +147,15 @@ export const Users: React.FC = () => {
                 ))}
               </tbody>
             </table>
-          </div>
-
+          </div>{" "}
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-dark-700">
-              <p className="text-sm text-gray-400">
-                Showing {startIndex + 1} to{" "}
-                {Math.min(startIndex + itemsPerPage, filteredUsers.length)} of{" "}
-                {filteredUsers.length} users
-              </p>
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
-                </Button>
-                <span className="px-3 py-1 text-sm bg-dark-800 rounded">
-                  {currentPage} of {totalPages}
-                </span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredUsers.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </Card>
       </div>
 

@@ -2,7 +2,8 @@ import React from "react";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pagination } from "../../components/ui/Pagination";
+import { Search } from "lucide-react";
 
 // types for company data and pagination
 export interface Company {
@@ -91,7 +92,6 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
             <option value="Active">Active</option>
           </select>
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -154,58 +154,16 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
               ))}
             </tbody>
           </table>
-        </div>
-
+        </div>{" "}
         {/* pagination handling block */}
         {data?.pagination && (
-          <div className="flex items-center justify-between pt-4 border-t border-dark-700">
-            <div className="text-sm text-gray-400">
-              Showing {(data.pagination.page - 1) * data.pagination.limit + 1}{" "}
-              to{" "}
-              {Math.min(
-                data.pagination.page * data.pagination.limit,
-                data.pagination.total
-              )}{" "}
-              of {data.pagination.total} results
-            </div>
-            <div className="flex items-center gap-2">
-              {/* previous page button */}
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              {/* total number of pages */}
-              {[...Array(Math.min(5, data.pagination.totalPages))].map(
-                (_, i) => {
-                  const pageNum = i + 1;
-                  return (
-                    // quick page setter
-                    <Button
-                      key={pageNum}
-                      variant={page === pageNum ? "primary" : "outline"}
-                      size="icon"
-                      onClick={() => setPage(pageNum)}
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                }
-              )}
-              {/* next page */}
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setPage(page + 1)}
-                disabled={page === data.pagination.totalPages}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+          <Pagination
+            currentPage={page}
+            totalPages={data.pagination.totalPages}
+            totalItems={data.pagination.total}
+            itemsPerPage={data.pagination.limit}
+            onPageChange={setPage}
+          />
         )}
       </div>
     </Card>
