@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
+import passport from "./middleware/passport.js";
+import { startTokenCleanupJob } from "./jobs/tokenCleanup.js";
 import authRoutes from "./routes/auth.js";
 import companyRoutes from "./routes/companies.js";
 import dashboardRoutes from "./routes/dashboard.js";
@@ -15,6 +17,9 @@ const PORT = process.env.PORT || 3001;
 // Middleware to enable CORS for all routes and parse JSON requests
 app.use(cors());
 app.use(express.json());
+
+// Initialize Passport middleware
+app.use(passport.initialize());
 
 // Serve static files from public directory
 app.use("/public", express.static(path.join(process.cwd(), "public")));

@@ -163,7 +163,7 @@ export const History: React.FC = () => {
                               {action.action}
                             </span>
                             {action.details && (
-                              <p className="text-xs text-gray-400 mt-1">
+                              <p className="text-xs text-gray-400 mt-1 truncate w-48 max-md:w-24">
                                 {action.details}
                               </p>
                             )}

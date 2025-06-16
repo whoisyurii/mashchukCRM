@@ -12,9 +12,10 @@ interface AuthContextType {
     firstName: string;
     lastName: string;
   }) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  logoutAll: () => Promise<void>;
   loading: boolean;
-  updateUser: (updatedUser: User) => void; // Added updateUser
+  updateUser: (updatedUser: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,18 +48,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (email: string, password: string) => {
     try {
-      // axios will throw an error if the request fails, so we can catch it here
-      const { user, token } = await authService.login({ email, password });
+      const { user, accessToken, refreshToken } = await authService.login({
+        email,
+        password,
+      });
 
       setUser(user);
-      setToken(token);
-      localStorage.setItem("token", token);
+      setToken(accessToken);
+      localStorage.setItem("token", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("user", JSON.stringify(user));
     } catch (err) {
       // clean up in case of error
       setUser(null);
       setToken(null);
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       throw err; // re-throw the error to handle it in the component
     }
@@ -72,16 +77,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }) => {
     const response = await authService.register(data);
     setUser(response.user);
-    setToken(response.token);
-    localStorage.setItem("token", response.token);
+    setToken(response.accessToken);
+    localStorage.setItem("token", response.accessToken);
+    localStorage.setItem("refreshToken", response.refreshToken);
     localStorage.setItem("user", JSON.stringify(response.user));
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+    }
+  };
+
+  const logoutAll = async () => {
+    try {
+      await authService.logoutAll();
+    } catch (error) {
+      console.error("Logout all error:", error);
+    } finally {
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+    }
   };
 
   const updateUser = (updatedUser: User) => {
@@ -91,7 +118,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, register, logout, loading, updateUser }} // Added updateUser to value
+      value={{
+        user,
+        token,
+        login,
+        register,
+        logout,
+        logoutAll,
+        loading,
+        updateUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

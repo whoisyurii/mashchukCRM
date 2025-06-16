@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 export const Header: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, logoutAll } = useAuth();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -42,6 +42,11 @@ export const Header: React.FC = () => {
 
   const handleLogout = () => {
     logout();
+    setShowDropdown(false);
+  };
+
+  const handleLogoutAll = () => {
+    logoutAll();
     setShowDropdown(false);
   };
 
@@ -156,6 +161,14 @@ export const Header: React.FC = () => {
                   >
                     <LogOut className="w-4 h-4" />
                     Log out
+                  </button>
+
+                  <button
+                    onClick={handleLogoutAll}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:text-red-400 hover:bg-dark-700 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Log out from all devices
                   </button>
                 </div>
               </div>

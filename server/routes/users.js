@@ -1,5 +1,6 @@
 import express from "express";
 import bcrypt from "bcryptjs";
+import passport from "passport";
 import { authenticateToken, requireRole } from "../middleware/auth.js";
 import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
@@ -7,6 +8,36 @@ import { createActionHistory } from "./history.js";
 const prisma = new PrismaClient();
 
 const router = express.Router();
+
+// Test route with Passport.js authentication
+router.get(
+  "/profile-passport",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: req.user.userId },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ user, message: "Authenticated via Passport.js JWT" });
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
 
 // Get all users (admin only)
 router.get(
