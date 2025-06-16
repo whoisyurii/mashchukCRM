@@ -34,12 +34,14 @@ model Company {
   service   String
   capital   Int
   status    String   @default("Active") // only active
+  logoUrl   String?  // path to logo file
   userId    String?  // can be null if not assigned to a user
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
   owner User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  actionHistory ActionHistory[]
 
   @@map("companies")
 }
@@ -51,10 +53,12 @@ model ActionHistory {
   details   String
   target    String?  // company name, users email etc.
   userId    String
+  companyId String?  // optional relation to company
   createdAt DateTime @default(now())
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@map("action_history")
 }

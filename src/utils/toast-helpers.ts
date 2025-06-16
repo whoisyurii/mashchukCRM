@@ -9,6 +9,9 @@ export const showErrorMessage = (message: string) => {
   alert(message);
 };
 
+export const showSuccessToast = showSuccessMessage;
+export const showErrorToast = showErrorMessage;
+
 export const showConfirmDialog = (message: string): boolean => {
   return confirm(message);
 };

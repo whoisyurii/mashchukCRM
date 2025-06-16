@@ -12,6 +12,7 @@ import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Companies } from "./pages/Companies/Companies";
+import { CompanyDetail } from "./pages/Companies/CompanyDetail";
 import { Users } from "./pages/Users";
 import { Profile } from "./pages/Profile";
 import { History } from "./pages/History";
@@ -65,6 +66,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Companies />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/companies/:id",
+    element: (
+      <ProtectedRoute>
+        <CompanyDetail />
       </ProtectedRoute>
     ),
   },

@@ -13,7 +13,7 @@ export const Companies: React.FC = () => {
   const [searchInput, setSearchInput] = useState("");
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [capitalFilter, setCaptialFilter] = useState({ min: "", max: "" });
   const [showModal, setShowModal] = useState(false);
 
   // debounce input
@@ -30,7 +30,7 @@ export const Companies: React.FC = () => {
     search,
     sortBy,
     sortOrder,
-    statusFilter,
+    capitalFilter,
     limit: 5,
   });
 
@@ -67,8 +67,8 @@ export const Companies: React.FC = () => {
         isLoading={isLoading}
         searchInput={searchInput}
         handleSearch={handleSearch}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
+        capitalFilter={capitalFilter}
+        setCaptialFilter={setCaptialFilter}
         handleSort={handleSort}
         sortBy={sortBy}
         sortOrder={sortOrder}

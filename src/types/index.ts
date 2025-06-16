@@ -14,6 +14,37 @@ export interface Company {
   service: string;
   capital: number;
   status: "Active";
+  logoUrl?: string;
+  userId?: string;
+  owner?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  actionHistory?: ActionHistory[];
+  createdAt: string;
+}
+
+export interface ActionHistory {
+  id: string;
+  action: string;
+  type: string;
+  details: string;
+  target?: string;
+  userId: string;
+  companyId?: string;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+  };
+  company?: {
+    id: string;
+    name: string;
+  };
   createdAt: string;
 }
 

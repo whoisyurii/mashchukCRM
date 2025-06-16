@@ -31,13 +31,18 @@ export const dashboardService = {
   updateUser: async (
     id: string,
     userData: {
-      email: string;
-      firstName: string;
-      lastName: string;
-      role: string;
+      email?: string;
+      firstName?: string;
+      lastName?: string;
+      role?: string;
+      password?: string;
     }
   ) => {
-    const response = await api.put(`/users/${id}`, userData);
+    // Remove password from userData if it's empty (for security)
+    const { password, ...dataToUpdate } = userData;
+    const finalData = password ? userData : dataToUpdate;
+
+    const response = await api.put(`/users/${id}`, finalData);
     return response.data;
   },
 

@@ -5,6 +5,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "sm" | "md" | "lg" | "icon";
   children: React.ReactNode;
   fixed?: boolean; // new prop for fixed width/height
+  loading?: boolean; // loading state
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -13,6 +14,8 @@ export const Button: React.FC<ButtonProps> = ({
   children,
   className = "",
   fixed = false,
+  loading = false,
+  disabled,
   ...props
 }) => {
   const baseClasses =
@@ -41,9 +44,13 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${fixedClasses} ${className}`}
+      disabled={disabled || loading}
       {...props}
     >
       <span className="flex items-center justify-center w-full h-full">
+        {loading ? (
+          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+        ) : null}
         {children}
       </span>
     </button>

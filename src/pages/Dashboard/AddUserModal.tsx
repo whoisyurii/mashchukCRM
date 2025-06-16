@@ -9,7 +9,14 @@ import { useCompaniesQuery } from "../../hooks/useCompaniesQuery";
 interface AddUserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  editingUser?: any;
+  editingUser?: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    companyIds?: string[];
+  };
 }
 
 export const AddUserModal: React.FC<AddUserModalProps> = ({
@@ -58,14 +65,25 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
   });
   const addUserMutation = useMutation({
     mutationFn: (userData: typeof formData) => {
+      console.log("Mutation data:", userData);
+      console.log("Editing user:", editingUser);
       if (editingUser) {
-        return dashboardService.updateUser(editingUser.id, userData);
+        // For editing, remove password field if it's empty and companyIds for now
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, companyIds, ...updateData } = userData;
+        const finalData = password ? { ...updateData, password } : updateData;
+        console.log("Update data:", finalData);
+        return dashboardService.updateUser(editingUser.id, finalData);
       }
       return dashboardService.createUser(userData);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Mutation success:", data);
       onClose();
       queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (error) => {
+      console.error("Mutation error:", error);
     },
   });
 
@@ -89,19 +107,34 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
         : prev.companyIds.filter((id) => id !== companyId),
     }));
   };
-
   // Determine available roles based on current user's role
   const getAvailableRoles = () => {
     if (currentUser?.role === "SuperAdmin") {
+      // If editing themselves, don't allow changing from SuperAdmin
+      if (editingUser && editingUser.id === currentUser.id) {
+        return [{ value: "SuperAdmin", label: "Super Admin" }];
+      }
       return [
         { value: "SuperAdmin", label: "Super Admin" },
         { value: "Admin", label: "Admin" },
         { value: "User", label: "User" },
       ];
     } else if (currentUser?.role === "Admin") {
-      return [{ value: "User", label: "User" }];
+      return [
+        { value: "Admin", label: "Admin" },
+        { value: "User", label: "User" },
+      ];
     }
     return [];
+  };
+
+  // Check if role field should be disabled
+  const isRoleDisabled = () => {
+    return (
+      editingUser &&
+      editingUser.id === currentUser?.id &&
+      currentUser?.role === "SuperAdmin"
+    );
   };
 
   if (!isOpen) return null;
@@ -153,12 +186,15 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Role
-            </label>
+            </label>{" "}
             <select
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="w-full rounded-md border border-gray-700 bg-dark-800 text-white p-2"
+              disabled={isRoleDisabled()}
+              className={`w-full rounded-md border border-gray-700 bg-dark-800 text-white p-2 ${
+                isRoleDisabled() ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               required
             >
               {getAvailableRoles().map((role) => (

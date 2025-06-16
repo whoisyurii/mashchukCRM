@@ -6,7 +6,7 @@ interface UseCompaniesQueryProps {
   search?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
-  statusFilter?: string;
+  capitalFilter?: { min: string; max: string };
   limit?: number;
   enabled?: boolean;
 }
@@ -16,21 +16,36 @@ export const useCompaniesQuery = ({
   search = "",
   sortBy = "createdAt",
   sortOrder = "desc",
-  statusFilter = "",
+  capitalFilter = { min: "", max: "" },
   limit = 5,
   enabled = true,
 }: UseCompaniesQueryProps) => {
+  console.log("useCompaniesQuery called with:", {
+    page,
+    search,
+    sortBy,
+    sortOrder,
+    capitalFilter,
+    limit,
+    enabled,
+  });
+
   return useQuery({
-    queryKey: ["companies", page, search, sortBy, sortOrder, statusFilter],
-    queryFn: () =>
-      companyService.getCompanies({
+    queryKey: ["companies", page, search, sortBy, sortOrder, capitalFilter],
+    queryFn: async () => {
+      console.log("Calling companyService.getCompanies...");
+      const result = await companyService.getCompanies({
         page,
         limit,
         search,
         sortBy,
         sortOrder,
-        status: statusFilter || undefined,
-      }),
+        minCapital: capitalFilter.min || undefined,
+        maxCapital: capitalFilter.max || undefined,
+      });
+      console.log("companyService.getCompanies result:", result);
+      return result;
+    },
     enabled,
   });
 };

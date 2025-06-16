@@ -160,15 +160,56 @@ router.put("/me", authenticateToken, async (req, res) => {
   }
 });
 
-// Update user by ID (SuperAdmin only)
+// Update user by ID (SuperAdmin and Admin)
 router.put(
   "/:id",
   authenticateToken,
-  requireRole(["SuperAdmin"]),
+  requireRole(["SuperAdmin", "Admin"]),
   async (req, res) => {
     try {
       const { id } = req.params;
       const { password, ...updateData } = req.body;
+
+      // Get the user being updated
+      const userToUpdate = await prisma.user.findUnique({
+        where: { id },
+        select: { id: true, role: true, email: true },
+      });
+
+      if (!userToUpdate) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Role validation logic
+      if (req.user.role === "Admin") {
+        // Admins can only edit Users, not SuperAdmins or other Admins
+        if (
+          userToUpdate.role === "SuperAdmin" ||
+          userToUpdate.role === "Admin"
+        ) {
+          return res.status(403).json({
+            message: "Admins can only edit users with User role",
+          });
+        }
+        // Admins can only assign User role
+        if (updateData.role && updateData.role !== "User") {
+          return res.status(403).json({
+            message: "Admins can only assign User role",
+          });
+        }
+      }
+
+      // Prevent SuperAdmin from removing their own SuperAdmin role
+      if (
+        userToUpdate.role === "SuperAdmin" &&
+        userToUpdate.id === req.user.id &&
+        updateData.role &&
+        updateData.role !== "SuperAdmin"
+      ) {
+        return res.status(403).json({
+          message: "Cannot remove your own SuperAdmin privileges",
+        });
+      }
 
       const updatedUser = await prisma.user.update({
         where: { id },

@@ -89,19 +89,21 @@ export const Dashboard: React.FC = () => {
             />
           </div>
         )}
+        {/* SuperAdmin/Admin: Recent Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* SuperAdmin/Admin: Recent Actions */}
           {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
-            <Card
-              className="cursor-pointer hover:bg-dark-800 transition-colors"
-              onClick={() => navigate("/history")}
-            >
+            <Card>
               {" "}
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Actions History
                 </h3>
-                <span className="text-xs text-emerald-400">View all →</span>
+                <span
+                  className="cursor-pointer hover:text-emerald-300 text-emerald-400  text-xs"
+                  onClick={() => navigate("/history")}
+                >
+                  View all →
+                </span>
               </div>{" "}
               <div className="space-y-3">
                 {isHistoryLoading ? (
@@ -121,7 +123,7 @@ export const Dashboard: React.FC = () => {
                           {getActionIcon(action.type, action.action)}
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-white">
+                          <span className="text-sm font-medium text-white truncate block max-md:max-w-28">
                             {action.action.charAt(0).toUpperCase() +
                               action.action.slice(1)}{" "}
                             {action.type}

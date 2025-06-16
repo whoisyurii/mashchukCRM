@@ -1,7 +1,7 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
-import { Badge } from "../../components/ui/Badge";
 import { Pagination } from "../../components/ui/Pagination";
 import { Search } from "lucide-react";
 
@@ -10,7 +10,16 @@ export interface Company {
   id: string;
   name: string;
   service: string;
+  capital: number;
   status: "Active";
+  logoUrl?: string;
+  userId?: string;
+  owner?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
   createdAt: string;
 }
 
@@ -31,8 +40,8 @@ export interface CompaniesCardProps {
   isLoading: boolean;
   searchInput: string;
   handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  statusFilter: string;
-  setStatusFilter: (v: string) => void;
+  capitalFilter: { min: string; max: string };
+  setCaptialFilter: (v: { min: string; max: string }) => void;
   handleSort: (column: string) => void;
   sortBy: string;
   sortOrder: "asc" | "desc";
@@ -45,14 +54,26 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
   isLoading,
   searchInput,
   handleSearch,
-  statusFilter,
-  setStatusFilter,
+  capitalFilter,
+  setCaptialFilter,
   handleSort,
   sortBy,
   sortOrder,
   page,
   setPage,
 }) => {
+  const navigate = useNavigate();
+
+  console.log("CompaniesCard props:", {
+    data,
+    isLoading,
+    searchInput,
+    capitalFilter,
+    sortBy,
+    sortOrder,
+    page,
+  });
+
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-6">
@@ -70,6 +91,7 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
   return (
     <Card>
       <div className="space-y-4">
+        {" "}
         <div className="flex gap-4">
           <div className="flex-1">
             <div className="relative">
@@ -82,28 +104,52 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
                 className="w-full bg-dark-800 border border-dark-600 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
-          </div>{" "}
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-dark-800 border border-dark-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-          >
-            <option value="">All Status</option>
-            <option value="Active">Active</option>
-          </select>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              placeholder="Min Capital"
+              value={capitalFilter.min}
+              onChange={(e) =>
+                setCaptialFilter({ ...capitalFilter, min: e.target.value })
+              }
+              className="w-24 bg-dark-800 border border-dark-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+            <input
+              type="number"
+              placeholder="Max Capital"
+              value={capitalFilter.max}
+              onChange={(e) =>
+                setCaptialFilter({ ...capitalFilter, max: e.target.value })
+              }
+              className="w-24 bg-dark-800 border border-dark-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-dark-700">
+                {" "}
                 <th
                   className="text-left py-3 px-4 text-sm font-medium text-gray-400 cursor-pointer hover:text-white"
                   onClick={() => handleSort("name")}
                 >
                   Name {sortBy === "name" && (sortOrder === "asc" ? "▲" : "▼")}
                 </th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-gray-400">
-                  Status
+                <th
+                  className="text-left py-3 px-4 text-sm font-medium text-gray-400 cursor-pointer hover:text-white"
+                  onClick={() => handleSort("service")}
+                >
+                  Service{" "}
+                  {sortBy === "service" && (sortOrder === "asc" ? "▲" : "▼")}
+                </th>
+                <th
+                  className="text-left py-3 px-4 text-sm font-medium text-gray-400 cursor-pointer hover:text-white"
+                  onClick={() => handleSort("capital")}
+                >
+                  Capital{" "}
+                  {sortBy === "capital" && (sortOrder === "asc" ? "▲" : "▼")}
                 </th>
                 <th
                   className="text-left py-3 px-4 text-sm font-medium text-gray-400 cursor-pointer hover:text-white"
@@ -116,7 +162,7 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
                   Actions
                 </th>
               </tr>
-            </thead>
+            </thead>{" "}
             <tbody>
               {data?.data.map((company) => (
                 <tr
@@ -129,24 +175,29 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
                         {company.name}
                       </div>
                       <div className="text-sm text-gray-400">
-                        {company.service}
+                        {company.owner
+                          ? `${company.owner.firstName} ${company.owner.lastName}`
+                          : "No owner"}
                       </div>
                     </div>
                   </td>
                   <td className="py-4 px-4">
-                    <Badge
-                      variant={
-                        company.status === "Active" ? "success" : "warning"
-                      }
-                    >
-                      {company.status}
-                    </Badge>
+                    <div className="text-white">{company.service}</div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <div className="text-emerald-400 font-semibold">
+                      ${company.capital.toLocaleString()}
+                    </div>
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-300">
                     {new Date(company.createdAt).toLocaleDateString()}
-                  </td>
+                  </td>{" "}
                   <td className="py-4 px-4">
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(`/companies/${company.id}`)}
+                    >
                       View
                     </Button>
                   </td>

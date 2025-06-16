@@ -14,6 +14,7 @@ router.get("/", authenticateToken, async (req, res) => {
       search = "",
       type = "",
       action = "",
+      companyId = "",
       sortBy = "createdAt",
       sortOrder = "desc",
     } = req.query;
@@ -36,9 +37,12 @@ router.get("/", authenticateToken, async (req, res) => {
     if (type) {
       where.type = type;
     }
-
     if (action) {
       where.action = action;
+    }
+
+    if (companyId) {
+      where.companyId = companyId;
     }
 
     // Build orderBy clause
@@ -60,6 +64,12 @@ router.get("/", authenticateToken, async (req, res) => {
               firstName: true,
               lastName: true,
               role: true,
+            },
+          },
+          company: {
+            select: {
+              id: true,
+              name: true,
             },
           },
         },
@@ -121,6 +131,7 @@ export const createActionHistory = async (data) => {
         details: data.details,
         target: data.target,
         userId: data.userId,
+        companyId: data.companyId || null,
       },
     });
   } catch (error) {

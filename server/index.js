@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 import authRoutes from "./routes/auth.js";
 import companyRoutes from "./routes/companies.js";
 import dashboardRoutes from "./routes/dashboard.js";
@@ -14,6 +15,9 @@ const PORT = process.env.PORT || 3001;
 // Middleware to enable CORS for all routes and parse JSON requests
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from public directory
+app.use("/public", express.static(path.join(process.cwd(), "public")));
 
 // mount different api routes on specific paths
 app.use("/api/auth", authRoutes); // Authentication routes

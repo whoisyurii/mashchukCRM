@@ -4,11 +4,11 @@ export const getActionIcon = (type: string, action: string) => {
   if (action === "created") {
     switch (type) {
       case "company":
-        return <Building2 className="w-3 h-3 text-primary-400" />;
+        return <Building2 className="w-3 h-3 text-green-400" />;
       case "user":
-        return <Users className="w-3 h-3 text-primary-400" />;
+        return <Users className="w-3 h-3 text-green-400" />;
       default:
-        return <Plus className="w-3 h-3 text-primary-400" />;
+        return <Plus className="w-3 h-3 text-green-400" />;
     }
   } else if (action === "updated") {
     return <Edit3 className="w-3 h-3 text-emerald-400" />;
@@ -22,7 +22,7 @@ export const getActionIcon = (type: string, action: string) => {
 export const getActionColor = (action: string) => {
   switch (action) {
     case "created":
-      return "bg-primary-500";
+      return "bg-green-500";
     case "updated":
       return "bg-blue-500";
     case "deleted":

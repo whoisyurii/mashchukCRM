@@ -1,9 +1,48 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import { authenticateToken } from "../middleware/auth.js";
 import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
 
 const prisma = new PrismaClient();
+
+// Configure multer for file upload
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(process.cwd(), "public", "companies");
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `company-${req.params.id || "new"}-${uniqueSuffix}${ext}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
 
 const router = express.Router();
 
@@ -17,12 +56,16 @@ router.get("/", authenticateToken, async (req, res) => {
       sortBy = "createdAt",
       sortOrder = "desc",
       status = "",
+      minCapital = "",
+      maxCapital = "",
+      createdAfter = "",
+      createdBefore = "",
     } = req.query;
 
     const skip = (page - 1) * limit;
     const take = parseInt(limit);
 
-    // Build where clause for search and status
+    // Build where clause for search and filters
     const where = {};
 
     if (search) {
@@ -36,17 +79,41 @@ router.get("/", authenticateToken, async (req, res) => {
       where.status = status;
     }
 
+    // Capital filters
+    if (minCapital || maxCapital) {
+      where.capital = {};
+      if (minCapital) where.capital.gte = parseInt(minCapital);
+      if (maxCapital) where.capital.lte = parseInt(maxCapital);
+    }
+
+    // Date filters
+    if (createdAfter || createdBefore) {
+      where.createdAt = {};
+      if (createdAfter) where.createdAt.gte = new Date(createdAfter);
+      if (createdBefore) where.createdAt.lte = new Date(createdBefore);
+    }
+
     // Build orderBy clause
     const orderBy = {};
     orderBy[sortBy] = sortOrder;
 
-    // Get companies with pagination
+    // Get companies with pagination and owner info
     const [companies, totalCount] = await Promise.all([
       prisma.company.findMany({
         where,
         orderBy,
         skip,
         take,
+        include: {
+          owner: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
       }),
       prisma.company.count({ where }),
     ]);
@@ -71,6 +138,28 @@ router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const company = await prisma.company.findUnique({
       where: { id: req.params.id },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        actionHistory: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+      },
     });
 
     if (!company) {
@@ -95,7 +184,7 @@ router.post("/", authenticateToken, async (req, res) => {
       });
     }
 
-    const { name, service, capital, status } = req.body;
+    const { name, service, capital, status, userId } = req.body;
 
     const newCompany = await prisma.company.create({
       data: {
@@ -103,6 +192,17 @@ router.post("/", authenticateToken, async (req, res) => {
         service,
         capital: parseInt(capital),
         status: status || "Active",
+        userId: userId || null,
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
       },
     });
 
@@ -114,6 +214,7 @@ router.post("/", authenticateToken, async (req, res) => {
         details: `Created new company '${newCompany.name}'`,
         target: newCompany.name,
         userId: req.user.id,
+        companyId: newCompany.id,
       });
     } catch (historyError) {
       console.error("Error logging action history:", historyError);
@@ -132,15 +233,38 @@ router.put("/:id", authenticateToken, async (req, res) => {
   try {
     const company = await prisma.company.findUnique({
       where: { id: req.params.id },
+      include: { owner: true },
     });
 
     if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
 
+    // Check permissions - only owner, admin, or superadmin can edit
+    const canEdit =
+      req.user.role === "SuperAdmin" ||
+      req.user.role === "Admin" ||
+      (company.userId && company.userId === req.user.id);
+
+    if (!canEdit) {
+      return res.status(403).json({
+        message: "Access denied. You can only edit companies you own.",
+      });
+    }
+
     const updatedCompany = await prisma.company.update({
       where: { id: req.params.id },
       data: req.body,
+      include: {
+        owner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
     });
 
     // Log action history
@@ -151,6 +275,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
         details: `Updated company information for '${updatedCompany.name}'`,
         target: updatedCompany.name,
         userId: req.user.id,
+        companyId: updatedCompany.id,
       });
     } catch (historyError) {
       console.error("Error logging action history:", historyError);
@@ -187,6 +312,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
         details: `Deleted company '${company.name}'`,
         target: company.name,
         userId: req.user.id,
+        companyId: company.id,
       });
     } catch (historyError) {
       console.error("Error logging action history:", historyError);
@@ -196,6 +322,172 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     res.json({ message: "Company deleted successfully" });
   } catch (error) {
     console.error("Error deleting company:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Upload company logo
+router.post(
+  "/:id/logo",
+  authenticateToken,
+  upload.single("logo"),
+  async (req, res) => {
+    try {
+      const company = await prisma.company.findUnique({
+        where: { id: req.params.id },
+        include: { owner: true },
+      });
+
+      if (!company) {
+        return res.status(404).json({ message: "Company not found" });
+      }
+
+      // Check permissions
+      const canEdit =
+        req.user.role === "SuperAdmin" ||
+        req.user.role === "Admin" ||
+        (company.userId && company.userId === req.user.id);
+
+      if (!canEdit) {
+        return res.status(403).json({
+          message: "Access denied. You can only edit companies you own.",
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Delete old logo if exists
+      if (company.logoUrl) {
+        const oldLogoPath = path.join(process.cwd(), "public", company.logoUrl);
+        if (fs.existsSync(oldLogoPath)) {
+          fs.unlinkSync(oldLogoPath);
+        }
+      }
+
+      // Update company with new logo URL
+      const logoUrl = `companies/${req.file.filename}`;
+      const updatedCompany = await prisma.company.update({
+        where: { id: req.params.id },
+        data: { logoUrl },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      // Log action history
+      try {
+        await createActionHistory({
+          action: "updated",
+          type: "company",
+          details: `Updated logo for company '${updatedCompany.name}'`,
+          target: updatedCompany.name,
+          userId: req.user.id,
+          companyId: updatedCompany.id,
+        });
+      } catch (historyError) {
+        console.error("Error logging action history:", historyError);
+      }
+
+      res.json({
+        message: "Logo uploaded successfully",
+        logoUrl: logoUrl,
+        company: updatedCompany,
+      });
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+
+      // Clean up uploaded file if database update fails
+      if (req.file) {
+        const filePath = req.file.path;
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
+
+// Delete company logo
+router.delete("/:id/logo", authenticateToken, async (req, res) => {
+  try {
+    const company = await prisma.company.findUnique({
+      where: { id: req.params.id },
+      include: { owner: true },
+    });
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    // Check permissions
+    const canEdit =
+      req.user.role === "SuperAdmin" ||
+      req.user.role === "Admin" ||
+      (company.userId && company.userId === req.user.id);
+
+    if (!canEdit) {
+      return res.status(403).json({
+        message: "Access denied. You can only edit companies you own.",
+      });
+    }
+
+    if (!company.logoUrl) {
+      return res.status(400).json({ message: "No logo to delete" });
+    }
+
+    // Delete file from filesystem
+    const logoPath = path.join(process.cwd(), "public", company.logoUrl);
+    if (fs.existsSync(logoPath)) {
+      fs.unlinkSync(logoPath);
+    }
+
+    // Update company to remove logo URL
+    const updatedCompany = await prisma.company.update({
+      where: { id: req.params.id },
+      data: { logoUrl: null },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    // Log action history
+    try {
+      await createActionHistory({
+        action: "updated",
+        type: "company",
+        details: `Removed logo for company '${updatedCompany.name}'`,
+        target: updatedCompany.name,
+        userId: req.user.id,
+        companyId: updatedCompany.id,
+      });
+    } catch (historyError) {
+      console.error("Error logging action history:", historyError);
+    }
+
+    res.json({
+      message: "Logo deleted successfully",
+      company: updatedCompany,
+    });
+  } catch (error) {
+    console.error("Error deleting logo:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
