@@ -1,13 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Search,
-  Bell,
-  HelpCircle,
-  User,
-  Settings,
-  LogOut,
-  ChevronDown,
-} from "lucide-react";
+import { Search, User, Settings, LogOut, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
