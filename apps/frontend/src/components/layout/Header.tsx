@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Search, User, Settings, LogOut, ChevronDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ChevronDown } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import DropdownMenu from "../ui/DropdownMenu";
 
 export const Header: React.FC = () => {
-  const { user, logout, logoutAll } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -15,7 +14,7 @@ export const Header: React.FC = () => {
     day: "numeric",
   });
 
-  // Close dropdown when clicking outside
+  // close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -31,21 +30,6 @@ export const Header: React.FC = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const handleLogout = () => {
-    logout();
-    setShowDropdown(false);
-  };
-
-  const handleLogoutAll = () => {
-    logoutAll();
-    setShowDropdown(false);
-  };
-
-  const handleProfileClick = () => {
-    navigate("/profile");
-    setShowDropdown(false);
-  };
 
   const getAvatarInitials = () => {
     if (!user) return "U";
@@ -97,55 +81,7 @@ export const Header: React.FC = () => {
             </button>
 
             {/* Dropdown Menu */}
-            {showDropdown && (
-              <div className="absolute right-0 mt-2 w-54 bg-dark-800 border border-dark-800 rounded-lg shadow-lg z-50">
-                <div className="p-3 border-b border-dark-700">
-                  <p className="text-sm font-medium text-white">
-                    {user?.firstName} {user?.lastName}
-                  </p>
-                  <p className="text-xs text-gray-400">{user?.email}</p>
-                </div>
-
-                <div className="py-2">
-                  <button
-                    onClick={handleProfileClick}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-700 transition-colors"
-                  >
-                    <User className="w-4 h-4" />
-                    Profile
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      // TODO: Add settings page
-                      setShowDropdown(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-700 transition-colors"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Settings
-                  </button>
-                </div>
-
-                <div className="border-t border-dark-700 py-2">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-dark-700 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Log out
-                  </button>
-
-                  <button
-                    onClick={handleLogoutAll}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:text-red-400 hover:bg-dark-700 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Log out from all devices
-                  </button>
-                </div>
-              </div>
-            )}
+            {showDropdown && <DropdownMenu />}
           </div>
         </div>
       </div>

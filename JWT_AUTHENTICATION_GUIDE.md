@@ -189,7 +189,6 @@ interface AuthContextType {
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  logoutAll: () => Promise<void>; // логаут отовсюду
 }
 ```
 
@@ -225,7 +224,7 @@ interface AuthContextType {
 
 ### **4. Secure Logout**
 
-1. **Frontend** вызывает `logout()` или `logoutAll()`
+1. **Frontend** вызывает `logout()`
 2. **Backend** удаляет refresh token(ы) из БД
 3. **Frontend** очищает localStorage
 4. **Frontend** перенаправляет на страницу входа

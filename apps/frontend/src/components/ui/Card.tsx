@@ -13,7 +13,7 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-dark-900 border border-dark-700 rounded-lg p-6 ${className}`}
+      className={`bg-dark-900 border border-dark-900 rounded-lg p-6 ${className}`}
       onClick={onClick}
     >
       {children}

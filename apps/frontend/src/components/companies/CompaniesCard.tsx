@@ -1,12 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Card } from "../../components/ui/Card";
-import { Button } from "../../components/ui/Button";
-import { Pagination } from "../../components/ui/Pagination";
+import { Card } from "../ui/Card";
+import { Button } from "../ui/Button";
+import { Pagination } from "../ui/Pagination";
 import { Search } from "lucide-react";
 
-// types for company data and pagination
-export interface Company {
+// Local types for this component
+export interface CompanyItem {
   id: string;
   name: string;
   service: string;
@@ -23,7 +23,7 @@ export interface Company {
   createdAt: string;
 }
 
-export interface Pagination {
+export interface CompanyPagination {
   page: number;
   limit: number;
   total: number;
@@ -31,8 +31,8 @@ export interface Pagination {
 }
 
 export interface CompaniesData {
-  data: Company[];
-  pagination: Pagination;
+  data: CompanyItem[];
+  pagination: CompanyPagination;
 }
 
 export interface CompaniesCardProps {

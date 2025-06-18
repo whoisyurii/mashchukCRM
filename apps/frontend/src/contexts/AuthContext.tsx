@@ -13,7 +13,6 @@ interface AuthContextType {
     lastName: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
-  logoutAll: () => Promise<void>;
   loading: boolean;
   updateUser: (updatedUser: User) => void;
 }
@@ -97,20 +96,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const logoutAll = async () => {
-    try {
-      await authService.logoutAll();
-    } catch (error) {
-      console.error("Logout all error:", error);
-    } finally {
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
-    }
-  };
-
   const updateUser = (updatedUser: User) => {
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -124,7 +109,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         login,
         register,
         logout,
-        logoutAll,
         loading,
         updateUser,
       }}

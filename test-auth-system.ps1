@@ -96,12 +96,12 @@ $finalRefreshToken = $reLoginResponse.refreshToken
 Write-Host "   ✅ Re-login successful!" -ForegroundColor Green
 
 # Test 10: Logout from all devices
-Write-Host "`n🔟 Testing Logout All Devices..." -ForegroundColor Yellow
-$logoutAllBody = @{refreshToken = $finalRefreshToken} | ConvertTo-Json
-$finalHeaders = @{Authorization = "Bearer $finalAccessToken"}
-$logoutAllResponse = Invoke-RestMethod -Uri "$baseUrl/auth/logout-all" -Method Post -Body $logoutAllBody -Headers $finalHeaders -ContentType "application/json"
-Write-Host "   ✅ Logout all devices successful!" -ForegroundColor Green
-Write-Host "   🚪 Message: $($logoutAllResponse.message)" -ForegroundColor Gray
+# Write-Host "`n🔟 Testing Logout All Devices..." -ForegroundColor Yellow
+# $logoutAllBody = @{refreshToken = $finalRefreshToken} | ConvertTo-Json
+# $finalHeaders = @{Authorization = "Bearer $finalAccessToken"}
+# $logoutAllResponse = Invoke-RestMethod -Uri "$baseUrl/auth/logout-all" -Method Post -Body $logoutAllBody -Headers $finalHeaders -ContentType "application/json"
+# Write-Host "   ✅ Logout all devices successful!" -ForegroundColor Green
+# Write-Host "   🚪 Message: $($logoutAllResponse.message)" -ForegroundColor Gray
 
 # Summary
 Write-Host "`n" + "=" * 60 -ForegroundColor Cyan
