@@ -55,6 +55,18 @@ export interface DashboardStats {
   activeCompanies: number;
 }
 
+export interface DashboardCompany {
+  id: string;
+  name: string;
+  capital: number;
+  status: string;
+  service: string;
+  user?: {
+    firstName: string;
+    lastName: string;
+  };
+}
+
 export interface AuthResponse {
   user: User;
   accessToken: string;

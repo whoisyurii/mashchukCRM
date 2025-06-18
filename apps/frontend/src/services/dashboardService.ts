@@ -17,6 +17,13 @@ export const dashboardService = {
     return response.data;
   },
 
+  getCompaniesByCapital: async (limit: number = 10) => {
+    const response = await api.get(
+      `/dashboard/companies-by-capital?limit=${limit}`
+    );
+    return response.data;
+  },
+
   createUser: async (userData: {
     email: string;
     firstName: string;

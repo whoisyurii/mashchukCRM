@@ -277,4 +277,64 @@ router.get(
   }
 );
 
+// Get companies sorted by capital descending (for all roles)
+router.get("/companies-by-capital", authenticateToken, async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+    const userRole = req.user.role;
+
+    let whereClause = {};
+
+    // For User role - show only their companies or unassigned ones
+    if (userRole === "User") {
+      whereClause = {
+        OR: [{ userId: req.user.id }, { userId: null }],
+      };
+    }
+    // For Admin and SuperAdmin - show all companies (whereClause remains empty)
+
+    const companies = await prisma.company.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        name: true,
+        capital: true,
+        status: true,
+        service: true,
+        userId: true,
+        owner: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: {
+        capital: "desc",
+      },
+      take: parseInt(limit),
+    });
+
+    // Transform data to match frontend expectations
+    const transformedCompanies = companies.map((company) => ({
+      id: company.id,
+      name: company.name,
+      capital: company.capital,
+      status: company.status,
+      service: company.service,
+      user: company.owner
+        ? {
+            firstName: company.owner.firstName,
+            lastName: company.owner.lastName,
+          }
+        : null,
+    }));
+
+    res.json(transformedCompanies);
+  } catch (error) {
+    console.error("Error fetching companies by capital:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 export default router;

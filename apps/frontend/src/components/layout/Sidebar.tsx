@@ -2,11 +2,12 @@ import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
-  Building2,
   Users,
   Settings,
   LogOut,
   History,
+  Building2,
+  Workflow,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -27,10 +28,10 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="w-20 max-md:w-16 md:hover:w-56 bg-dark-900 border-r border-dark-800 flex flex-col transition-all duration-300 group">
-      <div className="h-20 px-6 max-md:px-4 border-b border-dark-800 flex items-center">
+    <div className="w-20 max-md:w-16 md:hover:w-56 bg-dark-900 flex flex-col transition-all duration-300 group">
+      <div className="h-20 px-6 max-md:px-4 flex items-center">
         <button className="flex items-center gap-2" onClick={handleLogoClick}>
-          <Building2 className="w-8 h-8 text-emerald-400 flex-shrink-0" />
+          <Workflow className="w-8 h-8 text-emerald-400 flex-shrink-0" />
           <span className="text-xl font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden">
             MyCRM
           </span>

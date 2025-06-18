@@ -7,6 +7,7 @@ import { DashboardSkeleton } from "../../components/ui/DashboardSkeleton";
 import { HistorySkeleton } from "../../components/ui/HistorySkeleton";
 import { CompanyModal } from "../Companies/CompanyModal";
 import { useAuth } from "../../contexts/AuthContext";
+import { DashboardCompany } from "../../types";
 // helpers
 import {
   getActionIcon,
@@ -14,18 +15,19 @@ import {
   formatTimeAgo,
 } from "../../utils/action-helpers";
 import { useDashboardQueries } from "../../hooks/useDashboardQueries";
+import CompaniesDashboardSkeleton from "../../components/ui/CompaniesDashboardSkeleton";
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
-  // Fetch dashboard data
+  const [showModal, setShowModal] = useState(false); // Fetch dashboard data
   const {
     stats,
     admins,
-    userCompanies,
     recentActions,
+    companiesByCapital,
     isHistoryLoading,
+    isCompaniesByCapitalLoading,
     isLoading,
   } = useDashboardQueries();
   if (isLoading) {
@@ -118,8 +120,8 @@ export const Dashboard: React.FC = () => {
                       key={action.id}
                       className="flex items-center justify-between p-3 bg-dark-800 rounded-lg"
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 mt-0.5">
+                      <div className="flex items-start gap-3 ">
+                        <div className="flex-shrink-0 mt-0.5 ">
                           {getActionIcon(action.type, action.action)}
                         </div>
                         <div>
@@ -154,49 +156,6 @@ export const Dashboard: React.FC = () => {
               </div>
             </Card>
           )}
-
-          {/* User: Companies List */}
-          {user?.role === "User" && (
-            <Card>
-              <h3 className="text-lg font-semibold text-white mb-4">
-                My Companies
-              </h3>
-              <div className="space-y-3">
-                {userCompanies?.map(
-                  (company: {
-                    id: string;
-                    name: string;
-                    service: string;
-                    capital: number;
-                    status: string;
-                  }) => (
-                    <div
-                      key={company.id}
-                      className="flex items-center justify-between p-3 bg-dark-800 rounded-lg"
-                    >
-                      <div>
-                        <span className="text-sm font-medium text-white">
-                          {company.name}
-                        </span>
-                        <p className="text-xs text-gray-400">
-                          {company.service}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-primary-400">
-                          ${company.capital.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {company.status}
-                        </p>
-                      </div>
-                    </div>
-                  )
-                )}
-              </div>
-            </Card>
-          )}
-
           {/* User: Price Chart Placeholder */}
           {user?.role === "User" && (
             <Card>
@@ -207,45 +166,72 @@ export const Dashboard: React.FC = () => {
                 <p className="text-gray-400">Chart will be implemented here</p>
               </div>
             </Card>
-          )}
-
-          {/* Quick Actions for Admin/SuperAdmin */}
-          {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
-            <Card>
-              <h3 className="text-lg font-semibold text-white mb-4">
-                Quick Actions
+          )}{" "}
+          {/* companies by capital card */}
+          <Card>
+            {" "}
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-white">
+                Companies by Capital
               </h3>
-              <div className="space-y-3">
-                <button
-                  className="w-full text-left p-3 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors"
-                  onClick={() => setShowModal(true)}
-                >
-                  <span className="text-sm font-medium text-white">
-                    Add New Company
-                  </span>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Register a new company in the system
-                  </p>
-                </button>
-                <button className="w-full text-left p-3 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors">
-                  <span className="text-sm font-medium text-white">
-                    Invite Users
-                  </span>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Send invitations to new team members
-                  </p>
-                </button>
-                <button className="w-full text-left p-3 bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors">
-                  <span className="text-sm font-medium text-white">
-                    Generate Report
-                  </span>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Create a comprehensive business report
-                  </p>
-                </button>
-              </div>
-            </Card>
-          )}
+              <span
+                className="cursor-pointer hover:text-emerald-300 text-emerald-400  text-xs"
+                onClick={() => navigate("/companies")}
+              >
+                View all →
+              </span>
+            </div>{" "}
+            <div className="space-y-3">
+              {isCompaniesByCapitalLoading ? (
+                <CompaniesDashboardSkeleton />
+              ) : companiesByCapital.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-400 text-sm">No companies found</p>
+                </div>
+              ) : (
+                companiesByCapital.map((company: DashboardCompany) => (
+                  <div
+                    key={company.id}
+                    className="flex items-center justify-between p-3 bg-dark-800 rounded-lg"
+                    onClick={() => navigate("/companies")}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5">
+                        <Building2 className="w-4 h-4 text-emerald-500" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-white truncate block max-md:max-w-28">
+                          {company.name}
+                          <span className="text-primary-400 ml-1">
+                            "{company.service}"
+                          </span>
+                        </span>
+                        {company.user && (
+                          <p className="text-xs text-gray-400">
+                            by {company.user.firstName} {company.user.lastName}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-400">
+                        ${company.capital.toLocaleString()}
+                      </p>
+                      <div
+                        className={`inline-block w-2 h-2 rounded-full ${
+                          company.status === "Active"
+                            ? "bg-green-400"
+                            : company.status === "Inactive"
+                            ? "bg-red-400"
+                            : "bg-yellow-400"
+                        }`}
+                      ></div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </Card>
         </div>
       </div>
 

@@ -20,16 +20,6 @@ export const useCompaniesQuery = ({
   limit = 5,
   enabled = true,
 }: UseCompaniesQueryProps) => {
-  // console.log("useCompaniesQuery called with:", {
-  //   page,
-  //   search,
-  //   sortBy,
-  //   sortOrder,
-  //   capitalFilter,
-  //   limit,
-  //   enabled,
-  // });
-
   return useQuery({
     queryKey: ["companies", page, search, sortBy, sortOrder, capitalFilter],
     queryFn: async () => {

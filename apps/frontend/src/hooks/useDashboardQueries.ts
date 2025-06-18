@@ -35,6 +35,10 @@ export const useDashboardQueries = () => {
     enabled: user?.role === "SuperAdmin" || user?.role === "Admin",
   });
 
+  const companiesByCapitalQuery = useQuery({
+    queryKey: ["dashboard-companies-by-capital"],
+    queryFn: () => dashboardService.getCompaniesByCapital(10),
+  });
   return {
     stats: statsQuery.data,
     isStatsLoading: statsQuery.isLoading,
@@ -44,6 +48,8 @@ export const useDashboardQueries = () => {
     isCompaniesLoading: userCompaniesQuery.isLoading,
     recentActions: recentHistoryQuery.data?.data || [],
     isHistoryLoading: recentHistoryQuery.isLoading,
+    companiesByCapital: companiesByCapitalQuery.data || [],
+    isCompaniesByCapitalLoading: companiesByCapitalQuery.isLoading,
     isLoading:
       statsQuery.isLoading ||
       adminsQuery.isLoading ||
