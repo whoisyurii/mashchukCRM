@@ -81,12 +81,36 @@ mashchukCRM/
 │   │   │   ├── 📄 _redirects      # SPA routing config
 │   │   │   └── 📁 companies/      # Company logos
 │   │   └── 📁 src/                # Source code
-│   │       ├── 📄 App.tsx         # Main App component
+│   │       ├── 📄 App.tsx         # Main App component & routing
 │   │       ├── 📄 main.tsx        # React entry point
 │   │       ├── 📁 components/     # Reusable UI components
+│   │       │   ├── 📁 layout/     # Layout components (Header, Sidebar)
+│   │       │   ├── 📁 ui/         # Basic UI components (Button, Input, Card)
+│   │       │   ├── 📁 companies/  # Company-specific components
+│   │       │   │   ├── 📄 CompanyModal.tsx    # Create company modal
+│   │       │   │   ├── 📄 CompaniesCard.tsx   # Companies list component
+│   │       │   │   ├── 📄 CompanyDetail.tsx   # Company detail view
+│   │       │   │   └── 📄 index.ts           # Exports & types
+│   │       │   └── 📁 users/      # User-specific components
+│   │       │       ├── 📄 AddUserModal.tsx   # Create/edit user modal
+│   │       │       └── 📄 index.ts           # Exports & types
 │   │       ├── 📁 contexts/       # React contexts (Auth)
 │   │       ├── 📁 hooks/          # Custom React hooks
-│   │       ├── 📁 pages/          # Page components
+│   │       ├── 📁 pages/          # Page components (organized by feature)
+│   │       │   ├── 📁 auth/       # Authentication pages
+│   │       │   │   ├── 📄 LoginPage.tsx      # Login form
+│   │       │   │   ├── 📄 RegisterPage.tsx   # Registration form
+│   │       │   │   └── 📄 index.ts           # Exports & types
+│   │       │   ├── 📁 dashboard/  # Dashboard pages
+│   │       │   │   └── 📄 DashboardPage.tsx  # Main dashboard
+│   │       │   ├── 📁 companies/  # Company management pages
+│   │       │   │   └── 📄 CompaniesPage.tsx  # Companies list page
+│   │       │   ├── 📁 users/      # User management pages
+│   │       │   │   └── 📄 UsersPage.tsx      # Users list page
+│   │       │   ├── 📁 profile/    # User profile pages
+│   │       │   │   └── 📄 ProfilePage.tsx    # User profile
+│   │       │   └── 📁 history/    # Action history pages
+│   │       │       └── 📄 HistoryPage.tsx    # Action history list
 │   │       ├── 📁 services/       # API services
 │   │       ├── 📁 types/          # TypeScript interfaces
 │   │       └── 📁 utils/          # Utility functions
@@ -187,7 +211,7 @@ User Login Request
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │    Backend      │    │   Database      │
 │                 │    │                 │    │                 │
-│ Login Form      │───▶│ POST /auth/login│───▶│ Verify User     │
+│ LoginPage Form  │───▶│ POST /auth/login│───▶│ Verify User     │
 │                 │    │                 │    │ (bcrypt)        │
 │                 │    │ Generate Tokens │◄───│                 │
 │                 │◄───│ - Access (15m)  │    │ Store Refresh   │
@@ -587,7 +611,7 @@ jobs:
 ### **1. User Registration Flow**
 
 ```
-Frontend Form
+Frontend Form (RegisterPage)
      │ POST /api/auth/register
      ▼
 Express Router (/auth)
@@ -617,7 +641,7 @@ Frontend stores in localStorage
 ### **2. Protected Route Access**
 
 ```
-Frontend API Call
+Frontend API Call (from Pages/Components)
      │ Authorization: Bearer <token>
      ▼
 authenticateToken middleware
@@ -710,15 +734,38 @@ npm run migrate --workspace=apps/backend
 - **Authentication**: Bearer tokens in Authorization header
 - **Error Handling**: Axios interceptors for token refresh
 - **Type Safety**: Shared TypeScript interfaces
+- **Component Architecture**:
+  - **Pages**: Route-level components in `/pages` organized by feature
+  - **Components**: Reusable UI components in `/components` organized by domain
+  - **Modular Structure**: Each feature has its own index.ts with exports and types
 
-### **2. Backend ↔ Database**
+### **2. Component Organization**
+
+```
+Frontend Architecture
+├── 📁 pages/              # Route-level components
+│   ├── auth/             # Authentication flows
+│   ├── dashboard/        # Analytics & overview
+│   ├── companies/        # Company management
+│   ├── users/           # User management
+│   ├── profile/         # User profile
+│   └── history/         # Action tracking
+├── 📁 components/        # Reusable components
+│   ├── layout/          # App layout (Header, Sidebar)
+│   ├── ui/             # Basic UI components
+│   ├── companies/      # Company-specific components
+│   └── users/          # User-specific components
+└── 📁 services/         # API integration layer
+```
+
+### **3. Backend ↔ Database**
 
 - **ORM**: Prisma Client with type-safe queries
 - **Connection**: PostgreSQL with connection pooling
 - **Migrations**: Version-controlled schema changes
 - **Seeding**: Automated test data insertion
 
-### **3. Code ↔ Deployment**
+### **4. Code ↔ Deployment**
 
 - **CI**: GitHub Actions for testing & validation
 - **CD**: Render.com webhooks for auto-deployment

@@ -1,10 +1,10 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { Link, Navigate } from 'react-router-dom';
-import { Building2 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { Input } from '../../components/ui/Input';
-import { Button } from '../../components/ui/Button';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { Link, Navigate } from "react-router-dom";
+import { Building2 } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
+import { Input } from "../../components/ui/Input";
+import { Button } from "../../components/ui/Button";
 
 interface RegisterForm {
   firstName: string;
@@ -24,7 +24,7 @@ export const RegisterPage: React.FC = () => {
     watch,
   } = useForm<RegisterForm>();
 
-  const password = watch('password');
+  const password = watch("password");
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -39,8 +39,8 @@ export const RegisterPage: React.FC = () => {
         password: data.password,
       });
     } catch (error: any) {
-      setError('root', {
-        message: error.response?.data?.message || 'Registration failed',
+      setError("root", {
+        message: error.response?.data?.message || "Registration failed",
       });
     }
   };
@@ -56,7 +56,7 @@ export const RegisterPage: React.FC = () => {
             Create your account
           </h2>
           <p className="mt-2 text-sm text-gray-400">
-            Or{' '}
+            Or{" "}
             <Link
               to="/login"
               className="font-medium text-emerald-400 hover:text-emerald-300"
@@ -78,8 +78,8 @@ export const RegisterPage: React.FC = () => {
               <Input
                 label="First name"
                 autoComplete="given-name"
-                {...register('firstName', {
-                  required: 'First name is required',
+                {...register("firstName", {
+                  required: "First name is required",
                 })}
                 error={errors.firstName?.message}
               />
@@ -87,8 +87,8 @@ export const RegisterPage: React.FC = () => {
               <Input
                 label="Last name"
                 autoComplete="family-name"
-                {...register('lastName', {
-                  required: 'Last name is required',
+                {...register("lastName", {
+                  required: "Last name is required",
                 })}
                 error={errors.lastName?.message}
               />
@@ -98,11 +98,11 @@ export const RegisterPage: React.FC = () => {
               label="Email address"
               type="email"
               autoComplete="email"
-              {...register('email', {
-                required: 'Email is required',
+              {...register("email", {
+                required: "Email is required",
                 pattern: {
                   value: /^\S+@\S+$/i,
-                  message: 'Invalid email address',
+                  message: "Invalid email address",
                 },
               })}
               error={errors.email?.message}
@@ -112,11 +112,11 @@ export const RegisterPage: React.FC = () => {
               label="Password"
               type="password"
               autoComplete="new-password"
-              {...register('password', {
-                required: 'Password is required',
+              {...register("password", {
+                required: "Password is required",
                 minLength: {
                   value: 6,
-                  message: 'Password must be at least 6 characters',
+                  message: "Password must be at least 6 characters",
                 },
               })}
               error={errors.password?.message}
@@ -126,10 +126,10 @@ export const RegisterPage: React.FC = () => {
               label="Confirm password"
               type="password"
               autoComplete="new-password"
-              {...register('confirmPassword', {
-                required: 'Please confirm your password',
+              {...register("confirmPassword", {
+                required: "Please confirm your password",
                 validate: (value) =>
-                  value === password || 'Passwords do not match',
+                  value === password || "Passwords do not match",
               })}
               error={errors.confirmPassword?.message}
             />
@@ -141,7 +141,7 @@ export const RegisterPage: React.FC = () => {
             className="w-full"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Creating account...' : 'Create account'}
+            {isSubmitting ? "Creating account..." : "Create account"}
           </Button>
         </form>
       </div>

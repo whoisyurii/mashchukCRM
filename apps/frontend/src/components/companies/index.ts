@@ -1,6 +1,6 @@
-export { CompanyModal } from './CompanyModal';
-export { CompaniesCard } from './CompaniesCard';
-export { CompanyDetail } from './CompanyDetail';
+export { CompanyModal } from "./CompanyModal";
+export { CompaniesCard } from "./CompaniesCard";
+export { CompanyDetail } from "./CompanyDetail";
 
 // Types
 export interface CompanyModalProps {

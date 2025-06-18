@@ -1,4 +1,4 @@
-export { AddUserModal } from './AddUserModal';
+export { AddUserModal } from "./AddUserModal";
 
 // Types
 export interface AddUserModalProps {
