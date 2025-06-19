@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { CompaniesCard } from "../../components/companies/CompaniesCard";
+import { CompaniesCard } from "../components/companies/CompaniesCard";
 import { Plus } from "lucide-react";
-import { Button } from "../../components/ui/Button";
-import { CompanyModal } from "../../components/companies/CompanyModal";
-import { useAuth } from "../../contexts/AuthContext";
-import { useCompaniesQuery } from "../../hooks/useCompaniesQuery";
+import { Button } from "../components/ui/Button";
+import { CompanyModal } from "../components/companies/CompanyModal";
+import { useAuth } from "../contexts/AuthContext";
+import { useCompaniesQuery } from "../hooks/useCompaniesQuery";
 
 export const Companies: React.FC = () => {
   const { user } = useAuth();

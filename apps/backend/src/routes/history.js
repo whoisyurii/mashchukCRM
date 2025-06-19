@@ -22,10 +22,11 @@ router.get("/", authenticateToken, async (req, res) => {
     const skip = (page - 1) * limit;
     const take = parseInt(limit);
 
-    // Build where clause for search and filters
+    // prisma query condition to filter actionHistory
     const where = {};
 
     if (search) {
+      // .OR is prisma logical operator to combine multiple conditions
       where.OR = [
         { details: { contains: search, mode: "insensitive" } },
         { target: { contains: search, mode: "insensitive" } },

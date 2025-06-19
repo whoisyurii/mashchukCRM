@@ -6,6 +6,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: "SuperAdmin" | "Admin" | "User";
+  avatar?: string;
   createdAt: string;
 }
 

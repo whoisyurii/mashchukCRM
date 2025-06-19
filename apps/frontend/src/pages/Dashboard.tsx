@@ -1,26 +1,26 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, Building2, DollarSign } from "lucide-react";
-import { Card } from "../../components/ui/Card";
-import { StatsCard } from "../../components/ui/StatsCard";
-import { DashboardSkeleton } from "../../components/ui/DashboardSkeleton";
-import { HistorySkeleton } from "../../components/ui/HistorySkeleton";
-import { CompanyModal } from "../Companies/CompanyModal";
-import { useAuth } from "../../contexts/AuthContext";
-import { DashboardCompany } from "../../types";
+import { Card } from "../components/ui/Card";
+import { StatsCard } from "../components/ui/StatsCard";
+import { DashboardSkeleton } from "../components/ui/DashboardSkeleton";
+import { HistorySkeleton } from "../components/ui/HistorySkeleton";
+import { CompanyModal } from "../components/companies/CompanyModal";
+import { useAuth } from "../contexts/AuthContext";
+import { DashboardCompany } from "../types";
 // helpers
 import {
   getActionIcon,
   getActionColor,
   formatTimeAgo,
-} from "../../utils/action-helpers";
-import { useDashboardQueries } from "../../hooks/useDashboardQueries";
-import CompaniesDashboardSkeleton from "../../components/ui/CompaniesDashboardSkeleton";
+} from "../utils/action-helpers";
+import { useDashboardQueries } from "../hooks/useDashboardQueries";
+import CompaniesDashboardSkeleton from "../components/companies/CompaniesDashboardSkeleton";
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false); // Fetch dashboard data
+  const [showModal, setShowModal] = useState(false);
   const {
     stats,
     admins,
@@ -167,12 +167,13 @@ export const Dashboard: React.FC = () => {
               </div>
             </Card>
           )}{" "}
+          
           {/* companies by capital card */}
           <Card>
             {" "}
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-white">
-                Companies by Capital
+                Top Companies
               </h3>
               <span
                 className="cursor-pointer hover:text-emerald-300 text-emerald-400  text-xs"
@@ -182,6 +183,7 @@ export const Dashboard: React.FC = () => {
               </span>
             </div>{" "}
             <div className="space-y-3">
+              {/* skeleton */}
               {isCompaniesByCapitalLoading ? (
                 <CompaniesDashboardSkeleton />
               ) : companiesByCapital.length === 0 ? (
@@ -202,9 +204,6 @@ export const Dashboard: React.FC = () => {
                       <div>
                         <span className="text-sm font-medium text-white truncate block max-md:max-w-28">
                           {company.name}
-                          <span className="text-primary-400 ml-1">
-                            "{company.service}"
-                          </span>
                         </span>
                         {company.user && (
                           <p className="text-xs text-gray-400">
@@ -214,7 +213,7 @@ export const Dashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-400 max-md:hidden">
                         ${company.capital.toLocaleString()}
                       </p>
                       <div

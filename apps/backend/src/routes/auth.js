@@ -139,16 +139,16 @@ router.post("/refresh", async (req, res) => {
   }
 });
 
-// Logout (revoke refresh token) - using original middleware
+// logout (revoke refresh token) - using default middleware
 router.post("/logout", authenticateToken, async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
     if (refreshToken) {
-      // Revoke specific refresh token
+      // revoke specific refresh token
       await revokeRefreshToken(refreshToken);
     } else {
-      // Revoke all tokens for this user
+      // revoke all tokens for this user
       await revokeAllUserTokens(req.user.id);
     }
 
@@ -168,31 +168,6 @@ router.post("/logout", authenticateToken, async (req, res) => {
     res.json({ message: "Logged out successfully" });
   } catch (error) {
     console.error("Logout error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// Logout from all devices
-router.post("/logout-all", authenticateToken, async (req, res) => {
-  try {
-    await revokeAllUserTokens(req.user.id);
-
-    // Log logout all action
-    try {
-      await createActionHistory({
-        action: "logout_all",
-        type: "auth",
-        details: `User logged out from all devices`,
-        target: req.user.email,
-        userId: req.user.id,
-      });
-    } catch (historyError) {
-      console.error("Error logging action history:", historyError);
-    }
-
-    res.json({ message: "Logged out from all devices successfully" });
-  } catch (error) {
-    console.error("Logout all error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

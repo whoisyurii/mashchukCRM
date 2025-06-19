@@ -23,6 +23,7 @@ router.get(
           firstName: true,
           lastName: true,
           role: true,
+          avatar: true,
           createdAt: true,
         },
       });
@@ -53,6 +54,7 @@ router.get(
           firstName: true,
           lastName: true,
           role: true,
+          avatar: true,
           createdAt: true,
         },
       });
@@ -166,6 +168,7 @@ router.put("/me", authenticateToken, async (req, res) => {
         firstName: true,
         lastName: true,
         role: true,
+        avatar: true,
         createdAt: true,
       },
     });

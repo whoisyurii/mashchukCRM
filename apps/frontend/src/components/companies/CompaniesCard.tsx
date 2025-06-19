@@ -40,8 +40,7 @@ export interface CompaniesCardProps {
   isLoading: boolean;
   searchInput: string;
   handleSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  capitalFilter: { min: string; max: string };
-  setCapitalFilter: (v: { min: string; max: string }) => void;
+
   handleSort: (column: string) => void;
   sortBy: string;
   sortOrder: "asc" | "desc";
@@ -54,8 +53,6 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
   isLoading,
   searchInput,
   handleSearch,
-  capitalFilter,
-  setCapitalFilter,
   handleSort,
   sortBy,
   sortOrder,
@@ -63,16 +60,6 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
   setPage,
 }) => {
   const navigate = useNavigate();
-
-  console.log("CompaniesCard props:", {
-    data,
-    isLoading,
-    searchInput,
-    capitalFilter,
-    sortBy,
-    sortOrder,
-    page,
-  });
 
   if (isLoading) {
     return (
@@ -105,32 +92,11 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
               />
             </div>
           </div>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              placeholder="Min Capital"
-              value={capitalFilter.min}
-              onChange={(e) =>
-                setCapitalFilter({ ...capitalFilter, min: e.target.value })
-              }
-              className="w-24 bg-dark-800 border border-dark-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            />
-            <input
-              type="number"
-              placeholder="Max Capital"
-              value={capitalFilter.max}
-              onChange={(e) =>
-                setCapitalFilter({ ...capitalFilter, max: e.target.value })
-              }
-              className="w-24 bg-dark-800 border border-dark-600 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            />
-          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-dark-700">
-                {" "}
                 <th
                   className="text-left py-3 px-4 text-sm font-medium text-gray-400 cursor-pointer hover:text-white"
                   onClick={() => handleSort("name")}
@@ -162,7 +128,7 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
                   Actions
                 </th>
               </tr>
-            </thead>{" "}
+            </thead>
             <tbody>
               {data?.data.map((company) => (
                 <tr
@@ -191,7 +157,7 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-300">
                     {new Date(company.createdAt).toLocaleDateString()}
-                  </td>{" "}
+                  </td>
                   <td className="py-4 px-4">
                     <Button
                       variant="ghost"
@@ -205,7 +171,7 @@ export const CompaniesCard: React.FC<CompaniesCardProps> = ({
               ))}
             </tbody>
           </table>
-        </div>{" "}
+        </div>
         {/* pagination handling block */}
         {data?.pagination && (
           <Pagination

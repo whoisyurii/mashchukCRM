@@ -5,7 +5,7 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Badge } from "../components/ui/Badge";
 import { Pagination } from "../components/ui/Pagination";
-import { AddUserModal } from "./Dashboard/AddUserModal";
+import { AddUserModal } from "../components/users/AddUserModal";
 import { useUsersQuery, useUserOperations } from "../hooks/useUsersQueries";
 import { User } from "../services/userService";
 import { getRoleBadgeColor } from "../utils/user-helpers";

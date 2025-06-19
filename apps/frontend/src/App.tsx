@@ -8,14 +8,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Layout } from "./components/layout/Layout";
-import { Login } from "./pages/Login";
-import { Register } from "./pages/Register";
-import { Dashboard } from "./pages/Dashboard/Dashboard";
-import { Companies } from "./pages/Companies/Companies";
-import { CompanyDetail } from "./pages/Companies/CompanyDetail";
+// import { Login } from "./pages/Login";
+// import { Register } from "./pages/Register";
+import { Dashboard } from "./pages/Dashboard";
+import { Companies } from "./pages/Companies";
+import { CompanyDetail } from "./components/companies/CompanyDetail";
 import { Users } from "./pages/Users";
 import { Profile } from "./pages/Profile";
 import { History } from "./pages/History";
+import { LoginPage, RegisterPage } from "./pages/auth";
 
 const queryClient = new QueryClient();
 
@@ -47,11 +48,11 @@ const ProtectedRoute: React.FC<{
 const router = createBrowserRouter([
   {
     path: "/login",
-    element: <Login />,
+    element: <LoginPage />,
   },
   {
     path: "/register",
-    element: <Register />,
+    element: <RegisterPage />,
   },
   {
     path: "/dashboard",
