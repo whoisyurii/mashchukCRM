@@ -1,5 +1,6 @@
 import express from "express";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import prisma from "../prisma.js";
 import { createActionHistory } from "./history.js";
 import { authenticateToken } from "../middleware/auth.js";
@@ -7,8 +8,6 @@ import { passportJWT } from "../middleware/passport.js";
 import {
   generateTokenPair,
   verifyRefreshToken,
-  revokeRefreshToken,
-  revokeAllUserTokens,
   generateAccessToken,
 } from "../utils/tokenUtils.js";
 
@@ -140,35 +139,49 @@ router.post("/refresh", async (req, res) => {
 });
 
 // logout (revoke refresh token) - using default middleware
-router.post("/logout", authenticateToken, async (req, res) => {
+router.post('/logout', async (req, res) => {
   try {
     const { refreshToken } = req.body;
-
+    
+    // remove refresh token from database
     if (refreshToken) {
-      // revoke specific refresh token
-      await revokeRefreshToken(refreshToken);
-    } else {
-      // revoke all tokens for this user
-      await revokeAllUserTokens(req.user.id);
+      try {
+        await revokeRefreshToken(refreshToken);
+      } catch (error) {
+        console.error('Error revoking refresh token:', error);
+        // if no token - still proceed with logout
+      }
     }
-
-    // Log logout action
-    try {
-      await createActionHistory({
-        action: "logout",
-        type: "auth",
-        details: `User logged out`,
-        target: req.user.email,
-        userId: req.user.id,
-      });
-    } catch (historyError) {
-      console.error("Error logging action history:", historyError);
+    
+    // log logout action
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        await createActionHistory({
+          action: "logout",
+          type: "auth",
+          details: "User logged out",
+          userId: decoded.id,
+        });
+      } catch (error) {
+        // ignore errors during token verification
+        console.error('Token verification error during logout:', error);
+      }
     }
-
-    res.json({ message: "Logged out successfully" });
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Logged out successfully' 
+    });
   } catch (error) {
-    console.error("Logout error:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Logout error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
   }
 });
 

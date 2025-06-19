@@ -84,14 +84,6 @@ export const revokeRefreshToken = async (token) => {
   });
 };
 
-/**
- * Revoke all refresh tokens for a user
- */
-export const revokeAllUserTokens = async (userId) => {
-  await prisma.refreshToken.deleteMany({
-    where: { userId },
-  });
-};
 
 /**
  * Clean up expired tokens (should be run periodically)
