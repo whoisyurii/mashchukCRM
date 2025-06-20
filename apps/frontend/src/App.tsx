@@ -12,7 +12,8 @@ import { Dashboard } from "./pages/Dashboard";
 import { Companies } from "./pages/Companies/Companies";
 import CompaniesAdd from "./pages/Companies/CompaniesAdd";
 import { CompanyDetail } from "./components/companies/CompanyDetail";
-import { Users } from "./pages/Users";
+import { Users } from "./pages/Users/Users";
+import UsersAdd from "./pages/Users/UsersAdd";
 import { Profile } from "./pages/Profile";
 import { History } from "./pages/History";
 import { LoginPage, RegisterPage } from "./pages/auth";
@@ -90,6 +91,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]}>
         <Users />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/users/add-new",
+    element: (
+      <ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]}>
+        <UsersAdd />
       </ProtectedRoute>
     ),
   },

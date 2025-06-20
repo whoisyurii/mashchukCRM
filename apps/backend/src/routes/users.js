@@ -1,10 +1,49 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import bcrypt from "bcryptjs";
 import { authenticateJWT, requireRole, requireOwnerOrAdmin } from "../middleware/auth.js";
 import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
 
 const prisma = new PrismaClient();
+
+// Multer configuration for avatar uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(process.cwd(), "public", "users");
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `avatar-${uniqueSuffix}${ext}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
 
 const router = express.Router();
 
@@ -34,14 +73,22 @@ router.get(
   }
 );
 
-// Create new user (SuperAdmin only)
+// Create new user (SuperAdmin and Admin)
 router.post(
   "/",
   authenticateJWT,
-  requireRole(["SuperAdmin"]),
+  requireRole(["SuperAdmin", "Admin"]),
+  upload.single('avatar'),
   async (req, res) => {
     try {
       const { email, password, firstName, lastName, role = "User" } = req.body;
+
+      // Check role permissions
+      if (req.user.role === "Admin" && (role === "SuperAdmin" || role === "Admin")) {
+        return res.status(403).json({ 
+          message: "Admin users can only create User accounts" 
+        });
+      }
 
       // Check if user already exists
       const existingUser = await prisma.user.findUnique({
@@ -55,6 +102,12 @@ router.post(
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
+      // Generate avatar URL if file was uploaded
+      let avatarUrl = null;
+      if (req.file) {
+        avatarUrl = `/users/${req.file.filename}`;
+      }
+
       // Create new user
       const newUser = await prisma.user.create({
         data: {
@@ -63,6 +116,7 @@ router.post(
           firstName,
           lastName,
           role,
+          avatar: avatarUrl,
         },
         select: {
           id: true,
@@ -70,6 +124,7 @@ router.post(
           firstName: true,
           lastName: true,
           role: true,
+          avatar: true,
           createdAt: true,
         },
       });

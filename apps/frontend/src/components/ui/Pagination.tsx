@@ -26,6 +26,26 @@ export const Pagination: React.FC<PaginationProps> = ({
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
+  // Calculate the range of page numbers to display
+  let startPage = Math.max(
+    1,
+    Math.min(
+      currentPage - Math.floor(maxButtons / 2),
+      totalPages - maxButtons + 1
+    )
+  );
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+  // if the end page is less than the total pages, adjust the start page
+  if (endPage - startPage + 1 < maxButtons) {
+    startPage = Math.max(1, endPage - maxButtons + 1);
+  }
+
+  const pageNumbers = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
+
   return (
     <div className="flex items-center justify-between pt-4 border-t border-dark-700">
       <div className="text-sm text-gray-400">
@@ -43,19 +63,16 @@ export const Pagination: React.FC<PaginationProps> = ({
         </Button>
 
         {/* Page numbers */}
-        {[...Array(Math.min(maxButtons, totalPages))].map((_, i) => {
-          const pageNum = i + 1;
-          return (
-            <Button
-              key={pageNum}
-              variant={currentPage === pageNum ? "primary" : "outline"}
-              size="icon"
-              onClick={() => onPageChange(pageNum)}
-            >
-              {pageNum}
-            </Button>
-          );
-        })}
+        {pageNumbers.map((pageNum) => (
+          <Button
+            key={pageNum}
+            variant={currentPage === pageNum ? "primary" : "outline"}
+            size="icon"
+            onClick={() => onPageChange(pageNum)}
+          >
+            {pageNum}
+          </Button>
+        ))}
 
         {/* Next page button */}
         <Button

@@ -1,19 +1,17 @@
 import React, { useState } from "react";
-import { Search, Plus, Edit2, Trash2 } from "lucide-react";
-import { Card } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
-import { Input } from "../components/ui/Input";
-import { Badge } from "../components/ui/Badge";
-import { Pagination } from "../components/ui/Pagination";
-import { AddUserModal } from "../components/users/AddUserModal";
-import { useUsersQuery, useUserOperations } from "../hooks/useUsersQueries";
-import { User } from "../services/userService";
-import { getRoleBadgeColor } from "../utils/user-helpers";
-import { filterUsers, paginateArray } from "../utils/filtering-helpers";
+import { useNavigate } from "react-router-dom";
+import { Search, Plus, Trash2 } from "lucide-react";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { Badge } from "../../components/ui/Badge";
+import { Pagination } from "../../components/ui/Pagination";
+import { useUsersQuery, useUserOperations } from "../../hooks/useUsersQueries";
+import { getRoleBadgeColor } from "../../utils/user-helpers";
+import { filterUsers, paginateArray } from "../../utils/filtering-helpers";
 
 export const Users: React.FC = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,8 +45,7 @@ export const Users: React.FC = () => {
             <p className="text-gray-400 mt-1">
               Manage users and their permissions
             </p>
-          </div>
-          <Button onClick={() => setShowModal(true)}>
+          </div>          <Button onClick={() => navigate("/users/add-new")}>
             <Plus className="w-4 h-4 mr-2" />
             Add User
           </Button>
@@ -121,18 +118,7 @@ export const Users: React.FC = () => {
                     <td className="py-4 px-4 text-gray-300">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="py-4 px-4">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            setEditingUser(user);
-                            setShowModal(true);
-                          }}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>{" "}
+                    <td className="py-4 px-4">                      <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
                           variant="ghost"
@@ -155,18 +141,8 @@ export const Users: React.FC = () => {
             totalItems={filteredUsers.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
-          />
-        </Card>
+          />        </Card>
       </div>
-
-      <AddUserModal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-          setEditingUser(null);
-        }}
-        editingUser={editingUser}
-      />
     </>
   );
 };
