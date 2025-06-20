@@ -2,27 +2,29 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import passport from "./middleware/passport.js";
-import { startTokenCleanupJob } from "./jobs/tokenCleanup.js";
 import authRoutes from "./routes/auth.js";
 import companyRoutes from "./routes/companies.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import userRoutes from "./routes/users.js";
 import historyRoutes from "./routes/history.js";
+// swagger imports
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUI from 'swagger-ui-express';
+import swaggerSpec from "./swaggerSpec.js";
 
-// i use express for backend in this project
 const app = express();
 
 const PORT = process.env.PORT || 3001;
 
-// Middleware to enable CORS for all routes and parse JSON requests
+// middleware to enable CORS for all routes and parse JSON requests
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Initialize Passport middleware
+// initialize Passport auth middleware
 app.use(passport.initialize());
 
-// Serve static files from public directory
+// serve static files from public directory
 app.use("/public", express.static(path.join(process.cwd(), "public")));
 
 // mount different api routes on specific paths
@@ -37,6 +39,8 @@ app.get("/api/health", (req, res) => {
   // Return a JSON response with server status and timestamp
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
