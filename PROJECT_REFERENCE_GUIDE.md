@@ -16,7 +16,7 @@
 
 ```
 ┌────────────────────────────────────────────────────────────-─┐
-│                    MashchukCRM Monorepo                      │
+│                      MyCRM Monorepo                          │
 ├────────────────────────────────────────────────────────────-─┤
 │  Frontend (React SPA)     │     Backend (Express API)        │
 │  Port: 5173               │     Port: 3001                   │
@@ -57,7 +57,8 @@
 ## 📁 Project Structure
 
 ```
-mashchukCRM/
+MASHCHUKCRM/
+/project
 ├── 📄 package.json                 # Root monorepo config with workspaces
 ├── 📄 .gitignore                   # Git ignore rules
 ├── 📄 eslint.config.js             # ESLint configuration
@@ -79,7 +80,8 @@ mashchukCRM/
 │   │   ├── 📄 tsconfig.json       # Frontend TypeScript config
 │   │   ├── 📁 public/             # Static assets
 │   │   │   ├── 📄 _redirects      # SPA routing config
-│   │   │   └── 📁 companies/      # Company logos
+│   │   │   ├── 📁 companies/      # Company logos
+│   │   │   └── 📁 users/          # User avatars
 │   │   └── 📁 src/                # Source code
 │   │       ├── 📄 App.tsx         # Main App component & routing
 │   │       ├── 📄 main.tsx        # React entry point
@@ -92,28 +94,42 @@ mashchukCRM/
 │   │       │   │   ├── 📄 CompanyDetail.tsx   # Company detail view
 │   │       │   │   └── 📄 index.ts           # Exports & types
 │   │       │   └── 📁 users/      # User-specific components
-│   │       │       ├── 📄 AddUserModal.tsx   # Create/edit user modal
+│   │       │       ├── 📄 UserCard.tsx       # User card component
 │   │       │       └── 📄 index.ts           # Exports & types
 │   │       ├── 📁 contexts/       # React contexts (Auth)
 │   │       ├── 📁 hooks/          # Custom React hooks
+│   │       │   ├── 📄 index.ts               # Hook exports
+│   │       │   ├── 📄 useCompaniesQuery.ts   # Company data hooks
+│   │       │   ├── 📄 useDashboardQueries.ts # Dashboard data hooks
+│   │       │   ├── 📄 useHistoryQuery.ts     # History data hooks
+│   │       │   └── 📄 useUsersQueries.ts     # User data hooks
 │   │       ├── 📁 pages/          # Page components (organized by feature)
 │   │       │   ├── 📁 auth/       # Authentication pages
 │   │       │   │   ├── 📄 LoginPage.tsx      # Login form
 │   │       │   │   ├── 📄 RegisterPage.tsx   # Registration form
 │   │       │   │   └── 📄 index.ts           # Exports & types
-│   │       │   ├── 📁 dashboard/  # Dashboard pages
-│   │       │   │   └── 📄 DashboardPage.tsx  # Main dashboard
-│   │       │   ├── 📁 companies/  # Company management pages
-│   │       │   │   └── 📄 CompaniesPage.tsx  # Companies list page
-│   │       │   ├── 📁 users/      # User management pages
-│   │       │   │   └── 📄 UsersPage.tsx      # Users list page
-│   │       │   ├── 📁 profile/    # User profile pages
-│   │       │   │   └── 📄 ProfilePage.tsx    # User profile
-│   │       │   └── 📁 history/    # Action history pages
-│   │       │       └── 📄 HistoryPage.tsx    # Action history list
+│   │       │   ├── 📄 Dashboard.tsx           # Main dashboard page
+│   │       │   ├── 📄 History.tsx             # Action history page
+│   │       │   ├── 📄 Profile.tsx             # User profile page
+│   │       │   ├── 📁 Companies/  # Company management pages
+│   │       │   │   └── 📄 Companies.tsx      # Companies list page
+│   │       │   └── 📁 Users/      # User management pages
+│   │       │       ├── 📄 Users.tsx          # Users list page
+│   │       │       └── 📄 UsersAdd.tsx       # Add new user page
 │   │       ├── 📁 services/       # API services
+│   │       │   ├── 📄 api.ts                 # Axios instance & config
+│   │       │   ├── 📄 authService.ts         # Authentication services
+│   │       │   ├── 📄 companyService.ts      # Company services
+│   │       │   ├── 📄 dashboardService.ts    # Dashboard services
+│   │       │   ├── 📄 historyService.ts      # History services
+│   │       │   └── 📄 userService.ts         # User services (with FormData support)
 │   │       ├── 📁 types/          # TypeScript interfaces
 │   │       └── 📁 utils/          # Utility functions
+│   │           ├── 📄 action-helpers.tsx     # Action utility functions
+│   │           ├── 📄 filtering-helpers.ts   # Filtering utilities
+│   │           ├── 📄 shortener-helpers.ts   # String shortening
+│   │           ├── 📄 toast-helpers.ts       # Toast notifications
+│   │           └── 📄 user-helpers.ts        # User-related utilities
 │   └── 📁 backend/                # Express API
 │       ├── 📄 package.json        # Backend dependencies
 │       ├── 📄 .env                # Environment variables
@@ -122,13 +138,26 @@ mashchukCRM/
 │       │   ├── 📄 schema.prisma   # Database schema
 │       │   ├── 📄 seed.js         # Database seeding
 │       │   └── 📁 migrations/     # Database migrations
+│       ├── 📁 public/             # Static file uploads
+│       │   ├── 📁 companies/      # Company logo uploads
+│       │   └── 📁 users/          # User avatar uploads
 │       └── 📁 src/                # Source code
 │           ├── 📄 index.js        # Express server entry
 │           ├── 📄 prisma.js       # Prisma client setup
+│           ├── 📄 swaggerSpec.js  # Swagger API documentation config
 │           ├── 📁 routes/         # API endpoints
+│           │   ├── 📄 auth.js     # Authentication routes (with Swagger docs)
+│           │   ├── 📄 companies.js # Company routes (with Swagger docs)
+│           │   ├── 📄 dashboard.js # Dashboard routes (with Swagger docs)
+│           │   ├── 📄 history.js  # History routes (with Swagger docs)
+│           │   └── 📄 users.js    # User routes (with Swagger docs & avatar upload)
 │           ├── 📁 middleware/     # Express middleware
+│           │   ├── 📄 auth.js     # JWT authentication middleware
+│           │   └── 📄 passport.js # Passport.js configuration
 │           ├── 📁 utils/          # Utility functions
+│           │   └── 📄 tokenUtils.js # JWT token utilities
 │           └── 📁 jobs/           # Background tasks
+│               └── 📄 tokenCleanup.js # Refresh token cleanup
 └── 📁 node_modules/               # Dependencies
 ```
 
@@ -186,9 +215,12 @@ mashchukCRM/
     "jsonwebtoken": "^9.0.2",        # JWT tokens
     "passport": "^0.7.0",            # Authentication middleware
     "passport-jwt": "^4.0.1",        # JWT passport strategy
+    "passport-local": "^1.0.0",      # Local passport strategy
     "node-cron": "^4.1.0",           # Scheduled tasks
     "multer": "^2.0.1",              # File uploads
-    "pg": "^8.16.0"                  # PostgreSQL driver
+    "pg": "^8.16.0",                 # PostgreSQL driver
+    "swagger-jsdoc": "^6.2.8",       # Swagger JSDoc generator
+    "swagger-ui-express": "^5.0.0"   # Swagger UI middleware
   },
   "devDependencies": {
     "prisma": "^6.9.0",              # Database toolkit
@@ -232,10 +264,10 @@ API Request
 └─────────┬───────┘
           │
           ▼
-    ┌─────────┐     ┌────────────────┐
+    ┌─────────┐     ┌──────────────────┐
     │API Call │────▶│ authenticateToken│
-    └─────────┘     │ middleware      │
-          │         └─────┬──────────┘
+    └─────────┘     │ middleware       │
+          │         └─────┬────────────┘
           │               │
           │          Valid Token?
           │               │
@@ -291,14 +323,24 @@ router.get(
 // apps/backend/src/index.js
 import express from "express";
 import cors from "cors";
+import path from "path";
 import passport from "./middleware/passport.js";
+import swaggerUI from 'swagger-ui-express';
+import swaggerSpec from "./swaggerSpec.js";
 
 const app = express();
 
 // Middleware Stack (Order matters!)
 app.use(cors()); // 1. CORS headers
-app.use(express.json()); // 2. JSON body parser
-app.use(passport.initialize()); // 3. Passport initialization
+app.use(express.json({ limit: '10mb' })); // 2. JSON body parser with file upload support
+app.use(express.urlencoded({ extended: true, limit: '10mb' })); // 3. URL encoded parser
+app.use(passport.initialize()); // 4. Passport initialization
+
+// Static file serving for uploads
+app.use("/public", express.static(path.join(process.cwd(), "public")));
+
+// API Documentation
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 // Route mounting
 app.use("/api/auth", authRoutes);
@@ -306,6 +348,11 @@ app.use("/api/companies", companyRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/history", historyRoutes);
+
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
 
 app.listen(PORT);
 ```
@@ -344,187 +391,130 @@ HTTP Response
 │   ├── POST /login         # User login
 │   ├── POST /register      # User registration
 │   ├── POST /refresh       # Token refresh
-│   ├── POST /logout        # Single device logout
-│   ├── POST /logout-all    # All devices logout
-│   └── GET /verify         # Token verification
+│   ├── POST /logout        # User logout
+│   ├── GET /verify         # Token verification
+│   ├── GET /profile        # User profile
+│   └── GET /profile-passport # Alternative profile endpoint
 ├── /users                  # User management
 │   ├── GET /               # List users (Admin+)
-│   ├── POST /              # Create user (SuperAdmin)
-│   ├── PUT /:id            # Update user
+│   ├── POST /              # Create user with avatar upload (Admin+)
+│   ├── GET /me             # Current user profile
+│   ├── PUT /me             # Update current user profile
+│   ├── PUT /:id            # Update user by ID (Admin+)
+│   ├── PUT /change-password # Change password
 │   └── DELETE /:id         # Delete user (SuperAdmin)
 ├── /companies              # Company management
-│   ├── GET /               # List companies
-│   ├── POST /              # Create company
+│   ├── GET /               # List companies with pagination & filters
+│   ├── GET /:id            # Get single company
+│   ├── POST /              # Create company with logo upload
 │   ├── PUT /:id            # Update company
-│   └── DELETE /:id         # Delete company
-├── /dashboard              # Analytics
-│   └── GET /stats          # Dashboard statistics
-└── /history                # Audit trail
-    └── GET /               # Action history
+│   ├── DELETE /:id         # Delete company
+│   ├── POST /:id/logo      # Upload company logo
+│   └── DELETE /:id/logo    # Delete company logo
+├── /dashboard              # Analytics & management
+│   ├── GET /stats          # Dashboard statistics
+│   ├── GET /admins         # List admin users (SuperAdmin)
+│   ├── POST /admins        # Create admin user (SuperAdmin)
+│   ├── PUT /admins/:id     # Update admin user (SuperAdmin)
+│   ├── DELETE /admins/:id  # Delete admin user (SuperAdmin)
+│   ├── GET /user-companies # User's assigned companies
+│   └── GET /companies-by-capital # Companies sorted by capital
+├── /history                # Audit trail
+│   ├── GET /               # Action history with pagination & filters
+│   └── GET /:id            # Single action history entry
+└── /api-docs               # Swagger API Documentation
+    └── Interactive API explorer with authentication support
 ```
 
 ---
 
-## 🗄️ Database Layer (Prisma + PostgreSQL)
+## 📚 API Documentation (Swagger)
 
-### **1. Prisma ORM Architecture**
+### **Swagger Integration**
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                   Prisma Ecosystem                     │
-├─────────────────────────────────────────────────────────┤
-│  schema.prisma          │  Prisma Client              │
-│  ┌─────────────────┐    │  ┌─────────────────────────┐ │
-│  │ Data Models     │───▶│  │ Generated JavaScript    │ │
-│  │ - User          │    │  │ Client with Methods     │ │
-│  │ - Company       │    │  │ - prisma.user.findMany()│ │
-│  │ - RefreshToken  │    │  │ - prisma.company.create│ │
-│  │ - ActionHistory │    │  │ - Type Safety           │ │
-│  └─────────────────┘    │  └─────────────────────────┘ │
-│                         │                             │
-│  Migrations             │  Database Operations        │
-│  ┌─────────────────┐    │  ┌─────────────────────────┐ │
-│  │ SQL Files       │───▶│  │ PostgreSQL Database     │ │
-│  │ - Schema Changes│    │  │ - ACID Transactions     │ │
-│  │ - Version Control│   │  │ - Indexes & Relations   │ │
-│  │ - Auto-generated│    │  │ - Data Validation       │ │
-│  └─────────────────┘    │  └─────────────────────────┘ │
-└─────────────────────────────────────────────────────────┘
-```
-
-### **2. Database Schema**
-
-```prisma
-// User Model
-model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  password     String
-  firstName    String
-  lastName     String
-  role         UserRole  @default(User)
-  avatar       String?
-
-  // Relations
-  companies    Company[]
-  refreshTokens RefreshToken[]
-  actionHistory ActionHistory[]
-
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-}
-
-// Role-based Access Control
-enum UserRole {
-  SuperAdmin    # Full system access
-  Admin         # Manage users & companies
-  User          # View assigned companies
-}
-```
-
-### **3. Prisma Client Usage Patterns**
+Проект включает полную документацию API через Swagger UI:
 
 ```javascript
-// Create with relations
-const company = await prisma.company.create({
-  data: {
-    name: "TechCorp",
-    service: "Software",
-    capital: 1000000,
-    userId: "user-id",
-  },
-  include: {
-    owner: true,
-    actionHistory: true,
-  },
-});
+// swaggerSpec.js - Configuration
+import swaggerJSDoc from 'swagger-jsdoc';
 
-// Complex queries with filtering
-const companies = await prisma.company.findMany({
-  where: {
-    OR: [{ userId: req.user.id }, { userId: null }],
-    status: "Active",
-  },
-  include: {
-    owner: {
-      select: {
-        firstName: true,
-        lastName: true,
-        email: true,
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'MashchukCRM API',
+      version: '1.0.0',
+      description: 'API documentation for MashchukCRM',
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
       },
     },
   },
-});
+  apis: ['./src/routes/*.js'], // JSDoc comments in route files
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+export default swaggerSpec;
 ```
 
----
+### **JSDoc Documentation Coverage**
 
-## 🚀 CI/CD Pipeline (GitHub Actions)
+Все API endpoints полностью документированы с JSDoc комментариями:
 
-### **1. Workflow Structure (.github/workflows/ci-cd.yml)**
+#### **🔐 Authentication Routes** (`/api/auth`)
+- `POST /auth/login` - User login with credentials
+- `POST /auth/register` - User registration
+- `POST /auth/refresh` - Access token refresh
+- `POST /auth/logout` - User logout with token revocation
+- `GET /auth/verify` - JWT token verification
+- `GET /auth/profile` - Get user profile
+- `GET /auth/profile-passport` - Alternative profile endpoint
 
-```yaml
-name: CI/CD Pipeline
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+#### **👥 User Management Routes** (`/api/users`)
+- `GET /users` - List all users (Admin/SuperAdmin)
+- `POST /users` - Create user with avatar upload (Admin/SuperAdmin)
+- `GET /users/me` - Get current user profile
+- `PUT /users/me` - Update current user profile
+- `PUT /users/:id` - Update user by ID (Admin/SuperAdmin)
+- `PUT /users/change-password` - Change user password
+- `DELETE /users/:id` - Delete user (SuperAdmin only)
 
-jobs:
-  # 1. Testing & Linting
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-          cache: "npm"
+#### **🏢 Company Management Routes** (`/api/companies`)
+- `GET /companies` - List companies with pagination & filtering
+- `GET /companies/:id` - Get single company details
+- `POST /companies` - Create company with logo upload
+- `PUT /companies/:id` - Update company information
+- `DELETE /companies/:id` - Delete company
+- `POST /companies/:id/logo` - Upload/update company logo
+- `DELETE /companies/:id/logo` - Remove company logo
 
-      - name: Install dependencies
-        run: npm ci
+#### **📊 Dashboard Routes** (`/api/dashboard`)
+- `GET /dashboard/stats` - Dashboard statistics by role
+- `GET /dashboard/admins` - List admin users (SuperAdmin)
+- `POST /dashboard/admins` - Create admin user (SuperAdmin)
+- `PUT /dashboard/admins/:id` - Update admin user (SuperAdmin)
+- `DELETE /dashboard/admins/:id` - Delete admin user (SuperAdmin)
+- `GET /dashboard/user-companies` - Get user's companies
+- `GET /dashboard/companies-by-capital` - Companies sorted by capital
 
-      - name: Run tests
-        run: npm test
+#### **📋 History Routes** (`/api/history`)
+- `GET /history` - Action history with pagination & filtering
+- `GET /history/:id` - Get single action history entry
 
-      - name: Run linting
-        run: npm run lint
+### **Swagger UI Features**
 
-  # 2. Build & Deploy
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Deploy to Render
-        run: echo "Triggered by Render webhook"
-```
-
-### **2. Deployment Flow**
-
-```
-Git Push to main
-       │
-       ▼
-┌─────────────────┐
-│ GitHub Actions  │
-│ 1. Install deps │
-│ 2. Run tests    │
-│ 3. Run linting  │
-│ 4. Build check  │
-└─────┬───────────┘
-      │ Success?
-      ▼
-┌─────────────────┐    ┌─────────────────┐
-│ Render Webhook  │───▶│ Render.com      │
-│ Auto-triggered  │    │ 1. Pull code    │
-└─────────────────┘    │ 2. Build        │
-                       │ 3. Deploy       │
-                       │ 4. Health check │
-                       └─────────────────┘
-```
+- **Interactive Testing**: Test API endpoints directly from browser
+- **Authentication Support**: JWT Bearer token authentication
+- **Request/Response Examples**: Detailed schema definitions
+- **File Upload Support**: Multipart form data for avatars/logos
+- **Role-based Documentation**: Clear permission requirements
+- **Access URL**: `http://localhost:3001/api-docs` when server is running
 
 ---
 
@@ -608,43 +598,86 @@ jobs:
 
 ## 🔄 Data Flow Analysis
 
-### **1. User Registration Flow**
+### **1. User Creation Flow (New Implementation)**
 
 ```
-Frontend Form (RegisterPage)
-     │ POST /api/auth/register
+Frontend Form (UsersAdd Page)
+     │ FormData with avatar file
      ▼
-Express Router (/auth)
+React Hook Form Validation
+     │
+     ▼
+userService.createUser(FormData)
+     │ POST /api/users (multipart/form-data)
+     ▼
+Express Router (/users)
+     │
+     ▼
+multer.single('avatar') middleware
+     │ Save file to /public/users/
+     ▼
+Role Permission Check
      │
      ▼
 bcrypt.hash(password)
      │
      ▼
-prisma.user.create()
+prisma.user.create({
+  avatar: `/users/${filename}`
+})
      │
      ▼
-PostgreSQL INSERT
+PostgreSQL INSERT with avatar URL
      │
      ▼
-generateTokenPair()
+createActionHistory() logging
      │
      ▼
-Store Refresh Token in DB
+Return { user data with avatar }
      │
      ▼
-Return { user, accessToken, refreshToken }
-     │
-     ▼
-Frontend stores in localStorage
+Frontend redirect to /users
 ```
 
-### **2. Protected Route Access**
+### **2. Company Logo Upload Flow**
 
 ```
-Frontend API Call (from Pages/Components)
+Frontend File Input
+     │ File selection
+     ▼
+FormData creation
+     │ multipart/form-data
+     ▼
+companyService API call
+     │ POST /companies/:id/logo
+     ▼
+multer.single('logo') middleware
+     │ Save to /public/companies/
+     ▼
+Permission check (Owner/Admin/SuperAdmin)
+     │
+     ▼
+Delete old logo file (if exists)
+     │
+     ▼
+prisma.company.update({
+  logoUrl: `companies/${filename}`
+})
+     │
+     ▼
+Action history logging
+     │
+     ▼
+Return updated company with logo URL
+```
+
+### **3. Protected Route Access with File Serving**
+
+```
+Frontend API Call
      │ Authorization: Bearer <token>
      ▼
-authenticateToken middleware
+authenticateJWT middleware
      │
      ▼
 jwt.verify(token, secret)
@@ -662,17 +695,22 @@ requireRole(['Admin', 'SuperAdmin'])
 Route Handler
      │
      ▼
-Business Logic + DB Query
+Business Logic + DB Query with file URLs
      │
      ▼
-JSON Response
+JSON Response with file paths
+     │
+     ▼
+Frontend displays images via /public/ static serving
 ```
 
-### **3. Database Relationship Flow**
+### **3. Database Relationship Flow with File Storage**
 
 ```
 User (1) ────────── (Many) Company
   │                           │
+  │ avatar: String?           │ logoUrl: String?
+  │ /public/users/            │ /public/companies/
   │                           │
   │ (1)                  (Many)│
   │                           │
@@ -682,6 +720,15 @@ RefreshToken (Many)    ActionHistory (Many)
   │                           │
   └─── Cleanup Job ───────────┘
        (node-cron)
+       
+File Storage Structure:
+/public/
+├── users/
+│   ├── avatar-1640995200000-123456789.jpg
+│   └── avatar-1640995201000-987654321.png
+└── companies/
+    ├── company-new-1640995200000-123456789.jpg
+    └── company-comp123-1640995201000-987654321.png
 ```
 
 ---
@@ -734,9 +781,13 @@ npm run migrate --workspace=apps/backend
 - **Authentication**: Bearer tokens in Authorization header
 - **Error Handling**: Axios interceptors for token refresh
 - **Type Safety**: Shared TypeScript interfaces
+- **File Uploads**: FormData support for avatars and company logos
+- **Static Serving**: Images served via `/public/` endpoint
 - **Component Architecture**:
   - **Pages**: Route-level components in `/pages` organized by feature
   - **Components**: Reusable UI components in `/components` organized by domain
+  - **Services**: API layer with FormData support for file uploads
+  - **Hooks**: Custom React Query hooks for data fetching and mutations
   - **Modular Structure**: Each feature has its own index.ts with exports and types
 
 ### **2. Component Organization**
@@ -745,17 +796,31 @@ npm run migrate --workspace=apps/backend
 Frontend Architecture
 ├── 📁 pages/              # Route-level components
 │   ├── auth/             # Authentication flows
-│   ├── dashboard/        # Analytics & overview
-│   ├── companies/        # Company management
-│   ├── users/           # User management
-│   ├── profile/         # User profile
-│   └── history/         # Action tracking
+│   ├── Dashboard.tsx     # Analytics & overview
+│   ├── Companies/        # Company management
+│   │   └── Companies.tsx # Company list page
+│   ├── Users/           # User management
+│   │   ├── Users.tsx    # User list page
+│   │   └── UsersAdd.tsx # Add new user page (replaces modal)
+│   ├── Profile.tsx      # User profile
+│   └── History.tsx      # Action tracking
 ├── 📁 components/        # Reusable components
 │   ├── layout/          # App layout (Header, Sidebar)
 │   ├── ui/             # Basic UI components
 │   ├── companies/      # Company-specific components
-│   └── users/          # User-specific components
+│   └── users/          # User-specific components (no longer has modal)
+├── 📁 hooks/            # Custom React Query hooks
+│   ├── useCompaniesQuery.ts   # Company data operations
+│   ├── useDashboardQueries.ts # Dashboard statistics
+│   ├── useHistoryQuery.ts     # History data
+│   └── useUsersQueries.ts     # User CRUD operations with file upload
 └── 📁 services/         # API integration layer
+    ├── api.ts           # Axios instance with interceptors
+    ├── authService.ts   # Authentication API calls
+    ├── companyService.ts # Company CRUD with logo upload
+    ├── userService.ts   # User CRUD with FormData avatar support
+    ├── dashboardService.ts # Dashboard data
+    └── historyService.ts   # Action history
 ```
 
 ### **3. Backend ↔ Database**
@@ -774,7 +839,7 @@ Frontend Architecture
 
 ---
 
-## 🚨 Critical Dependencies Chain
+### **4. Critical Dependencies Chain**
 
 ```
 Node.js Runtime
@@ -784,20 +849,29 @@ Express.js Framework
      │
      ├─ Middleware Stack
      │  ├─ CORS (cors)
-     │  ├─ Body Parser (express.json)
+     │  ├─ Body Parser (express.json + urlencoded)
+     │  ├─ Static File Serving (express.static)
+     │  ├─ File Upload (multer)
      │  ├─ Authentication (passport + jsonwebtoken)
      │  └─ Authorization (custom middleware)
+     │
+     ├─ API Documentation
+     │  ├─ Swagger JSDoc (swagger-jsdoc)
+     │  ├─ Swagger UI (swagger-ui-express)
+     │  └─ Interactive API Explorer (/api-docs)
      │
      ├─ Database Layer
      │  ├─ Prisma ORM (@prisma/client)
      │  ├─ PostgreSQL Driver (pg)
-     │  └─ Connection Pool
+     │  ├─ Connection Pool
+     │  └─ File URL Storage (avatar/logo paths)
      │
      └─ Security Layer
         ├─ Password Hashing (bcryptjs)
         ├─ JWT Tokens (jsonwebtoken)
         ├─ Refresh Token Storage
-        └─ Role-based Access Control
+        ├─ Role-based Access Control
+        └─ File Upload Validation
 ```
 
 ---
@@ -835,8 +909,45 @@ Express.js Framework
 5. **Verify**
    - Frontend: http://localhost:5173
    - Backend: http://localhost:3001/api/health
-   - Prisma: http://localhost:5555
+   - API Docs: http://localhost:3001/api-docs
+   - Prisma Studio: http://localhost:5555
 
 ---
 
-**🎉 Готово! Теперь у вас есть complete reference guide для понимания всей архитектуры проекта за 5 минут.**
+## 🎯 Recent Updates & Features
+
+### **✅ Latest Changes Implemented:**
+
+1. **Swagger API Documentation**
+   - Complete JSDoc documentation for all API endpoints
+   - Interactive Swagger UI at `/api-docs`
+   - JWT Bearer token authentication support
+   - Request/response schema definitions
+
+2. **User Management Enhancement**
+   - Moved from modal to dedicated page (`/users/add-new`)
+   - Avatar upload support with file validation
+   - FormData handling for multipart requests
+   - Role-based access control for user creation
+
+3. **File Upload System**
+   - Avatar uploads for users (`/public/users/`)
+   - Logo uploads for companies (`/public/companies/`)
+   - Multer integration with file type validation
+   - Static file serving via Express
+
+4. **Frontend Architecture Updates**
+   - Dedicated `UsersAdd.tsx` page component
+   - Enhanced `userService.ts` with FormData support
+   - Refactored hooks structure in `/hooks` directory
+   - Improved routing with protected routes
+
+5. **Backend Enhancements**
+   - Updated database schema with avatar/logo fields
+   - Enhanced middleware for file uploads
+   - Comprehensive API documentation
+   - Improved error handling and logging
+
+---
+
+**🎉 Готово! Теперь у вас есть complete reference guide для понимания всей архитектуры проекта с учетом всех последних изменений.**

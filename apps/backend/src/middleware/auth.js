@@ -1,6 +1,6 @@
 import passport from './passport.js';
 
-// Экспортируем Passport middleware
+// export passport strategies for JWT and Local authentication
 export const authenticateJWT = passport.authenticate('jwt', { session: false });
 export const authenticateLocal = passport.authenticate('local', { session: false });
 
