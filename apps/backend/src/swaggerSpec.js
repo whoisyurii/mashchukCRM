@@ -7,7 +7,7 @@ const options = {
     info: {
       title: 'MashchukCRM API',
       version: '1.0.0',
-      description: 'API documentation for MashchukCRM',
+      description: 'API documentation for MyCRM',
     },
     components: {
       securitySchemes: {
