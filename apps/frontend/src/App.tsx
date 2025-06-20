@@ -8,8 +8,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Layout } from "./components/layout/Layout";
-// import { Login } from "./pages/Login";
-// import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { Companies } from "./pages/Companies/Companies";
 import CompaniesAdd from "./pages/Companies/CompaniesAdd";
@@ -90,7 +88,7 @@ const router = createBrowserRouter([
   {
     path: "/users",
     element: (
-      <ProtectedRoute allowedRoles={["SuperAdmin"]}>
+      <ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]}>
         <Users />
       </ProtectedRoute>
     ),
@@ -98,7 +96,7 @@ const router = createBrowserRouter([
   {
     path: "/history",
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={["SuperAdmin"]}>
         <History />
       </ProtectedRoute>
     ),

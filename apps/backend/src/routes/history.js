@@ -10,7 +10,7 @@ router.get("/", authenticateJWT, async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 10,
+      limit = 4,
       search = "",
       type = "",
       action = "",

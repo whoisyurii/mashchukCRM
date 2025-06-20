@@ -8,7 +8,7 @@ import { createActionHistory } from "./history.js";
 
 const prisma = new PrismaClient();
 
-// i'm using multer for file upload
+// i'm using multer to manage logo uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(process.cwd(), "public", "companies");

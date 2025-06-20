@@ -14,18 +14,23 @@ import { useAuth } from "../../contexts/AuthContext";
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Companies", href: "/companies", icon: Building2 },
-  { name: "Users", href: "/users", icon: Users },
-  { name: "History", href: "/history", icon: History },
+  { name: "Users", href: "/users", icon: Users, user: ["SuperAdmin", "Admin"]},
+  { name: "History", href: "/history", icon: History, user: ["SuperAdmin", "Admin"] },
   { name: "Profile", href: "/profile", icon: Settings },
 ];
 
 export const Sidebar: React.FC = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogoClick = () => {
     navigate("/dashboard");
   };
+
+  const filteredNavigation = navigation.filter(
+    (item) =>
+      !item.user || (user?.role === "Admin" || user?.role === "SuperAdmin")
+  );
 
   return (
     <div className="w-20 max-md:w-16 md:hover:w-56 bg-dark-900 flex flex-col transition-all duration-300 group">
@@ -39,7 +44,7 @@ export const Sidebar: React.FC = () => {
       </div>
 
       <nav className="flex-1 p-2 md:p-4 space-y-2 ">
-        {navigation.map((item) => (
+        {filteredNavigation.map((item) => (
           <NavLink
             key={item.name}
             to={item.href}

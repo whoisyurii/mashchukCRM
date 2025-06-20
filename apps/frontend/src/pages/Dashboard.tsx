@@ -6,15 +6,15 @@ import { DashboardSkeleton } from "../components/ui/DashboardSkeleton";
 import { HistorySkeleton } from "../components/ui/HistorySkeleton";
 import { useAuth } from "../contexts/AuthContext";
 import { DashboardCompany } from "../types";
+import CompaniesDashboardSkeleton from "../components/companies/CompaniesDashboardSkeleton";
+import CompaniesPriceChart from "../components/companies/CompaniesPriceChart";
+import { useDashboardQueries } from "../hooks/useDashboardQueries";
 // helpers
 import {
   getActionIcon,
   getActionColor,
   formatTimeAgo,
 } from "../utils/action-helpers";
-import { useDashboardQueries } from "../hooks/useDashboardQueries";
-import CompaniesDashboardSkeleton from "../components/companies/CompaniesDashboardSkeleton";
-import CompaniesPriceChart from "../components/companies/CompaniesPriceChart";
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();

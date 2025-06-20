@@ -13,7 +13,7 @@ export const History: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState("");
   const [actionFilter, setActionFilter] = useState("");
   const [page, setPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 4;
 
   // Debounce search
   useEffect(() => {
