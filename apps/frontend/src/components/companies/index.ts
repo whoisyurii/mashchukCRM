@@ -1,13 +1,7 @@
-export { CompanyModal } from "./CompanyModal";
 export { CompaniesCard } from "./CompaniesCard";
 export { CompanyDetail } from "./CompanyDetail";
 
 // Types
-export interface CompanyModalProps {
-  open: boolean;
-  onClose: () => void;
-}
-
 export interface Company {
   id: string;
   name: string;

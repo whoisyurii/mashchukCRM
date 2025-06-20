@@ -13,7 +13,7 @@ function shortenName(name: string, maxLen = 10) {
 }
 
 const CompaniesPriceChart = () => {
-  const { data: companiesResponse, isLoading } = useCompaniesQuery({ page: 1, limit: 5, sortBy: 'capital', sortOrder: 'desc' });
+  const { data: companiesResponse, isLoading } = useCompaniesQuery({ page: 1, limit: 4, sortBy: 'capital', sortOrder: 'desc' });
 
   const chartData = (companiesResponse?.data ?? []).map(company => ({
     name: shortenName(company.name),

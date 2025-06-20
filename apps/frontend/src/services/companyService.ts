@@ -24,9 +24,15 @@ export const companyService = {
   },
 
   createCompany: async (
-    data: Omit<Company, "id" | "createdAt">
+    data: Omit<Company, "id" | "createdAt"> | FormData
   ): Promise<Company> => {
-    const response = await api.post("/companies", data);
+    const config = data instanceof FormData ? {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    } : {};
+    
+    const response = await api.post("/companies", data, config);
     return response.data;
   },
 

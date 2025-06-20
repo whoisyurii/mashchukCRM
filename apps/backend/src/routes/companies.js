@@ -174,7 +174,7 @@ router.get("/:id", authenticateJWT, async (req, res) => {
 });
 
 // Create company
-router.post("/", authenticateJWT, async (req, res) => {
+router.post("/", authenticateJWT, upload.single('logo'), async (req, res) => {
   try {
     // Check if user has permission to create companies
     if (req.user.role === "User") {
@@ -184,7 +184,14 @@ router.post("/", authenticateJWT, async (req, res) => {
       });
     }
 
-    const { name, service, capital, status, userId } = req.body;
+    const { name, service, capital, status, ownerId } = req.body;
+    const logoFile = req.file;
+
+    // Generate logo URL if file was uploaded
+    let logoUrl = null;
+    if (logoFile) {
+      logoUrl = `/companies/${logoFile.filename}`;
+    }
 
     const newCompany = await prisma.company.create({
       data: {
@@ -192,7 +199,8 @@ router.post("/", authenticateJWT, async (req, res) => {
         service,
         capital: parseInt(capital),
         status: status || "Active",
-        userId: userId || null,
+        userId: ownerId || null,
+        logoUrl: logoUrl,
       },
       include: {
         owner: {

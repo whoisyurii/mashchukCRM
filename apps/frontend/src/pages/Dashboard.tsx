@@ -1,11 +1,9 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, Building2, DollarSign } from "lucide-react";
 import { Card } from "../components/ui/Card";
 import { StatsCard } from "../components/ui/StatsCard";
 import { DashboardSkeleton } from "../components/ui/DashboardSkeleton";
 import { HistorySkeleton } from "../components/ui/HistorySkeleton";
-import { CompanyModal } from "../components/companies/CompanyModal";
 import { useAuth } from "../contexts/AuthContext";
 import { DashboardCompany } from "../types";
 // helpers
@@ -21,7 +19,6 @@ import CompaniesPriceChart from "../components/companies/CompaniesPriceChart";
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
   const {
     stats,
     admins,
@@ -225,12 +222,8 @@ export const Dashboard: React.FC = () => {
                 ))
               )}
             </div>
-          </Card>
-        </div>
+          </Card>        </div>
       </div>
-
-      {/* modal is out of overall flow */}
-      <CompanyModal open={showModal} onClose={() => setShowModal(false)} />
     </>
   );
 };

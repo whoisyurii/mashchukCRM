@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { CompaniesCard } from "../components/companies/CompaniesCard";
+import { useNavigate } from "react-router-dom";
+import { CompaniesCard } from "../../components/companies/CompaniesCard";
 import { Plus } from "lucide-react";
-import { Button } from "../components/ui/Button";
-import { CompanyModal } from "../components/companies/CompanyModal";
-import { useAuth } from "../contexts/AuthContext";
-import { useCompaniesQuery } from "../hooks/useCompaniesQuery";
+import { Button } from "../../components/ui/Button";
+import { useAuth } from "../../contexts/AuthContext";
+import { useCompaniesQuery } from "../../hooks/useCompaniesQuery";
 
 export const Companies: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [capitalFilter, setCapitalFilter] = useState({ min: "", max: "" });
-  const [showModal, setShowModal] = useState(false);
 
   // debounce input
   useEffect(() => {
@@ -30,7 +29,6 @@ export const Companies: React.FC = () => {
     search,
     sortBy,
     sortOrder,
-    capitalFilter,
     limit: 5,
   });
 
@@ -55,20 +53,17 @@ export const Companies: React.FC = () => {
           <p className="text-gray-400 mt-1">Manage your company portfolio</p>
         </div>
         {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
-          <Button onClick={() => setShowModal(true)}>
+          <Button onClick={() => navigate("/companies/add-new")}>
             <Plus className="w-4 h-4 mr-2" />
             New Company
           </Button>
         )}
       </div>
-      <CompanyModal open={showModal} onClose={() => setShowModal(false)} />
       <CompaniesCard
         data={data}
         isLoading={isLoading}
         searchInput={searchInput}
         handleSearch={handleSearch}
-        capitalFilter={capitalFilter}
-        setCapitalFilter={setCapitalFilter}
         handleSort={handleSort}
         sortBy={sortBy}
         sortOrder={sortOrder}
