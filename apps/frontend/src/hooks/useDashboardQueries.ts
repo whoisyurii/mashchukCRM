@@ -37,7 +37,7 @@ export const useDashboardQueries = () => {
 
   const companiesByCapitalQuery = useQuery({
     queryKey: ["dashboard-companies-by-capital"],
-    queryFn: () => dashboardService.getCompaniesByCapital(10),
+    queryFn: () => dashboardService.getCompaniesByCapital(4), // left 4 to keep dashboard non-scrollable
   });
   return {
     stats: statsQuery.data,

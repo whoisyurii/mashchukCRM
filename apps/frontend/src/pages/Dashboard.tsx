@@ -15,6 +15,8 @@ import {
   getActionColor,
   formatTimeAgo,
 } from "../utils/action-helpers";
+import { shortenNumber } from "../utils/shortener-helpers";
+//
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -65,7 +67,7 @@ export const Dashboard: React.FC = () => {
             />
             <StatsCard
               title="Total Capital"
-              value={`$${(stats?.totalCapital || 0).toLocaleString()}`}
+              value={`$${(shortenNumber(stats?.totalCapital || 0)).toLocaleString()}`}
               icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
             />
           </div>
@@ -222,7 +224,8 @@ export const Dashboard: React.FC = () => {
                 ))
               )}
             </div>
-          </Card>        </div>
+          </Card>
+          </div>
       </div>
     </>
   );

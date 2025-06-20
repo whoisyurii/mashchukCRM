@@ -1,16 +1,6 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useCompaniesQuery } from '../../hooks/useCompaniesQuery';
-
-function shortenNumber(num: number) {
-  if (num >= 1e9) return (num / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
-  if (num >= 1e6) return (num / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
-  if (num >= 1e3) return (num / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
-  return num.toString();
-}
-
-function shortenName(name: string, maxLen = 10) {
-  return name.length > maxLen ? name.slice(0, maxLen) + '…' : name;
-}
+import { shortenName, shortenNumber } from '../../utils/shortener-helpers';
 
 const CompaniesPriceChart = () => {
   const { data: companiesResponse, isLoading } = useCompaniesQuery({ page: 1, limit: 4, sortBy: 'capital', sortOrder: 'desc' });
