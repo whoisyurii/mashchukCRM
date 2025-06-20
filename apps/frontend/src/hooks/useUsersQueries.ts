@@ -1,14 +1,34 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService, User } from "../services/userService";
 import { userNotifications } from "../utils/toast-helpers";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
+// Custom hook to fetch users
 export const useUsersQuery = () => {
   return useQuery({
     queryKey: ["users"],
     queryFn: userService.getUsers,
   });
 };
+// create user hook
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
+  return useMutation({
+    mutationFn: userService.createUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User created successfully!');
+      navigate('/users');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to create user');
+    }
+  });
+}
+// hook to delete a user
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
@@ -24,7 +44,7 @@ export const useDeleteUser = () => {
     },
   });
 };
-
+ // update user hook
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
@@ -52,7 +72,7 @@ export const useUpdateUser = () => {
   });
 };
 
-// Helper hook for user operations
+// helper hook for user operations
 export const useUserOperations = () => {
   const deleteUserMutation = useDeleteUser();
   const handleDeleteUser = async (user: User) => {

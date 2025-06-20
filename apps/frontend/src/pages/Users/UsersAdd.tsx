@@ -1,18 +1,14 @@
-
 import React, { useState, useRef } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
 import { Save, ArrowLeft, Upload } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { userService } from '../../services/userService';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCreateUser } from '../../hooks/useUsersQueries';
 
 const UsersAdd = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -45,18 +41,8 @@ const UsersAdd = () => {
       </div>
     );
   }
-  // mutate function to create a new user and provide it to the server
-  const createUserMutation = useMutation({
-    mutationFn: userService.createUser,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('User created successfully!');
-      navigate('/users');
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to create user');
-    }
-  });
+  // useMutation function to CRUD user on the server
+  const createUserMutation = useCreateUser();
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

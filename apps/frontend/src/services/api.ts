@@ -1,3 +1,4 @@
+// i use this api.ts to make centralized API calls from my /services directory with axios instance 
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:3001/api";
@@ -58,7 +59,7 @@ api.interceptors.response.use(
 
       originalRequest._retry = true;
       isRefreshing = true;
-
+      // try to refresh the token if expired and user is not logged out 
       const refreshToken = localStorage.getItem("refreshToken");
 
       if (refreshToken) {
