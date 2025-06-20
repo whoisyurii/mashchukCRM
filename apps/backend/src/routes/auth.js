@@ -3,61 +3,55 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma.js";
 import { createActionHistory } from "./history.js";
-import { authenticateToken } from "../middleware/auth.js";
-import { passportJWT } from "../middleware/passport.js";
+import { authenticateJWT, authenticateLocal } from "../middleware/auth.js";
 import {
   generateTokenPair,
   verifyRefreshToken,
   generateAccessToken,
+  revokeRefreshToken,
 } from "../utils/tokenUtils.js";
 
 const router = express.Router();
 
-// Login with refresh token support
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
+// Login через Passport Local Strategy
+router.post("/login", (req, res, next) => {
+  authenticateLocal(req, res, async (err) => {
+    if (err) {
+      return res.status(500).json({ message: "Server error" });
+    }
+    
+    if (!req.user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // Generate token pair (access + refresh)
-    const tokens = await generateTokenPair(user.id);
-
-    // Log login action
     try {
-      await createActionHistory({
-        action: "login",
-        type: "auth",
-        details: `User logged in`,
-        target: user.email,
-        userId: user.id,
-      });
-    } catch (historyError) {
-      console.error("Error logging action history:", historyError);
-    }
+      // Generate token pair
+      const tokens = await generateTokenPair(req.user.id);
 
-    const { password: _, ...userWithoutPassword } = user;
-    res.json({
-      user: userWithoutPassword,
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      expiresIn: tokens.expiresIn,
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
+      // Log login action
+      try {
+        await createActionHistory({
+          action: "login",
+          type: "auth",
+          details: "User logged in successfully",
+          target: req.user.email,
+          userId: req.user.id,
+        });
+      } catch (historyError) {
+        console.error("History logging error:", historyError);
+      }
+
+      res.json({
+        user: req.user,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresIn: tokens.expiresIn,
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
 });
 
 // Register with refresh token support
@@ -138,38 +132,30 @@ router.post("/refresh", async (req, res) => {
   }
 });
 
-// logout (revoke refresh token) - using default middleware
-router.post('/logout', async (req, res) => {
+// Logout через Passport JWT
+router.post('/logout', authenticateJWT, async (req, res) => {
   try {
     const { refreshToken } = req.body;
     
-    // remove refresh token from database
     if (refreshToken) {
       try {
         await revokeRefreshToken(refreshToken);
       } catch (error) {
         console.error('Error revoking refresh token:', error);
-        // if no token - still proceed with logout
       }
     }
     
-    // log logout action
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-    
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        await createActionHistory({
-          action: "logout",
-          type: "auth",
-          details: "User logged out",
-          userId: decoded.id,
-        });
-      } catch (error) {
-        // ignore errors during token verification
-        console.error('Token verification error during logout:', error);
-      }
+    // Log logout action
+    try {
+      await createActionHistory({
+        action: "logout",
+        type: "auth",
+        details: "User logged out",
+        target: req.user.email,
+        userId: req.user.id,
+      });
+    } catch (historyError) {
+      console.error("History logging error:", historyError);
     }
     
     res.status(200).json({ 
@@ -186,21 +172,37 @@ router.post('/logout', async (req, res) => {
 });
 
 // Alternative Passport.js protected route (example)
-router.get("/profile-passport", passportJWT, async (req, res) => {
+router.get("/profile-passport", authenticateJWT, async (req, res) => {
   try {
-    const { password: _, ...userWithoutPassword } = req.user;
-    res.json({ user: userWithoutPassword });
+    res.json({ 
+      user: req.user,
+      message: "Authenticated via Passport.js JWT" 
+    });
   } catch (error) {
+    console.error("Error fetching user profile:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Verify token endpoint
-router.get("/verify", authenticateToken, async (req, res) => {
+// Verify через Passport JWT
+router.get("/verify", authenticateJWT, async (req, res) => {
   try {
-    const { password: _, ...userWithoutPassword } = req.user;
-    res.json({ user: userWithoutPassword, valid: true });
+    res.json({ 
+      user: req.user,
+      authenticated: true 
+    });
   } catch (error) {
+    console.error("Verify error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Profile через Passport JWT
+router.get("/profile", authenticateJWT, async (req, res) => {
+  try {
+    res.json(req.user);
+  } catch (error) {
+    console.error("Profile error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, Building2, DollarSign } from "lucide-react";
 import { Card } from "../components/ui/Card";
@@ -16,6 +16,7 @@ import {
 } from "../utils/action-helpers";
 import { useDashboardQueries } from "../hooks/useDashboardQueries";
 import CompaniesDashboardSkeleton from "../components/companies/CompaniesDashboardSkeleton";
+import CompaniesPriceChart from "../components/companies/CompaniesPriceChart";
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -42,8 +43,8 @@ export const Dashboard: React.FC = () => {
           <p className="text-gray-400 mt-1">
             Welcome back, {user?.role} {user?.firstName}.
           </p>
-        </div>{" "}
-        {/* Stats Section */}
+        </div>
+        {/* Stats Section for admin and superadmin */}
         {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
@@ -71,18 +72,14 @@ export const Dashboard: React.FC = () => {
               icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
             />
           </div>
-        )}{" "}
-        {user?.role === "User" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        )}
+      {/* Stats Section for User */}
+        {/* {user?.role === "User" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <StatsCard
               title="My Companies"
               value={stats?.totalCompanies?.toLocaleString() || "0"}
               icon={<Building2 className="w-6 h-6 text-emerald-500" />}
-            />
-            <StatsCard
-              title="Total Capital"
-              value={`$${(stats?.totalCapital || 0).toLocaleString()}`}
-              icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
             />
             <StatsCard
               title="Active Companies"
@@ -90,12 +87,12 @@ export const Dashboard: React.FC = () => {
               icon={<Building2 className="w-6 h-6 text-emerald-500" />}
             />
           </div>
-        )}
+        )} */}
         {/* SuperAdmin/Admin: Recent Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
             <Card>
-              {" "}
+           
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Actions History
@@ -104,9 +101,9 @@ export const Dashboard: React.FC = () => {
                   className="cursor-pointer hover:text-emerald-300 text-emerald-400  text-xs"
                   onClick={() => navigate("/history")}
                 >
-                  View all →
+                  View all &rarr;
                 </span>
-              </div>{" "}
+              </div>
               <div className="space-y-3">
                 {isHistoryLoading ? (
                   <HistorySkeleton />
@@ -126,8 +123,7 @@ export const Dashboard: React.FC = () => {
                         </div>
                         <div>
                           <span className="text-sm font-medium text-white truncate block max-md:max-w-28">
-                            {action.action.charAt(0).toUpperCase() +
-                              action.action.slice(1)}{" "}
+                            {action.action.charAt(0).toUpperCase() + action.action.slice(1)}
                             {action.type}
                             {action.target && (
                               <span className="text-primary-400 ml-1">
@@ -156,21 +152,19 @@ export const Dashboard: React.FC = () => {
               </div>
             </Card>
           )}
+
           {/* User: Price Chart Placeholder */}
           {user?.role === "User" && (
             <Card>
               <h3 className="text-lg font-semibold text-white mb-4">
                 Company Price Chart
               </h3>
-              <div className="h-64 flex items-center justify-center bg-dark-800 rounded-lg">
-                <p className="text-gray-400">Chart will be implemented here</p>
-              </div>
+              <CompaniesPriceChart />
             </Card>
-          )}{" "}
-          
+          )}
+
           {/* companies by capital card */}
           <Card>
-            {" "}
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-white">
                 Top Companies
@@ -179,9 +173,9 @@ export const Dashboard: React.FC = () => {
                 className="cursor-pointer hover:text-emerald-300 text-emerald-400  text-xs"
                 onClick={() => navigate("/companies")}
               >
-                View all →
+                View all &rarr;
               </span>
-            </div>{" "}
+            </div>
             <div className="space-y-3">
               {/* skeleton */}
               {isCompaniesByCapitalLoading ? (
@@ -216,6 +210,7 @@ export const Dashboard: React.FC = () => {
                       <p className="text-xs text-gray-400 max-md:hidden">
                         ${company.capital.toLocaleString()}
                       </p>
+                      {/* for future feature - if company is active or not */}
                       <div
                         className={`inline-block w-2 h-2 rounded-full ${
                           company.status === "Active"

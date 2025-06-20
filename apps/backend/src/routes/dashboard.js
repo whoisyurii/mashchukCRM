@@ -1,6 +1,6 @@
 import express from "express";
 import bcrypt from "bcryptjs";
-import { authenticateToken, requireRole } from "../middleware/auth.js";
+import { authenticateJWT, requireRole } from "../middleware/auth.js";
 import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
 
@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 const router = express.Router();
 
 // Get dashboard statistics
-router.get("/stats", authenticateToken, async (req, res) => {
+router.get("/stats", authenticateJWT, async (req, res) => {
   try {
     const userRole = req.user.role;
 
@@ -74,7 +74,7 @@ router.get("/stats", authenticateToken, async (req, res) => {
 // Get admins list (SuperAdmin only)
 router.get(
   "/admins",
-  authenticateToken,
+  authenticateJWT,
   requireRole(["SuperAdmin"]),
   async (req, res) => {
     try {
@@ -100,7 +100,7 @@ router.get(
 // Create new admin (SuperAdmin only)
 router.post(
   "/admins",
-  authenticateToken,
+  authenticateJWT,
   requireRole(["SuperAdmin"]),
   async (req, res) => {
     try {
@@ -160,7 +160,7 @@ router.post(
 // Update admin (SuperAdmin only)
 router.put(
   "/admins/:id",
-  authenticateToken,
+  authenticateJWT,
   requireRole(["SuperAdmin"]),
   async (req, res) => {
     try {
@@ -213,7 +213,7 @@ router.put(
 // Delete admin (SuperAdmin only)
 router.delete(
   "/admins/:id",
-  authenticateToken,
+  authenticateJWT,
   requireRole(["SuperAdmin"]),
   async (req, res) => {
     try {
@@ -256,7 +256,7 @@ router.delete(
 // Get user's companies (User role)
 router.get(
   "/user-companies",
-  authenticateToken,
+  authenticateJWT,
   requireRole(["User"]),
   async (req, res) => {
     try {
@@ -278,19 +278,20 @@ router.get(
 );
 
 // Get companies sorted by capital descending (for all roles)
-router.get("/companies-by-capital", authenticateToken, async (req, res) => {
+router.get("/companies-by-capital", authenticateJWT, async (req, res) => {
   try {
     const { limit = 10 } = req.query;
-    const userRole = req.user.role;
+    // const userRole = req.user.role;
 
     let whereClause = {};
 
-    // For User role - show only their companies or unassigned ones
-    if (userRole === "User") {
-      whereClause = {
-        OR: [{ userId: req.user.id }, { userId: null }],
-      };
-    }
+    // commented for future features 
+    // for User role - show only their companies or unassigned ones
+    // if (userRole === "User") {
+    //   whereClause = {
+    //     OR: [{ userId: req.user.id }, { userId: null }],
+    //   };
+    // }
     // For Admin and SuperAdmin - show all companies (whereClause remains empty)
 
     const companies = await prisma.company.findMany({

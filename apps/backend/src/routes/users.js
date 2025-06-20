@@ -1,7 +1,6 @@
 import express from "express";
 import bcrypt from "bcryptjs";
-import passport from "passport";
-import { authenticateToken, requireRole } from "../middleware/auth.js";
+import { authenticateJWT, requireRole, requireOwnerOrAdmin } from "../middleware/auth.js";
 import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
 
@@ -9,41 +8,10 @@ const prisma = new PrismaClient();
 
 const router = express.Router();
 
-// Test route with Passport.js authentication
-router.get(
-  "/profile-passport",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: req.user.userId },
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          role: true,
-          avatar: true,
-          createdAt: true,
-        },
-      });
-
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      res.json({ user, message: "Authenticated via Passport.js JWT" });
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  }
-);
-
 // Get all users (admin only)
 router.get(
   "/",
-  authenticateToken,
+  authenticateJWT,
   requireRole(["SuperAdmin", "Admin"]),
   async (req, res) => {
     try {
@@ -69,7 +37,7 @@ router.get(
 // Create new user (SuperAdmin only)
 router.post(
   "/",
-  authenticateToken,
+  authenticateJWT,
   requireRole(["SuperAdmin"]),
   async (req, res) => {
     try {
@@ -129,7 +97,7 @@ router.post(
 );
 
 // Get current user profile
-router.get("/me", authenticateToken, async (req, res) => {
+router.get("/me", authenticateJWT, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
@@ -155,7 +123,7 @@ router.get("/me", authenticateToken, async (req, res) => {
 });
 
 // Update user profile
-router.put("/me", authenticateToken, async (req, res) => {
+router.put("/me", authenticateJWT, async (req, res) => {
   try {
     const { password, role, ...allowedUpdates } = req.body;
 
@@ -197,7 +165,7 @@ router.put("/me", authenticateToken, async (req, res) => {
 // Update user by ID (SuperAdmin and Admin)
 router.put(
   "/:id",
-  authenticateToken,
+  authenticateJWT,
   requireRole(["SuperAdmin", "Admin"]),
   async (req, res) => {
     try {
@@ -280,7 +248,7 @@ router.put(
 );
 
 // Change password
-router.put("/change-password", authenticateToken, async (req, res) => {
+router.put("/change-password", authenticateJWT, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -340,7 +308,7 @@ router.put("/change-password", authenticateToken, async (req, res) => {
 // Delete user (SuperAdmin only)
 router.delete(
   "/:id",
-  authenticateToken,
+  authenticateJWT,
   requireRole(["SuperAdmin"]),
   async (req, res) => {
     try {

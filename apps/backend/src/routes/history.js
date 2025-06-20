@@ -1,12 +1,12 @@
 import express from "express";
-import { authenticateToken, requireRole } from "../middleware/auth.js";
+import { authenticateJWT, requireRole } from "../middleware/auth.js";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const router = express.Router();
 
 // Get all action history with pagination, search, and filtering
-router.get("/", authenticateToken, async (req, res) => {
+router.get("/", authenticateJWT, async (req, res) => {
   try {
     const {
       page = 1,
@@ -94,7 +94,7 @@ router.get("/", authenticateToken, async (req, res) => {
 });
 
 // Get single action history entry
-router.get("/:id", authenticateToken, async (req, res) => {
+router.get("/:id", authenticateJWT, async (req, res) => {
   try {
     const history = await prisma.actionHistory.findUnique({
       where: { id: req.params.id },

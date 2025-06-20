@@ -25,7 +25,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-400">{title}</p>
-          <p className="text-2xl font-bold text-white">{value}</p>
+          <p className="text-2xl font-bold text-white max-md:truncate max-md:w-24">{value}</p>
         </div>
         <div className="p-3 bg-emerald-500/10 rounded-lg">{icon}</div>
       </div>

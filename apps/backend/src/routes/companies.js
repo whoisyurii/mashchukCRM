@@ -2,13 +2,13 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { authenticateToken } from "../middleware/auth.js";
+import { authenticateJWT } from "../middleware/auth.js";
 import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
 
 const prisma = new PrismaClient();
 
-// Configure multer for file upload
+// i'm using multer for file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(process.cwd(), "public", "companies");
@@ -27,7 +27,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 5 * 1024 * 1024, // 5MB limit and 1024x1024 resolution
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
@@ -47,11 +47,11 @@ const upload = multer({
 const router = express.Router();
 
 // Get all companies with pagination, search, and filtering
-router.get("/", authenticateToken, async (req, res) => {
+router.get("/", authenticateJWT, async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 10,
+      limit = 5,
       search = "",
       sortBy = "createdAt",
       sortOrder = "desc",
@@ -134,7 +134,7 @@ router.get("/", authenticateToken, async (req, res) => {
 });
 
 // Get single company
-router.get("/:id", authenticateToken, async (req, res) => {
+router.get("/:id", authenticateJWT, async (req, res) => {
   try {
     const company = await prisma.company.findUnique({
       where: { id: req.params.id },
@@ -174,7 +174,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
 });
 
 // Create company
-router.post("/", authenticateToken, async (req, res) => {
+router.post("/", authenticateJWT, async (req, res) => {
   try {
     // Check if user has permission to create companies
     if (req.user.role === "User") {
@@ -229,7 +229,7 @@ router.post("/", authenticateToken, async (req, res) => {
 });
 
 // Update company
-router.put("/:id", authenticateToken, async (req, res) => {
+router.put("/:id", authenticateJWT, async (req, res) => {
   try {
     const company = await prisma.company.findUnique({
       where: { id: req.params.id },
@@ -290,7 +290,7 @@ router.put("/:id", authenticateToken, async (req, res) => {
 });
 
 // Delete company
-router.delete("/:id", authenticateToken, async (req, res) => {
+router.delete("/:id", authenticateJWT, async (req, res) => {
   try {
     const company = await prisma.company.findUnique({
       where: { id: req.params.id },
@@ -329,7 +329,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 // Upload company logo
 router.post(
   "/:id/logo",
-  authenticateToken,
+  authenticateJWT,
   upload.single("logo"),
   async (req, res) => {
     try {
@@ -419,7 +419,7 @@ router.post(
 );
 
 // Delete company logo
-router.delete("/:id/logo", authenticateToken, async (req, res) => {
+router.delete("/:id/logo", authenticateJWT, async (req, res) => {
   try {
     const company = await prisma.company.findUnique({
       where: { id: req.params.id },

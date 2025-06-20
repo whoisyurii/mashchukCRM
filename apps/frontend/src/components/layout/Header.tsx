@@ -49,6 +49,7 @@ export const Header: React.FC = () => {
         <div className="flex items-center gap-4">
           <div className="relative ml-4" ref={dropdownRef}>
             <button
+            // onBlur={() => setShowDropdown(!showDropdown)}
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-dark-800 transition-colors"
             >

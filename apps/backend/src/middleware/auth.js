@@ -1,47 +1,11 @@
-import jwt from "jsonwebtoken";
-import prisma from "../prisma.js";
+import passport from './passport.js';
 
-// Secret key for JWT stored in .env || backup
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+// Экспортируем Passport middleware
+export const authenticateJWT = passport.authenticate('jwt', { session: false });
+export const authenticateLocal = passport.authenticate('local', { session: false });
 
-/**
- * Middleware to authenticate JWT token.
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @param {Function} next - The next middleware function.
- */
-export const authenticateToken = async (req, res, next) => {
-  // Extract the token from the Authorization header
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-
-  // If no token is provided, return 401 Unauthorized
-  if (!token) {
-    return res.status(401).json({ message: "Access token required" });
-  }
-
-  try {
-    // Verify the token using the secret key
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    // Find the user by the decoded user ID from database
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-    });
-
-    if (!user) {
-      // If user is not found, return 403 Forbidden
-      return res.status(403).json({ message: "User not found" });
-    }
-
-    // Attach the user object to the request and proceed to the next middleware
-    req.user = user;
-    next();
-  } catch (err) {
-    // If token is invalid, return 403 Forbidden
-    return res.status(403).json({ message: "Invalid token" });
-  }
-};
+// Backward compatibility
+export const authenticateToken = authenticateJWT;
 
 /**
  * Higher-order function to create middleware that checks user roles.
@@ -63,4 +27,23 @@ export const requireRole = (roles) => {
     // If the user has the required role, proceed to the next middleware
     next();
   };
+};
+
+/**
+ * Middleware для проверки владельца ресурса или админа
+ */
+export const requireOwnerOrAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const resourceUserId = req.params.userId || req.body.userId;
+  const isOwner = req.user.id === resourceUserId;
+  const isAdmin = ['Admin', 'SuperAdmin'].includes(req.user.role);
+
+  if (isOwner || isAdmin) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Forbidden' });
+  }
 };
