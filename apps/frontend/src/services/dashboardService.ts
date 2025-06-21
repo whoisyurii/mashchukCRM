@@ -12,8 +12,8 @@ export const dashboardService = {
     return response.data;
   },
 
-  getUserCompanies: async () => {
-    const response = await api.get("/dashboard/user-companies");
+  getUserCompanies: async (limit: number = 4) => {
+    const response = await api.get(`/dashboard/user-companies?limit=${limit}`);
     return response.data;
   },
 

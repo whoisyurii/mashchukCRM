@@ -1,54 +1,89 @@
-# 📖 MashchukCRM - Comprehensive Project Reference Guide
+# 📖 MashchukCRM - Project Reference (2025)
 
-## 🎯 Project Overview
+## Overview
 
-**MashchukCRM** - Full-stack монорепозиторий для управления компаниями с современной архитектурой:
-
-- **Frontend**: React + TypeScript + Vite + TailwindCSS
-- **Backend**: Node.js + Express.js + Prisma ORM + PostgreSQL
-- **Authentication**: JWT + Passport.js + Refresh Tokens
-- **CI/CD**: GitHub Actions
+**MashchukCRM** is a full-stack monorepo for company management:
+- **Frontend:** React + TypeScript + Vite + TailwindCSS + React Query
+- **Backend:** Node.js + Express + Prisma + PostgreSQL
+- **Auth:** JWT + Passport.js (Local & JWT Strategies) + Refresh Tokens + Backend validation
+- **CI/CD:** GitHub Actions
+- **Notifications:** react-hot-toast
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture
 
 ```
-┌────────────────────────────────────────────────────────────-─┐
-│                      MyCRM Monorepo                          │
-├────────────────────────────────────────────────────────────-─┤
-│  Frontend (React SPA)     │     Backend (Express API)        │
-│  Port: 5173               │     Port: 3001                   │
-│  ┌─────────────────────┐  │  ┌─────────────────────────────┐ │
-│  │ React Components    │  │  │ Express Routes              │ │
-│  │ ├─ Auth Context     │◄─┼──┤ ├─ /api/auth                │ │
-│  │ ├─ API Service      │  │  │ ├─ /api/users               │ │
-│  │ ├─ UI Components    │  │  │ ├─ /api/companies           │ │
-│  │ └─ Page Components  │  │  │ └─ /api/dashboard           │ │
-│  └─────────────────────┘  │  │                             │ │
-│           │               │  │ Middleware Layer            │ │
-│           │ HTTP/JSON     │  │ ├─ JWT Authentication       │ │
-│           │               │  │ ├─ Passport.js Strategy     │ │
-│           │               │  │ ├─ Role Authorization       │ │
-│           └───────────────┼──┤ └─ CORS & Body Parser       │ │
-│                           │  │                             │ │
-│                           │  │ Database Layer              │ │
-│                           │  │ ├─ Prisma ORM               │ │
-│                           │  │ ├─ PostgreSQL Connection    │ │
-│                           │  │ └─ Migration System         │ │
-└─────────────────────────────┼────────────────────────────────┘
-                              │
-                              ▼
-                    ┌──────────────────────┐
-                    │   PostgreSQL DB      │
-                    │ ┌──────────────────┐ │
-                    │ │ Tables:          │ │
-                    │ │ ├─ users         │ │
-                    │ │ ├─ companies     │ │
-                    │ │ ├─ refresh_tokens│ │
-                    │ │ └─ action_history│ │
-                    │ └──────────────────┘ │
-                    └──────────────────────┘
+Frontend (React SPA) <-> Backend (Express API) <-> PostgreSQL
+│  AuthContext (status, role, backend validation, React Query, cache clear)
+│  API Services (axios interceptors, auto token refresh)
+│  React Query (data fetching, caching, mutations)
+│  react-hot-toast (unified notifications)
+│  UI & Page Components
+```
+
+---
+
+## 🏗️ Detailed System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Frontend Layer                         │
+├─────────────────────────────────────────────────────────────┤
+│  Pages (Route Components)                                   │
+│  ├─ auth/ (Login, Register)                                 │
+│  ├─ Dashboard.tsx                                           │
+│  ├─ Companies/ (Companies.tsx)                              │
+│  ├─ Users/ (Users.tsx, UsersAdd.tsx)                        │
+│  └─ Profile.tsx, History.tsx                                │
+│                     ↕                                       │
+│  Components (Reusable UI)                                   │
+│  ├─ layout/ (Header, Sidebar)                               │
+│  ├─ ui/ (Button, Input, Card)                               │
+│  ├─ companies/ (CompaniesCard, CompanyDetail)               │
+│  └─ users/ (UserCard)                                       │
+│                     ↕                                       │
+│  Hooks (React Query)                                        │
+│  ├─ useCompaniesQuery.ts                                    │
+│  ├─ useUsersQueries.ts                                      │
+│  ├─ useDashboardQueries.ts                                  │
+│  └─ useHistoryQuery.ts                                      │
+│                     ↕                                       │
+│  Services (API Layer)                                       │
+│  ├─ authService.ts (login, register, verifyToken)           │
+│  ├─ companyService.ts (CRUD + logo upload)                  │
+│  ├─ userService.ts (CRUD + avatar upload)                   │
+│  ├─ dashboardService.ts                                     │
+│  └─ historyService.ts                                       │
+│                     ↕                                       │
+│  Contexts & Utils                                           │
+│  ├─ AuthContext.tsx (status, role, backend validation)      │
+│  └─ utils/ (action-helpers, filtering, shortener)           │
+└─────────────────────────────────────────────────────────────┘
+                             ↕ HTTP/JSON
+┌─────────────────────────────────────────────────────────────┐
+│                     Backend Layer                           │
+├─────────────────────────────────────────────────────────────┤
+│  Routes (API Endpoints)                                     │
+│  ├─ auth.js (/login, /register, /verify, /refresh)          │
+│  ├─ companies.js (CRUD + logo upload)                       │
+│  ├─ users.js (CRUD + avatar upload)                         │
+│  ├─ dashboard.js (stats, admins)                            │
+│  └─ history.js (action logs)                                │
+│                     ↕                                       │
+│  Middleware Stack                                           │
+│  ├─ CORS, Body Parser                                       │
+│  ├─ Passport.js (JWT + Local strategies)                    │
+│  ├─ Authentication (JWT verification)                       │
+│  ├─ Authorization (role-based)                              │
+│  └─ File Upload (multer)                                    │
+│                     ↕                                       │
+│ ─────────────────────────────────────────────────────────── │
+│  Database Layer                                             │
+│  ├─ Prisma ORM                                              │
+│  ├─ PostgreSQL                                              │
+│  └─ File Storage (/public/users/, /public/companies/)       │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -56,7 +91,7 @@
 ## 📁 Project Structure
 
 ```
-MASHCHUKCRM/
+MashchukCRM/
 /project
 ├── 📄 package.json                 # Root monorepo config with workspaces
 ├── 📄 .gitignore                   # Git ignore rules
@@ -168,7 +203,7 @@ MASHCHUKCRM/
 {
   "workspaces": ["apps/frontend", "apps/backend"],
   "devDependencies": {
-    "@eslint/js": "^9.9.1",           # JavaScript linting
+    "@eslint/js": "^9.9.1",          # JavaScript linting
     "concurrently": "^8.2.2",        # Run multiple commands
     "eslint": "^9.9.1",              # Code linting
     "globals": "^15.9.0",            # Global variables for ESLint
@@ -255,15 +290,15 @@ User Login Request
 API Request
      │
      ▼
-┌─────────────────┐
+┌──────────────────┐
 │ axios.interceptor│
-│ Add Bearer Token│
-└─────────┬───────┘
+│ Add Bearer Token │
+└─────────┬────────┘
           │
           ▼
     ┌─────────┐     ┌──────────────────┐
-    │API Call │────▶│ authenticateToken│
-    └─────────┘     │ middleware       │
+    │API Call │────▶│ Passport.js JWT  │
+    └─────────┘     │ Strategy         │
           │         └─────┬────────────┘
           │               │
           │          Valid Token?
@@ -283,30 +318,66 @@ API Request
                    └─────────────────┘
 ```
 
-### **3. Passport.js Integration**
+### **3. Passport.js Integration (Updated 2025)**
 
 ```javascript
-// passport.js Strategy Setup
+// passport.js Complete Strategy Setup
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+
+// Local Strategy for login authentication
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    async (email, password, done) => {
+      const user = await prisma.user.findUnique({
+        where: { email: email.toLowerCase() },
+      });
+      
+      if (!user || !await bcrypt.compare(password, user.password)) {
+        return done(null, false, { message: "Invalid credentials" });
+      }
+      
+      return done(null, user);
+    }
+  )
+);
+
+// JWT Strategy for protected routes
 passport.use(
   new JwtStrategy(
     {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: JWT_SECRET,
+      secretOrKey: process.env.JWT_SECRET,
     },
     async (payload, done) => {
       const user = await prisma.user.findUnique({
         where: { id: payload.userId },
       });
-      return done(null, user ? { userId: payload.userId, ...user } : false);
+      return done(null, user || false);
     }
   )
 );
 
 // Usage in routes
-router.get(
-  "/profile-passport",
+router.post("/login", 
+  passport.authenticate("local", { session: false }),
+  (req, res) => {
+    // Generate tokens after successful authentication
+    const tokens = generateTokenPair(req.user.id);
+    res.json({ user: req.user, ...tokens });
+  }
+);
+
+router.get("/profile", 
   passport.authenticate("jwt", { session: false }),
-  handler
+  (req, res) => {
+    res.json({ user: req.user });
+  }
 );
 ```
 
@@ -730,221 +801,339 @@ File Storage Structure:
 
 ---
 
-## 🛠️ Development Commands Reference
+## 🔄 Detailed Data Flow Diagrams
 
-### **Monorepo Commands**
-
-```bash
-# Development
-npm run dev                 # Start both frontend & backend
-npm run dev:frontend        # Start only frontend (port 5173)
-npm run dev:backend         # Start only backend (port 3001)
-
-# Building
-npm run build               # Build both apps
-npm run build:frontend      # Build frontend only
-npm run build:backend       # Build backend only
-
-# Quality
-npm run lint                # Lint both apps
-npm test                    # Run tests
-
-# Database
-npm run migrate             # Run database migrations
-npm run seed                # Seed database with test data
-npm run studio              # Open Prisma Studio (port 5555)
-```
-
-### **Individual Workspace Commands**
-
-```bash
-# Frontend workspace
-npm run dev --workspace=apps/frontend
-npm run build --workspace=apps/frontend
-
-# Backend workspace
-npm run dev --workspace=apps/backend
-npm run start --workspace=apps/backend
-npm run migrate --workspace=apps/backend
-```
-
----
-
-## 🎯 Key Integration Points
-
-### **1. Frontend ↔ Backend**
-
-- **Protocol**: HTTP/JSON over REST API
-- **Authentication**: Bearer tokens in Authorization header
-- **Error Handling**: Axios interceptors for token refresh
-- **Type Safety**: Shared TypeScript interfaces
-- **File Uploads**: FormData support for avatars and company logos
-- **Static Serving**: Images served via `/public/` endpoint
-- **Component Architecture**:
-  - **Pages**: Route-level components in `/pages` organized by feature
-  - **Components**: Reusable UI components in `/components` organized by domain
-  - **Services**: API layer with FormData support for file uploads
-  - **Hooks**: Custom React Query hooks for data fetching and mutations
-  - **Modular Structure**: Each feature has its own index.ts with exports and types
-
-### **2. Component Organization**
+### 1. AuthContext State Management Flow
 
 ```
-Frontend Architecture
-├── 📁 pages/              # Route-level components
-│   ├── auth/             # Authentication flows
-│   ├── Dashboard.tsx     # Analytics & overview
-│   ├── Companies/        # Company management
-│   │   └── Companies.tsx # Company list page
-│   ├── Users/           # User management
-│   │   ├── Users.tsx    # User list page
-│   │   └── UsersAdd.tsx # Add new user page (replaces modal)
-│   ├── Profile.tsx      # User profile
-│   └── History.tsx      # Action tracking
-├── 📁 components/        # Reusable components
-│   ├── layout/          # App layout (Header, Sidebar)
-│   ├── ui/             # Basic UI components
-│   ├── companies/      # Company-specific components
-│   └── users/          # User-specific components (no longer has modal)
-├── 📁 hooks/            # Custom React Query hooks
-│   ├── useCompaniesQuery.ts   # Company data operations
-│   ├── useDashboardQueries.ts # Dashboard statistics
-│   ├── useHistoryQuery.ts     # History data
-│   └── useUsersQueries.ts     # User CRUD operations with file upload
-└── 📁 services/         # API integration layer
-    ├── api.ts           # Axios instance with interceptors
-    ├── authService.ts   # Authentication API calls
-    ├── companyService.ts # Company CRUD with logo upload
-    ├── userService.ts   # User CRUD with FormData avatar support
-    ├── dashboardService.ts # Dashboard data
-    └── historyService.ts   # Action history
+                    ┌─────────────────────┐
+                    │   Application       │
+                    │   Starts            │
+                    └─────────┬───────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │   status:           │
+                    │   "loading"         │
+                    └─────────┬───────────┘
+                              │
+                              ▼
+                  ┌─────────────────────────┐
+                  │ Check localStorage      │
+                  │ for token & user        │
+                  └─────────┬───────────────┘
+                            │
+                ┌───────────▼──────────┐
+                │ Token exists?        │
+                └──────────┬───────────┘
+                           │
+                ┌──────────▼──────────┐
+                │ YES                 │ NO
+                │                     │
+                ▼                     ▼
+    ┌─────────────────────┐  ┌─────────────────────┐
+    │ Validate token      │  │ status:             │
+    │ via /auth/verify    │  │ "unauthenticated"   │
+    └─────────┬───────────┘  └─────────────────────┘
+              │
+              ▼
+    ┌─────────────────────┐
+    │ Token valid?        │
+    └─────────┬───────────┘
+              │
+    ┌─────────▼─────────┐
+    │ YES               │ NO
+    │                   │
+    ▼                   ▼
+┌─────────────────┐ ┌─────────────────────┐
+│ status:         │ │ Clear storage       │
+│ "authenticated" │ │ status:             │
+│ user: {...}     │ │ "unauthenticated"   │
+│ role: user.role │ │ user: null          │
+└─────────────────┘ └─────────────────────┘
 ```
 
-### **3. Backend ↔ Database**
+### 2. AuthContext Data Structure Schema
 
-- **ORM**: Prisma Client with type-safe queries
-- **Connection**: PostgreSQL with connection pooling
-- **Migrations**: Version-controlled schema changes
-- **Seeding**: Automated test data insertion
+```typescript
+interface AuthContextType {
+  // Core state
+  user: User | null;
+  token: string | null;
+  status: "loading" | "authenticated" | "unauthenticated";
+  
+  // Derived state
+  role: string | null;              // user?.role || null
+  isAuthenticated: boolean;         // status === "authenticated"
+  loading: boolean;                 // status === "loading" (backward compatibility)
+  
+  // Actions
+  login: (email: string, password: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+  updateUser: (updatedUser: User) => void;
+  clearCache: () => void;          // React Query cache invalidation
+}
 
-### **4. Code ↔ Deployment**
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: "SuperAdmin" | "Admin" | "User";
+  avatar?: string;
+  createdAt: string;
+}
+```
 
-- **CI**: GitHub Actions for testing & validation
-- **CD**: Render.com webhooks for auto-deployment
-- **Environment**: Separate configs for dev/staging/prod
-- **Monitoring**: Health checks & error logging
-
----
-
-### **4. Critical Dependencies Chain**
+### 3. React Query Integration Flow
 
 ```
-Node.js Runtime
+Component Mount
      │
      ▼
-Express.js Framework
-     │
-     ├─ Middleware Stack
-     │  ├─ CORS (cors)
-     │  ├─ Body Parser (express.json + urlencoded)
-     │  ├─ Static File Serving (express.static)
-     │  ├─ File Upload (multer)
-     │  ├─ Authentication (passport + jsonwebtoken)
-     │  └─ Authorization (custom middleware)
-     │
-     ├─ API Documentation
-     │  ├─ Swagger JSDoc (swagger-jsdoc)
-     │  ├─ Swagger UI (swagger-ui-express)
-     │  └─ Interactive API Explorer (/api-docs)
-     │
-     ├─ Database Layer
-     │  ├─ Prisma ORM (@prisma/client)
-     │  ├─ PostgreSQL Driver (pg)
-     │  ├─ Connection Pool
-     │  └─ File URL Storage (avatar/logo paths)
-     │
-     └─ Security Layer
-        ├─ Password Hashing (bcryptjs)
-        ├─ JWT Tokens (jsonwebtoken)
-        ├─ Refresh Token Storage
-        ├─ Role-based Access Control
-        └─ File Upload Validation
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│useCompaniesQuery│───▶│ React Query     │───▶│ companyService  │
+│ Hook Called     │    │ Cache Check     │    │ API Call        │
+└─────────────────┘    └─────────┬───────┘    └─────────┬───────┘
+                                 │                      │
+                    ┌────────────▼──────────┐           ▼
+                    │ Cache Hit?            │    ┌─────────────┐
+                    └────────────┬──────────┘    │ Backend API │
+                                 │               │ /companies  │
+                    ┌────────────▼──────────┐    └─────────┬───┘
+                    │ YES               NO  │              │
+                    │                       │              ▼
+                    ▼                       ▼        ┌─────────────────┐
+            ┌───────────────┐    ┌─────────────────┐ │ Database Query  │
+            │ Return Cached │    │ Make API Call   │ │ via Prisma      │
+            │ Data          │    │ Update Cache    │ └─────────┬───────┘
+            └───────────────┘    └─────────────────┘           │
+                    │                      │                   ▼
+                    │                      │         ┌─────────────────┐
+                    │                      │         │ Return JSON     │
+                    │                      │         │ Response        │
+                    │                      └─────────┬─────────────────┘
+                    │                                │
+                    ▼                                ▼
+            ┌─────────────────┐              ┌─────────────────┐
+            │ Component       │              │ Error Handling  │
+            │ Re-renders      │              │ - Refresh token │
+            │ with Data       │              │ - Show error    │
+            └─────────────────┘              └─────────────────┘
 ```
 
----
+### 4. File Upload Flow Schema
 
-## 📋 Quick Start Checklist
+```
+User Selects File
+     │
+     ▼
+┌─────────────────┐
+│ Frontend        │
+│ - File Input    │
+│ - FormData      │
+│ - Validation    │
+└─────────┬───────┘
+          │ multipart/form-data
+          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Backend Processing                       │
+├─────────────────────────────────────────────────────────────┤
+│ 1. Express Route Handler                                    │
+│    ├─ POST /api/users (with avatar)                         │
+│    └─ POST /api/companies/:id/logo                          │
+│                                                             │
+│ 2. Multer Middleware                                        │
+│    ├─ multer.single('avatar') or multer.single('logo')      │
+│    ├─ File validation (type, size)                          │
+│    ├─ Generate unique filename                              │
+│    └─ Save to /public/users/ or /public/companies/          │
+│                                                             │
+│ 3. Authentication & Authorization                           │
+│    ├─ JWT token verification                                │
+│    └─ Role-based access control                             │
+│                                                             │
+│ 4. Database Update                                          │
+│    ├─ prisma.user.create() or prisma.company.update()       │
+│    ├─ Store file path: "/users/filename" or                 │
+│    │   "/companies/filename"                                │
+│    └─ Action history logging                                │
+│                                                             │
+│ 5. Response                                                 │
+│    └─ Return updated user/company with file URL             │
+└─────────────────────────────────────────────────────────────┘
+          │
+          ▼
+┌─────────────────┐
+│ Frontend        │
+│ - Update UI     │
+│ - Show image    │
+│ - Cache refresh │
+└─────────────────┘
+```
 
-1. **Clone & Install**
+### 5. Database Schema Relationships
 
-   ```bash
-   git clone <repo>
-   npm install
-   ```
+```
+┌─────────────────────────────┐
+│           User              │
+├─────────────────────────────┤
+│ id: String (PK)             │
+│ email: String (UNIQUE)      │
+│ firstName: String           │
+│ lastName: String            │
+│ role: Enum                  │
+│ avatar: String?             │
+│ password: String            │
+│ createdAt: DateTime         │
+└─────────────┬───────────────┘
+              │ 1:M
+              ▼
+┌─────────────────────────────┐
+│        Company              │
+├─────────────────────────────┤
+│ id: String (PK)             │
+│ name: String                │
+│ service: String             │
+│ capital: Int                │
+│ status: String              │
+│ logoUrl: String?            │
+│ userId: String (FK)         │
+│ createdAt: DateTime         │
+└─────────────┬───────────────┘
+              │ 1:M
+              ▼
+┌─────────────────────────────┐
+│      ActionHistory          │
+├─────────────────────────────┤
+│ id: String (PK)             │
+│ action: String              │
+│ type: String                │
+│ details: String             │
+│ target: String?             │
+│ userId: String (FK)         │
+│ companyId: String? (FK)     │
+│ createdAt: DateTime         │
+└─────────────────────────────┘
 
-2. **Database Setup**
+┌─────────────────────────────┐
+│      RefreshToken           │
+├─────────────────────────────┤
+│ id: String (PK)             │
+│ token: String (UNIQUE)      │
+│ userId: String (FK)         │
+│ expiresAt: DateTime         │
+│ createdAt: DateTime         │
+└─────────────────────────────┘
+              ▲
+              │ 1:M
+              │
+┌─────────────┴───────────────┐
+│           User              │
+│       (Same as above)       │
+└─────────────────────────────┘
+```
 
-   ```bash
-   # Create PostgreSQL database
-   npm run migrate
-   npm run seed
-   ```
+### 6. API Request/Response Flow
 
-3. **Environment**
+```
+Frontend Component
+     │ Action triggered (useQuery, useMutation)
+     ▼
+React Query Hook
+     │ Cache check, decide to fetch
+     ▼
+Service Function (authService, companyService, etc.)
+     │ Prepare request data
+     ▼
+Axios Instance (/api.ts)
+     │ Add Authorization header
+     │ Add interceptors for token refresh
+     ▼
+Backend Express Route
+     │
+     ▼
+┌─────────────────────────────────────────┐
+│           Middleware Stack              │
+├─────────────────────────────────────────┤
+│ 1. CORS ────────────────────────────────│
+│ 2. Body Parser ─────────────────────────│
+│ 3. Passport.js Init ────────────────────│
+│ 4. Route Matching ──────────────────────│
+│ 5. Authentication (Passport.js JWT Strategy) ──────────│
+│ 6. Authorization (role check) ──────────│
+│ 7. File Upload (if needed) ─────────────│
+└─────────────────────────────────────────┘
+     │
+     ▼
+Route Handler Function
+     │ Business logic
+     ▼
+Prisma Database Query
+     │ SQL generation and execution
+     ▼
+PostgreSQL Database
+     │ Return query results
+     ▼
+Express Response
+     │ JSON serialization
+     ▼
+Axios Response
+     │ HTTP response handling
+     ▼
+React Query
+     │ Cache update, component re-render
+     ▼
+Component Update
+```
 
-   ```bash
-   # Copy and configure .env files
-   cp apps/backend/.env.example apps/backend/.env
-   ```
+### 7. Role-Based Access Control Flow
 
-4. **Development**
+```
+                    ┌─────────────────────┐
+                    │ User Makes Request  │
+                    └─────────┬───────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │ JWT Token           │
+                    │ Verification        │
+                    └─────────┬───────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │ Extract User Role   │
+                    │ from Token Payload  │
+                    └─────────┬───────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Role Authorization                         │
+├─────────────────────────────────────────────────────────────┤
+│  SuperAdmin                                                 │
+│  ├─ All operations                                          │
+│  ├─ User management (create, update, delete)                │
+│  ├─ Company management                                      │
+│  └─ Admin management                                        │
+│                                                             │
+│  Admin                                                      │
+│  ├─ User management (create, update)                        │
+│  ├─ Company management                                      │
+│  └─ History viewing                                         │
+│                                                             │
+│  User                                                       │
+│  ├─ Own profile management                                  │
+│  ├─ Assigned companies (view, edit)                         │
+│  └─ Limited dashboard access                                │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │ Access Granted      │
+                    │ or                  │
+                    │ 403 Forbidden       │
+                    └─────────────────────┘
+```
 
-   ```bash
-   npm run dev  # Starts both frontend & backend
-   ```
-
-5. **Verify**
-   - Frontend: http://localhost:5173
-   - Backend: http://localhost:3001/api/health
-   - API Docs: http://localhost:3001/api-docs
-   - Prisma Studio: http://localhost:5555
-
----
-
-## 🎯 Recent Updates & Features
-
-### **✅ Latest Changes Implemented:**
-
-1. **Swagger API Documentation**
-   - Complete JSDoc documentation for all API endpoints
-   - Interactive Swagger UI at `/api-docs`
-   - JWT Bearer token authentication support
-   - Request/response schema definitions
-
-2. **User Management Enhancement**
-   - Moved from modal to dedicated page (`/users/add-new`)
-   - Avatar upload support with file validation
-   - FormData handling for multipart requests
-   - Role-based access control for user creation
-
-3. **File Upload System**
-   - Avatar uploads for users (`/public/users/`)
-   - Logo uploads for companies (`/public/companies/`)
-   - Multer integration with file type validation
-   - Static file serving via Express
-
-4. **Frontend Architecture Updates**
-   - Dedicated `UsersAdd.tsx` page component
-   - Enhanced `userService.ts` with FormData support
-   - Refactored hooks structure in `/hooks` directory
-   - Improved routing with protected routes
-
-5. **Backend Enhancements**
-   - Updated database schema with avatar/logo fields
-   - Enhanced middleware for file uploads
-   - Comprehensive API documentation
-   - Improved error handling and logging
-
----
-
-**🎉 Готово! Теперь у вас есть complete reference guide для понимания всей архитектуры проекта с учетом всех последних изменений.**
+**This comprehensive reference guide now includes detailed flow diagrams and schemas for better understanding of the system architecture and data flow.**

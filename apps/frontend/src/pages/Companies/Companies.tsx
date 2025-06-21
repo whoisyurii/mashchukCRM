@@ -3,11 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { CompaniesCard } from "../../components/companies/CompaniesCard";
 import { Plus } from "lucide-react";
 import { Button } from "../../components/ui/Button";
-import { useAuth } from "../../contexts/AuthContext";
 import { useCompaniesQuery } from "../../hooks/useCompaniesQuery";
 
 export const Companies: React.FC = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -52,12 +50,13 @@ export const Companies: React.FC = () => {
           <h1 className="text-2xl font-bold text-white">Companies</h1>
           <p className="text-gray-400 mt-1">Manage your company portfolio</p>
         </div>
-        {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
+        {/* commented out in case if user can't create companies, but in task it's different */}
+        {/* {(user?.role === "SuperAdmin" || user?.role === "Admin") && ( */}
           <Button onClick={() => navigate("/companies/add-new")}>
             <Plus className="w-4 h-4 mr-2" />
             New Company
           </Button>
-        )}
+        {/* )} */}
       </div>
       <CompaniesCard
         data={data}

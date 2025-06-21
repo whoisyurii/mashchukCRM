@@ -60,16 +60,20 @@ export const Dashboard: React.FC = () => {
                 onClick={() => navigate("/users")}
               />
             )}
-            <StatsCard
+            {user?.role === "SuperAdmin" && (
+              <StatsCard
               title="Total Companies"
               value={stats?.totalCompanies?.toLocaleString() || "0"}
               icon={<Building2 className="w-6 h-6 text-emerald-500" />}
-            />
+              />
+            )}
+            {user?.role === "SuperAdmin" && (
             <StatsCard
               title="Total Capital"
               value={`$${(shortenNumber(stats?.totalCapital || 0)).toLocaleString()}`}
               icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
             />
+            )};
           </div>
         )}
       {/* Stats Section for User */}
@@ -91,7 +95,6 @@ export const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
             <Card>
-           
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-white">
                   Actions History
@@ -153,28 +156,27 @@ export const Dashboard: React.FC = () => {
           )}
 
           {/* User: Price Chart Placeholder */}
-          {user?.role === "User" && (
+          {(user?.role === "User" || user?.role === 'Admin') && (
             <Card>
               <h3 className="text-lg font-semibold text-white mb-4">
-                Company Price Chart
+                Companies Price Chart
               </h3>
               <CompaniesPriceChart />
             </Card>
           )}
 
-          {/* companies by capital card */}
-          <Card>
+          {/* companies by capital card */}          <Card>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-white">
-                Top Companies
+                {user?.role === "SuperAdmin" ? "Top Companies" : "My Companies"}
               </h3>
               <span
                 className="cursor-pointer hover:text-emerald-300 text-emerald-400  text-xs"
                 onClick={() => navigate("/companies")}
-              >
+                >
                 View all &rarr;
               </span>
-            </div>
+            </div>                {user?.role === "SuperAdmin" && (
             <div className="space-y-3">
               {/* skeleton */}
               {isCompaniesByCapitalLoading ? (
@@ -224,6 +226,54 @@ export const Dashboard: React.FC = () => {
                 ))
               )}
             </div>
+            )}
+            {(user?.role === "User" || user?.role === "Admin") && (
+             <div className="space-y-3">
+              {/* skeleton */}
+              {isCompaniesByCapitalLoading ? (
+                <CompaniesDashboardSkeleton />
+              ) : companiesByCapital.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-400 text-sm">No companies yet</p>
+                </div>
+              ) : (
+                companiesByCapital.map((company: DashboardCompany) => (
+                  <div
+                    key={company.id}
+                    className="flex items-center justify-between p-3 bg-dark-800 rounded-lg"
+                    onClick={() => navigate("/companies")}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5">
+                        <Building2 className="w-4 h-4 text-emerald-500" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-white truncate block max-md:max-w-28">
+                          {company.name}
+                        </span>
+                        {/* User and Admin don't see "by" since they only see their own companies */}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-400 max-md:hidden">
+                        ${company.capital.toLocaleString()}
+                      </p>
+                      {/* for future feature - if company is active or not */}
+                      <div
+                        className={`inline-block w-2 h-2 rounded-full ${
+                          company.status === "Active"
+                            ? "bg-green-400"
+                            : company.status === "Inactive"
+                            ? "bg-red-400"
+                            : "bg-yellow-400"
+                        }`}
+                      ></div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            )}
           </Card>
           </div>
       </div>

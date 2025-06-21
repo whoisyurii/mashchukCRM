@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { authenticateJWT } from "../middleware/auth.js";
+import { authenticateJWT } from "../middleware/passport.js";
 import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
 
@@ -167,35 +167,41 @@ router.get("/", authenticateJWT, async (req, res) => {
     // Build where clause for search and filters
     const where = {};
 
+    
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
         { service: { contains: search, mode: "insensitive" } },
       ];
     }
-
+    
     if (status) {
       where.status = status;
     }
-
+    
     // Capital filters
     if (minCapital || maxCapital) {
       where.capital = {};
       if (minCapital) where.capital.gte = parseInt(minCapital);
       if (maxCapital) where.capital.lte = parseInt(maxCapital);
     }
-
+    
     // Date filters
     if (createdAfter || createdBefore) {
       where.createdAt = {};
       if (createdAfter) where.createdAt.gte = new Date(createdAfter);
       if (createdBefore) where.createdAt.lte = new Date(createdBefore);
     }
+    
+    // Role-based filtering: User and Admin see only their companies, SuperAdmin sees all
+    if (req.user.role === "User" || req.user.role === "Admin") {
+      where.userId = req.user.id;
+    }
 
     // Build orderBy clause
     const orderBy = {};
     orderBy[sortBy] = sortOrder;
-
+    
     // Get companies with pagination and owner info
     const [companies, totalCount] = await Promise.all([
       prisma.company.findMany({
@@ -216,6 +222,7 @@ router.get("/", authenticateJWT, async (req, res) => {
       }),
       prisma.company.count({ where }),
     ]);
+
 
     res.json({
       data: companies,
@@ -394,12 +401,12 @@ router.get("/:id", authenticateJWT, async (req, res) => {
 router.post("/", authenticateJWT, upload.single('logo'), async (req, res) => {
   try {
     // Check if user has permission to create companies
-    if (req.user.role === "User") {
-      return res.status(401).json({
-        message:
-          "Access denied. Only SuperAdmin and Admin can create companies.",
-      });
-    }
+    // if (req.user.role === "User") {
+    //   return res.status(401).json({
+    //     message:
+    //       "Access denied. Only SuperAdmin and Admin can create companies.",
+    //   });
+    // }
 
     const { name, service, capital, status, ownerId } = req.body;
     const logoFile = req.file;
@@ -410,13 +417,17 @@ router.post("/", authenticateJWT, upload.single('logo'), async (req, res) => {
       logoUrl = `/companies/${logoFile.filename}`;
     }
 
+    // Determine userId for the company
+    const userId = ownerId || req.user.id;
+    console.log(`[DEBUG] Creating company with userId: ${userId}, current user: ${req.user.id}, role: ${req.user.role}`);
+
     const newCompany = await prisma.company.create({
       data: {
         name,
         service,
         capital: parseInt(capital),
         status: status || "Active",
-        userId: ownerId || null,
+        userId: userId, // Always set userId
         logoUrl: logoUrl,
       },
       include: {

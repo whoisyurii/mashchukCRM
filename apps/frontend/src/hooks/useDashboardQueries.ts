@@ -15,12 +15,10 @@ export const useDashboardQueries = () => {
     queryKey: ["dashboard-admins"],
     queryFn: dashboardService.getAdmins,
     enabled: user?.role === "SuperAdmin",
-  });
-
-  const userCompaniesQuery = useQuery({
+  });    const userCompaniesQuery = useQuery({
     queryKey: ["dashboard-user-companies"],
-    queryFn: dashboardService.getUserCompanies,
-    enabled: user?.role === "User",
+    queryFn: () => dashboardService.getUserCompanies(4),
+    enabled: user?.role === "User" || user?.role === "Admin",
   });
 
   const recentHistoryQuery = useQuery({
@@ -34,10 +32,10 @@ export const useDashboardQueries = () => {
       }),
     enabled: user?.role === "SuperAdmin" || user?.role === "Admin",
   });
-
   const companiesByCapitalQuery = useQuery({
     queryKey: ["dashboard-companies-by-capital"],
     queryFn: () => dashboardService.getCompaniesByCapital(4), // left 4 to keep dashboard non-scrollable
+    enabled: user?.role === "SuperAdmin",
   });
   return {
     stats: statsQuery.data,
@@ -48,8 +46,12 @@ export const useDashboardQueries = () => {
     isCompaniesLoading: userCompaniesQuery.isLoading,
     recentActions: recentHistoryQuery.data?.data || [],
     isHistoryLoading: recentHistoryQuery.isLoading,
-    companiesByCapital: companiesByCapitalQuery.data || [],
-    isCompaniesByCapitalLoading: companiesByCapitalQuery.isLoading,
+    companiesByCapital: user?.role === "SuperAdmin" 
+      ? (companiesByCapitalQuery.data || [])
+      : (userCompaniesQuery.data || []),
+    isCompaniesByCapitalLoading: user?.role === "SuperAdmin" 
+      ? companiesByCapitalQuery.isLoading
+      : userCompaniesQuery.isLoading,
     isLoading:
       statsQuery.isLoading ||
       adminsQuery.isLoading ||

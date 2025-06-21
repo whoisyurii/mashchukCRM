@@ -19,6 +19,11 @@ export const authService = {
     return response.data;
   },
 
+  verifyToken: async (): Promise<{ user: any; authenticated: boolean }> => {
+    const response = await api.get("/auth/verify");
+    return response.data;
+  },
+
   logout: async (): Promise<void> => {
     const refreshToken = localStorage.getItem("refreshToken");
     if (refreshToken) {

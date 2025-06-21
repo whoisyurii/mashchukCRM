@@ -3,7 +3,8 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import bcrypt from "bcryptjs";
-import { authenticateJWT, requireRole, requireOwnerOrAdmin } from "../middleware/auth.js";
+import { authenticateJWT } from "../middleware/passport.js";
+import { requireRole, requireOwnerOrAdmin } from "../middleware/auth.js";
 import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
 

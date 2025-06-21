@@ -146,6 +146,8 @@ const CompaniesAdd = () => {
                           setLogoPreview('');
                         }}
                         className="absolute top-2 right-2"
+                        // className="mt-2"
+
                       >
                         Remove
                       </Button>

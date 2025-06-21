@@ -1,6 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
-import { authenticateJWT, requireRole } from "../middleware/auth.js";
+import { authenticateJWT } from "../middleware/passport.js";
+import { requireRole } from "../middleware/auth.js";
 import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
 
@@ -530,20 +531,33 @@ router.delete(
  *       500:
  *         description: Server error
  */
-// Get user's companies (User role)
+// Get user's companies (User/Admin role)
 router.get(
   "/user-companies",
   authenticateJWT,
-  requireRole(["User"]),
+  requireRole(["User", "Admin"]),
   async (req, res) => {
     try {
-      // Get companies assigned to the user or all companies if user is not assigned specific ones
+      const { limit = 4 } = req.query;
+      
+      // Get only companies owned by the current user, sorted by capital (top companies)
       const userCompanies = await prisma.company.findMany({
         where: {
-          OR: [
-            { userId: req.user.id },
-            { userId: null }, // Include unassigned companies for now
-          ],
+          userId: req.user.id, // Only companies created by this user
+        },
+        orderBy: {
+          capital: "desc", // Sort by capital descending (top companies first)
+        },
+        take: parseInt(limit), // Limit to specified number (default 4)
+        include: {
+          owner: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
         },
       });
       res.json(userCompanies);

@@ -73,7 +73,8 @@ const router = createBrowserRouter([
   {
     path: "/companies/add-new",
     element: (
-      <ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]}>
+      // <ProtectedRoute allowedRoles={["Admin", "SuperAdmin"]}>
+      <ProtectedRoute>
         <CompaniesAdd />
       </ProtectedRoute>
     ),

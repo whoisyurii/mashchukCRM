@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma.js";
 import { createActionHistory } from "./history.js";
-import { authenticateJWT, authenticateLocal } from "../middleware/auth.js";
+import { authenticateJWT, authenticateLocal } from "../middleware/passport.js";
 import {
   generateTokenPair,
   verifyRefreshToken,

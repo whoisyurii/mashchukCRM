@@ -1,5 +1,6 @@
 import express from "express";
-import { authenticateJWT, requireRole } from "../middleware/auth.js";
+import { authenticateJWT } from "../middleware/passport.js";
+import { requireRole } from "../middleware/auth.js";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
