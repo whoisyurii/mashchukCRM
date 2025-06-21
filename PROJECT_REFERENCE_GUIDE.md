@@ -7,7 +7,6 @@
 - **Frontend**: React + TypeScript + Vite + TailwindCSS
 - **Backend**: Node.js + Express.js + Prisma ORM + PostgreSQL
 - **Authentication**: JWT + Passport.js + Refresh Tokens
-- **Deployment**: Render.com (раздельные сервисы)
 - **CI/CD**: GitHub Actions
 
 ---
@@ -64,101 +63,99 @@ MASHCHUKCRM/
 ├── 📄 eslint.config.js             # ESLint configuration
 ├── 📄 tailwind.config.js           # Shared Tailwind CSS config
 ├── 📄 tsconfig.json                # Base TypeScript config
-├── 📄 render.yaml                  # Render.com deployment config
-├── 📄 JWT_AUTHENTICATION_GUIDE.md  # Detailed auth documentation
-├── 📄 IMPLEMENTATION_SUMMARY.md    # Project implementation summary
 ├── 📁 .github/workflows/           # CI/CD automation (Continuous (Integration/Deployment))
-│   └── 📄 ci-cd.yml               # GitHub Actions workflow
-├── 📁 docs/                       # Documentation
-│   └── 📄 deployment.md           # Deployment instructions
-├── 📁 apps/                       # Monorepo applications directory
-│   ├── 📁 frontend/               # React SPA
-│   │   ├── 📄 package.json        # Frontend dependencies
-│   │   ├── 📄 index.html          # HTML entry point
-│   │   ├── 📄 vite.config.ts      # Vite bundler config
-│   │   ├── 📄 tailwind.config.js  # Frontend-specific Tailwind
-│   │   ├── 📄 tsconfig.json       # Frontend TypeScript config
-│   │   ├── 📁 public/             # Static assets
-│   │   │   ├── 📄 _redirects      # SPA routing config
-│   │   │   ├── 📁 companies/      # Company logos
-│   │   │   └── 📁 users/          # User avatars
-│   │   └── 📁 src/                # Source code
-│   │       ├── 📄 App.tsx         # Main App component & routing
-│   │       ├── 📄 main.tsx        # React entry point
-│   │       ├── 📁 components/     # Reusable UI components
-│   │       │   ├── 📁 layout/     # Layout components (Header, Sidebar)
-│   │       │   ├── 📁 ui/         # Basic UI components (Button, Input, Card)
-│   │       │   ├── 📁 companies/  # Company-specific components
+│   └── 📄 ci-cd.yml                # GitHub Actions workflow
+├── 📁 docs/                        # Documentation
+│   └── 📄 deployment.md            # Deployment instructions
+├── 📁 apps/                        # Monorepo applications directory
+│   ├── 📁 frontend/                # React SPA
+│   │   ├── 📄 package.json         # Frontend dependencies
+│   │   ├── 📄 index.html           # HTML entry point
+│   │   ├── 📄 vite.config.ts       # Vite bundler config
+│   │   ├── 📄 tailwind.config.js   # Frontend-specific Tailwind
+│   │   ├── 📄 tsconfig.json        # Frontend TypeScript config
+│   │   ├── 📁 public/              # Static assets
+│   │   │   ├── 📄 _redirects       # SPA routing config
+│   │   │   ├── 📁 companies/       # Company logos
+│   │   │   └── 📁 users/           # User avatars
+│   │   └── 📁 src/                 # Source code
+│   │       ├── 📄 App.tsx          # Main App component & routing
+│   │       ├── 📄 main.tsx         # React entry point
+│   │       ├── 📁 components/      # Reusable UI components
+│   │       │   ├── 📁 layout/      # Layout components (Header, Sidebar)
+│   │       │   ├── 📁 ui/          # Basic UI components (Button, Input, Card)
+│   │       │   ├── 📁 companies/   # Company-specific components
 │   │       │   │   ├── 📄 CompanyModal.tsx    # Create company modal
 │   │       │   │   ├── 📄 CompaniesCard.tsx   # Companies list component
 │   │       │   │   ├── 📄 CompanyDetail.tsx   # Company detail view
-│   │       │   │   └── 📄 index.ts           # Exports & types
+│   │       │   │   └── 📄 index.ts            # Exports & types
 │   │       │   └── 📁 users/      # User-specific components
-│   │       │       ├── 📄 UserCard.tsx       # User card component
-│   │       │       └── 📄 index.ts           # Exports & types
-│   │       ├── 📁 contexts/       # React contexts (Auth)
-│   │       ├── 📁 hooks/          # Custom React hooks
-│   │       │   ├── 📄 index.ts               # Hook exports
-│   │       │   ├── 📄 useCompaniesQuery.ts   # Company data hooks
-│   │       │   ├── 📄 useDashboardQueries.ts # Dashboard data hooks
-│   │       │   ├── 📄 useHistoryQuery.ts     # History data hooks
-│   │       │   └── 📄 useUsersQueries.ts     # User data hooks
+│   │       │       ├── 📄 UserCard.tsx        # User card component
+│   │       │       └── 📄 index.ts            # Exports & types
+│   │       ├── 📁 contexts/       # React contexts (Auth Context API)
+│   │       ├── 📁 hooks/          # Custom React (Query) hooks
+│   │       │   ├── 📄 index.ts                # Hook exports
+│   │       │   ├── 📄 useCompaniesQuery.ts    # Company data hooks
+│   │       │   ├── 📄 useDashboardQueries.ts  # Dashboard data hooks
+│   │       │   ├── 📄 useHistoryQuery.ts      # History data hooks
+│   │       │   └── 📄 useUsersQueries.ts      # User data hooks
 │   │       ├── 📁 pages/          # Page components (organized by feature)
 │   │       │   ├── 📁 auth/       # Authentication pages
-│   │       │   │   ├── 📄 LoginPage.tsx      # Login form
-│   │       │   │   ├── 📄 RegisterPage.tsx   # Registration form
-│   │       │   │   └── 📄 index.ts           # Exports & types
+│   │       │   │   ├── 📄 LoginPage.tsx       # Login form
+│   │       │   │   ├── 📄 RegisterPage.tsx    # Registration form
+│   │       │   │   └── 📄 index.ts            # Exports & types
 │   │       │   ├── 📄 Dashboard.tsx           # Main dashboard page
 │   │       │   ├── 📄 History.tsx             # Action history page
 │   │       │   ├── 📄 Profile.tsx             # User profile page
 │   │       │   ├── 📁 Companies/  # Company management pages
-│   │       │   │   └── 📄 Companies.tsx      # Companies list page
+│   │       │   │   └── 📄 Companies.tsx       # Companies list page
 │   │       │   └── 📁 Users/      # User management pages
-│   │       │       ├── 📄 Users.tsx          # Users list page
-│   │       │       └── 📄 UsersAdd.tsx       # Add new user page
-│   │       ├── 📁 services/       # API services
-│   │       │   ├── 📄 api.ts                 # Axios instance & config
-│   │       │   ├── 📄 authService.ts         # Authentication services
-│   │       │   ├── 📄 companyService.ts      # Company services
+│   │       │       ├── 📄 Users.tsx           # Users list page
+│   │       │       └── 📄 UsersAdd.tsx        # Add new user page
+│   │       ├── 📁 services/       # API services (API layer between FE and BE with clean functions)
+│   │       │   ├── 📄 api.ts                 # Axios instance&config (centralized api calls for folder)
+│   │       │   ├── 📄 authService.ts         # Authentication services (/auth/ endpoints; AuthContext)
+│   │       │   ├── 📄 companyService.ts      # Company services (CRUD companies; logo upload)
 │   │       │   ├── 📄 dashboardService.ts    # Dashboard services
-│   │       │   ├── 📄 historyService.ts      # History services
-│   │       │   └── 📄 userService.ts         # User services (with FormData support)
+│   │       │   ├── 📄 historyService.ts      # History services (logs from BD)
+│   │       │   └── 📄 userService.ts         # User services (CRUD users, FormData avatar)
 │   │       ├── 📁 types/          # TypeScript interfaces
-│   │       └── 📁 utils/          # Utility functions
-│   │           ├── 📄 action-helpers.tsx     # Action utility functions
-│   │           ├── 📄 filtering-helpers.ts   # Filtering utilities
-│   │           ├── 📄 shortener-helpers.ts   # String shortening
+│   │       └── 📁 utils/          # Utility functions (FE helpers)
+│   │           ├── 📄 action-helpers.tsx     # History util functions (conditional colors, icons)
+│   │           ├── 📄 filtering-helpers.ts   # Filtering utils (filters, pagination)
+│   │           ├── 📄 shortener-helpers.ts   # String shortening (numbers and names shortener)
 │   │           ├── 📄 toast-helpers.ts       # Toast notifications
 │   │           └── 📄 user-helpers.ts        # User-related utilities
-│   └── 📁 backend/                # Express API
-│       ├── 📄 package.json        # Backend dependencies
-│       ├── 📄 .env                # Environment variables
-│       ├── 📄 .env.example        # Environment template
-│       ├── 📁 prisma/             # Database layer
-│       │   ├── 📄 schema.prisma   # Database schema
-│       │   ├── 📄 seed.js         # Database seeding
-│       │   └── 📁 migrations/     # Database migrations
-│       ├── 📁 public/             # Static file uploads
-│       │   ├── 📁 companies/      # Company logo uploads
-│       │   └── 📁 users/          # User avatar uploads
-│       └── 📁 src/                # Source code
-│           ├── 📄 index.js        # Express server entry
-│           ├── 📄 prisma.js       # Prisma client setup
-│           ├── 📄 swaggerSpec.js  # Swagger API documentation config
-│           ├── 📁 routes/         # API endpoints
-│           │   ├── 📄 auth.js     # Authentication routes (with Swagger docs)
-│           │   ├── 📄 companies.js # Company routes (with Swagger docs)
-│           │   ├── 📄 dashboard.js # Dashboard routes (with Swagger docs)
-│           │   ├── 📄 history.js  # History routes (with Swagger docs)
-│           │   └── 📄 users.js    # User routes (with Swagger docs & avatar upload)
-│           ├── 📁 middleware/     # Express middleware
-│           │   ├── 📄 auth.js     # JWT authentication middleware
-│           │   └── 📄 passport.js # Passport.js configuration
-│           ├── 📁 utils/          # Utility functions
-│           │   └── 📄 tokenUtils.js # JWT token utilities
-│           └── 📁 jobs/           # Background tasks
+│   │
+│   └── 📁 backend/                    # Express API
+│       ├── 📄 package.json            # Backend dependencies
+│       ├── 📄 .env                    # Environment variables
+│       ├── 📄 .env.example            # Environment template
+│       ├── 📁 prisma/                 # Database layer
+│       │   ├── 📄 schema.prisma       # Database schema
+│       │   ├── 📄 seed.js             # Database seeding
+│       │   └── 📁 migrations/         # Database migrations
+│       ├── 📁 public/                 # Static file uploads
+│       │   ├── 📁 companies/          # Company logo uploads
+│       │   └── 📁 users/              # User avatar uploads
+│       └── 📁 src/                    # Source code
+│           ├── 📄 index.js            # Express server entry
+│           ├── 📄 prisma.js           # Prisma client setup
+│           ├── 📄 swaggerSpec.js      # Swagger API documentation config
+│           ├── 📁 routes/             # API endpoints
+│           │   ├── 📄 auth.js         # Authentication routes (with Swagger docs)
+│           │   ├── 📄 companies.js    # Company routes (with Swagger docs)
+│           │   ├── 📄 dashboard.js    # Dashboard routes (with Swagger docs)
+│           │   ├── 📄 history.js      # History routes (with Swagger docs)
+│           │   └── 📄 users.js        # User routes (with Swagger docs & avatar upload)
+│           ├── 📁 middleware/         # Express middleware
+│           │   ├── 📄 auth.js         # JWT authentication middleware
+│           │   └── 📄 passport.js     # Passport.js configuration
+│           ├── 📁 utils/              # Utility functions
+│           │   └── 📄 tokenUtils.js   # JWT token utilities
+│           └── 📁 jobs/               # Background tasks
 │               └── 📄 tokenCleanup.js # Refresh token cleanup
-└── 📁 node_modules/               # Dependencies
+└── 📁 node_modules/                   # Dependencies
 ```
 
 ---

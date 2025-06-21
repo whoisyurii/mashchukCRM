@@ -16,9 +16,10 @@ interface AuthContextType {
   loading: boolean;
   updateUser: (updatedUser: User) => void;
 }
-
+// create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// use context - custom hook to use the AuthContext
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -27,6 +28,7 @@ export const useAuth = () => {
   return context;
 };
 
+// provide context
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -34,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // load user and token from localStorage on initial render
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
@@ -45,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoading(false);
   }, []);
 
+  // login function
   const login = async (email: string, password: string) => {
     try {
       const { user, accessToken, refreshToken } = await authService.login({

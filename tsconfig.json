@@ -7,19 +7,19 @@
     "strict": true,
     "noEmit": true,
 
-    /* Bundler mode */
+    /* bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmitOnError": true,
 
-    /* Linting */
+    /* linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    /* Path mapping for monorepo */
+    /* path mapping for monorepo */
     "baseUrl": ".",
     "paths": {
       "@frontend/*": ["apps/frontend/src/*"],

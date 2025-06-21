@@ -8,7 +8,7 @@ import { ArrowLeft, Upload, Trash2, Edit2, Save, X } from "lucide-react";
 import { companyService } from "../../services/companyService";
 import { useAuth } from "../../contexts/AuthContext";
 import { Company, ActionHistory } from "../../types";
-import { showSuccessToast, showErrorToast } from "../../utils/toast-helpers";
+import toast from "react-hot-toast";
 
 export const CompanyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,10 +53,10 @@ export const CompanyDetail: React.FC = () => {
     mutationFn: (file: File) => companyService.uploadLogo(id!, file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["company", id] });
-      showSuccessToast("Logo uploaded successfully");
+      toast.success("Logo uploaded successfully");
     },
     onError: (error: Error) => {
-      showErrorToast(error.message || "Failed to upload logo");
+      toast.error(error.message || "Failed to upload logo");
     },
   });
 
@@ -65,10 +65,10 @@ export const CompanyDetail: React.FC = () => {
     mutationFn: () => companyService.deleteLogo(id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["company", id] });
-      showSuccessToast("Logo deleted successfully");
+      toast.success("Logo deleted successfully");
     },
     onError: (error: Error) => {
-      showErrorToast(error.message || "Failed to delete logo");
+      toast.error(error.message || "Failed to delete logo");
     },
   });
 
@@ -79,10 +79,10 @@ export const CompanyDetail: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["company", id] });
       setIsEditing(false);
-      showSuccessToast("Company updated successfully");
+      toast.success("Company updated successfully");
     },
     onError: (error: Error) => {
-      showErrorToast(error.message || "Failed to update company");
+      toast.error(error.message || "Failed to update company");
     },
   });
 

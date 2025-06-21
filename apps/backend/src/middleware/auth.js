@@ -30,7 +30,7 @@ export const requireRole = (roles) => {
 };
 
 /**
- * Middleware для проверки владельца ресурса или админа
+ * middleware to check if the user is the owner of a resource or an admin
  */
 export const requireOwnerOrAdmin = (req, res, next) => {
   if (!req.user) {

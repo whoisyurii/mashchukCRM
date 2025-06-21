@@ -45,7 +45,7 @@ export const dashboardService = {
       password?: string;
     }
   ) => {
-    // Remove password from userData if it's empty (for security)
+    // remove password from userData if it's empty (for security)
     const { password, ...dataToUpdate } = userData;
     const finalData = password ? userData : dataToUpdate;
 

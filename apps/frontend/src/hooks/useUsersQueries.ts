@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService, User } from "../services/userService";
-import { userNotifications } from "../utils/toast-helpers";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -33,14 +32,13 @@ export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: userService.deleteUser,
-    onSuccess: () => {
+    mutationFn: userService.deleteUser,    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      userNotifications.deleteSuccess();
+      toast.success("User deleted successfully!");
     },
     onError: (error) => {
       console.error("Delete error:", error);
-      userNotifications.deleteError();
+      toast.error("Failed to delete user. Please try again.");
     },
   });
 };
@@ -60,23 +58,21 @@ export const useUpdateUser = () => {
         lastName: string;
         role: string;
       };
-    }) => userService.updateUser(userId, userData),
-    onSuccess: () => {
+    }) => userService.updateUser(userId, userData),    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      userNotifications.updateSuccess();
+      toast.success("User updated successfully!");
     },
     onError: (error) => {
       console.error("Update error:", error);
-      userNotifications.updateError();
+      toast.error("Failed to update user. Please try again.");
     },
   });
 };
 
 // helper hook for user operations
 export const useUserOperations = () => {
-  const deleteUserMutation = useDeleteUser();
-  const handleDeleteUser = async (user: User) => {
-    if (userNotifications.confirmDelete(`${user.firstName} ${user.lastName}`)) {
+  const deleteUserMutation = useDeleteUser();  const handleDeleteUser = async (user: User) => {
+    if (confirm(`Are you sure you want to delete ${user.firstName} ${user.lastName}?`)) {
       deleteUserMutation.mutate(user.id);
     }
   };
