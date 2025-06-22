@@ -72,7 +72,7 @@ export const Dashboard: React.FC = () => {
               value={`$${(shortenNumber(stats?.totalCapital || 0)).toLocaleString()}`}
               icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
             />
-            )};
+            )}
           </div>
         )}
         {/* SuperAdmin/Admin: Recent Actions */}
@@ -167,11 +167,11 @@ export const Dashboard: React.FC = () => {
           emptyText={
             user?.role === "SuperAdmin"
               ? "No companies found"
-              : "You don't have any companies yet8"
+              : "You don't have any companies yet"
           }
           showOwner={user?.role === "SuperAdmin"}
           // onCompanyClick={() => navigate("/companies")}
-  />
+         />
           </Card>
           </div>
       </div>
