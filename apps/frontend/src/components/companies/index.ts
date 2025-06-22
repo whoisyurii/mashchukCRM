@@ -1,6 +1,7 @@
 export { CompaniesCard } from "./CompaniesCard";
 export { CompanyDetail } from "./CompanyDetail";
 
+
 // Types
 export interface Company {
   id: string;

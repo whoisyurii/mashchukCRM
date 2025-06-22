@@ -8,13 +8,13 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { companyService } from '../../services/companyService';
 import { useAuth } from '../../contexts/AuthContext';
+import CompanyLocationAdd from '../../components/companies/CompanyLocationAdd';
 
 const CompaniesAdd = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [formData, setFormData] = useState({
     name: '',
     service: '',
@@ -24,6 +24,11 @@ const CompaniesAdd = () => {
   const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+    address: string;
+  } | null>(null);
 
   const createCompanyMutation = useMutation({
     mutationFn: companyService.createCompany,
@@ -61,11 +66,12 @@ const CompaniesAdd = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) return;    const formDataToSend = new FormData();
+    if (!validateForm()) return;
+
+    const formDataToSend = new FormData();
     formDataToSend.append('name', formData.name);
     formDataToSend.append('service', formData.service);
     formDataToSend.append('capital', formData.capital);
@@ -77,6 +83,13 @@ const CompaniesAdd = () => {
     
     if (logo) {
       formDataToSend.append('logo', logo);
+    }
+
+    // Add location data if provided
+    if (location) {
+      formDataToSend.append('address', location.address);
+      formDataToSend.append('latitude', location.latitude.toString());
+      formDataToSend.append('longitude', location.longitude.toString());
     }
 
     createCompanyMutation.mutate(formDataToSend);
@@ -100,6 +113,15 @@ const CompaniesAdd = () => {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
+
+  const handleLocationChange = (locationData: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  } | null) => {
+    setLocation(locationData);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -121,12 +143,13 @@ const CompaniesAdd = () => {
       {/* Form */}
       <Card>
         <div className="p-6">
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Grid Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Logo Upload Section */}
               <div className="lg:col-span-1">
-                <label className="block text-sm font-medium text-gray-300 mb-4">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Company Logo (Optional)
                 </label>
                 <div className="space-y-4">
@@ -234,14 +257,19 @@ const CompaniesAdd = () => {
                     <Input
                       value={formData.ownerId}
                       onChange={(e) => handleInputChange('ownerId', e.target.value)}
-                      placeholder={`Default: ${user?.firstName} ${user?.lastName}`}
+                      placeholder={`Leave empty to assign to yourself, ${user?.firstName} ${user?.lastName}`}
                     />
-                    <p className="text-gray-500 text-sm mt-1">
-                      Leave empty to assign to yourself
-                    </p>
                   </div>
-                </div>
+                </div>            
               </div>
+            </div>
+
+            {/* Location Section */}
+            <div className="mt-6">
+              <CompanyLocationAdd 
+                onLocationChange={handleLocationChange}
+                initialLocation={null}
+              />
             </div>
 
             {/* Submit Actions */}

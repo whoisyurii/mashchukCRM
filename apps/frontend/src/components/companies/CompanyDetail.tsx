@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "../../components/ui/Card";
@@ -8,6 +8,7 @@ import { ArrowLeft, Upload, Trash2, Edit2, Save, X } from "lucide-react";
 import { companyService } from "../../services/companyService";
 import { useAuth } from "../../contexts/AuthContext";
 import { Company, ActionHistory } from "../../types";
+import CompanyLocationDisplay from "./CompanyLocationDisplay";
 import toast from "react-hot-toast";
 
 export const CompanyDetail: React.FC = () => {
@@ -31,7 +32,7 @@ export const CompanyDetail: React.FC = () => {
   });
 
   // Update edit form when company data loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (company) {
       setEditForm({
         name: company.name,
@@ -158,7 +159,7 @@ export const CompanyDetail: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Company Info */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-1">
           <Card>
             <div className="space-y-6">
               <h2 className="text-lg font-semibold text-white">
@@ -278,7 +279,17 @@ export const CompanyDetail: React.FC = () => {
           </Card>
         </div>
 
-        {/* Logo Section */}
+        {/* Company Location (center column) */}
+        <div>
+          <CompanyLocationDisplay
+            companyName={company.name}
+            address={company.address}
+            latitude={company.latitude}
+            longitude={company.longitude}
+          />
+        </div>
+
+        {/* Logo Section + Action History */}
         <div className="space-y-6">
           <Card>
             <div className="space-y-4">
@@ -336,7 +347,6 @@ export const CompanyDetail: React.FC = () => {
             </div>
           </Card>
 
-          {/* Action History */}
           <Card>
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-white">
@@ -369,8 +379,7 @@ export const CompanyDetail: React.FC = () => {
                   <p className="text-gray-400 text-sm text-center py-4">
                     No action history available
                   </p>
-                )}
-              </div>
+                )}              </div>
             </div>
           </Card>
         </div>

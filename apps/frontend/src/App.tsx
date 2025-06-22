@@ -18,6 +18,7 @@ import { Profile } from "./pages/Profile";
 import { History } from "./pages/History";
 import { LoginPage, RegisterPage } from "./pages/auth";
 
+
 const queryClient = new QueryClient();
 
 const ProtectedRoute: React.FC<{

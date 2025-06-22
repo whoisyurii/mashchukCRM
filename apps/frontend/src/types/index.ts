@@ -16,6 +16,9 @@ export interface Company {
   status: "Active";
   logoUrl?: string;
   userId?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
   owner?: {
     id: string;
     firstName: string;
