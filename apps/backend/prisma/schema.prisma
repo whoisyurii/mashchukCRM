@@ -37,6 +37,9 @@ model Company {
   status    String   @default("Active") // only active
   logoUrl   String?  // path to logo file
   userId    String?  // can be null if not assigned to a user
+  address   String?  // company address
+  latitude  Float?   // latitude coordinate
+  longitude Float?   // longitude coordinate
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

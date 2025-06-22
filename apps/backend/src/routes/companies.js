@@ -408,7 +408,7 @@ router.post("/", authenticateJWT, upload.single('logo'), async (req, res) => {
     //   });
     // }
 
-    const { name, service, capital, status, ownerId } = req.body;
+    const { name, service, capital, status, ownerId, address, latitude, longitude } = req.body;
     const logoFile = req.file;
 
     // Generate logo URL if file was uploaded
@@ -429,6 +429,9 @@ router.post("/", authenticateJWT, upload.single('logo'), async (req, res) => {
         status: status || "Active",
         userId: userId, // Always set userId
         logoUrl: logoUrl,
+        address: address || null,
+        latitude: latitude ? parseFloat(latitude) : null,
+        longitude: longitude ? parseFloat(longitude) : null,
       },
       include: {
         owner: {
