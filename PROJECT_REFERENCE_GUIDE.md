@@ -3,6 +3,7 @@
 ## Overview
 
 **MashchukCRM** is a full-stack monorepo for company management:
+
 - **Frontend:** React + TypeScript + Vite + TailwindCSS + React Query
 - **Backend:** Node.js + Express + Prisma + PostgreSQL
 - **Auth:** JWT + Passport.js (Local & JWT Strategies) + Refresh Tokens + Backend validation
@@ -186,7 +187,7 @@ MashchukCRM/
 │           │   ├── 📄 history.js      # History routes (with Swagger docs)
 │           │   └── 📄 users.js        # User routes (with Swagger docs & avatar upload)
 │           ├── 📁 middleware/         # Express middleware
-│           │   ├── 📄 auth.js         # JWT authentication middleware
+│           │   ├── 📄 auth.js         # JWT authentication middleware (Passport.js strategies)
 │           │   └── 📄 passport.js     # Passport.js configuration
 │           ├── 📁 utils/              # Utility functions
 │           │   └── 📄 tokenUtils.js   # JWT token utilities
@@ -339,11 +340,11 @@ passport.use(
       const user = await prisma.user.findUnique({
         where: { email: email.toLowerCase() },
       });
-      
-      if (!user || !await bcrypt.compare(password, user.password)) {
+
+      if (!user || !(await bcrypt.compare(password, user.password))) {
         return done(null, false, { message: "Invalid credentials" });
       }
-      
+
       return done(null, user);
     }
   )
@@ -358,7 +359,7 @@ passport.use(
     },
     async (payload, done) => {
       const user = await prisma.user.findUnique({
-        where: { id: payload.userId },
+        where: { id: payload.id }, // <-- updated: payload.id
       });
       return done(null, user || false);
     }
@@ -366,7 +367,8 @@ passport.use(
 );
 
 // Usage in routes
-router.post("/login", 
+router.post(
+  "/login",
   passport.authenticate("local", { session: false }),
   (req, res) => {
     // Generate tokens after successful authentication
@@ -375,7 +377,8 @@ router.post("/login",
   }
 );
 
-router.get("/profile", 
+router.get(
+  "/profile",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     res.json({ user: req.user });
@@ -395,15 +398,15 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import passport from "./middleware/passport.js";
-import swaggerUI from 'swagger-ui-express';
+import swaggerUI from "swagger-ui-express";
 import swaggerSpec from "./swaggerSpec.js";
 
 const app = express();
 
 // Middleware Stack (Order matters!)
 app.use(cors()); // 1. CORS headers
-app.use(express.json({ limit: '10mb' })); // 2. JSON body parser with file upload support
-app.use(express.urlencoded({ extended: true, limit: '10mb' })); // 3. URL encoded parser
+app.use(express.json({ limit: "10mb" })); // 2. JSON body parser with file upload support
+app.use(express.urlencoded({ extended: true, limit: "10mb" })); // 3. URL encoded parser
 app.use(passport.initialize()); // 4. Passport initialization
 
 // Static file serving for uploads
@@ -442,7 +445,7 @@ HTTP Request
 ├─────────────┤
 │ Route       │ ← Match URL to handler
 ├─────────────┤
-│ Auth        │ ← authenticateToken middleware
+│ Auth        │ ← authenticateJWT / authenticateLocal (Passport.js)
 ├─────────────┤
 │ Role Check  │ ← requireRole middleware
 ├─────────────┤
@@ -458,29 +461,29 @@ HTTP Response
 ```
 /api
 ├── /auth                    # Authentication endpoints
-│   ├── POST /login         # User login
+│   ├── POST /login         # User login (Passport Local Strategy)
 │   ├── POST /register      # User registration
 │   ├── POST /refresh       # Token refresh
-│   ├── POST /logout        # User logout
-│   ├── GET /verify         # Token verification
-│   ├── GET /profile        # User profile
+│   ├── POST /logout        # User logout (Passport JWT)
+│   ├── GET /verify         # Token verification (Passport JWT)
+│   ├── GET /profile        # User profile (Passport JWT)
 │   └── GET /profile-passport # Alternative profile endpoint
 ├── /users                  # User management
-│   ├── GET /               # List users (Admin+)
+│   ├── GET /               # List users (Admin+; Passport JWT + requireRole)
 │   ├── POST /              # Create user with avatar upload (Admin+)
-│   ├── GET /me             # Current user profile
-│   ├── PUT /me             # Update current user profile
-│   ├── PUT /:id            # Update user by ID (Admin+)
+│   ├── GET /me             # Current user profile (Passport JWT)
+│   ├── PUT /me             # Update current user profile (Passport JWT)
+│   ├── PUT /:id            # Update user by ID (Admin+; Passport JWT + requireRole)
 │   ├── PUT /change-password # Change password
-│   └── DELETE /:id         # Delete user (SuperAdmin)
+│   └── DELETE /:id         # Delete user (SuperAdmin; Passport JWT + requireRole)
 ├── /companies              # Company management
-│   ├── GET /               # List companies with pagination & filters
-│   ├── GET /:id            # Get single company
-│   ├── POST /              # Create company with logo upload & location (address, lat, lng)
-│   ├── PUT /:id            # Update company (now supports location fields)
-│   ├── DELETE /:id         # Delete company
-│   ├── POST /:id/logo      # Upload company logo
-│   └── DELETE /:id/logo    # Delete company logo
+│   ├── GET /               # List companies with pagination & filters (Passport JWT)
+│   ├── GET /:id            # Get single company (Passport JWT)
+│   ├── POST /              # Create company with logo upload & location (Passport JWT)
+│   ├── PUT /:id            # Update company (Passport JWT)
+│   ├── DELETE /:id         # Delete company (Passport JWT + requireRole)
+│   ├── POST /:id/logo      # Upload company logo (Passport JWT)
+│   └── DELETE /:id/logo    # Delete company logo (Passport JWT)
 ├── /dashboard              # Analytics & management
 │   ├── GET /stats          # Dashboard statistics
 │   ├── GET /admins         # List admin users (SuperAdmin)
@@ -490,8 +493,8 @@ HTTP Response
 │   ├── GET /user-companies # User's assigned companies
 │   └── GET /companies-by-capital # Companies sorted by capital
 ├── /history                # Audit trail
-│   ├── GET /               # Action history with pagination & filters
-│   └── GET /:id            # Single action history entry
+│   ├── GET /               # Action history with pagination & filters (Passport JWT)
+│   └── GET /:id            # Single action history entry (Passport JWT)
 └── /api-docs               # Swagger API Documentation
     └── Interactive API explorer with authentication support
 ```
@@ -506,27 +509,27 @@ HTTP Response
 
 ```javascript
 // swaggerSpec.js - Configuration
-import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerJSDoc from "swagger-jsdoc";
 
 const options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'MashchukCRM API',
-      version: '1.0.0',
-      description: 'API documentation for MashchukCRM',
+      title: "MashchukCRM API",
+      version: "1.0.0",
+      description: "API documentation for MashchukCRM",
     },
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
         },
       },
     },
   },
-  apis: ['./src/routes/*.js'], // JSDoc comments in route files
+  apis: ["./src/routes/*.js"], // JSDoc comments in route files
 };
 
 const swaggerSpec = swaggerJSDoc(options);
@@ -538,6 +541,7 @@ export default swaggerSpec;
 Все API endpoints полностью документированы с JSDoc комментариями:
 
 #### **🔐 Authentication Routes** (`/api/auth`)
+
 - `POST /auth/login` - User login with credentials
 - `POST /auth/register` - User registration
 - `POST /auth/refresh` - Access token refresh
@@ -547,6 +551,7 @@ export default swaggerSpec;
 - `GET /auth/profile-passport` - Alternative profile endpoint
 
 #### **👥 User Management Routes** (`/api/users`)
+
 - `GET /users` - List all users (Admin/SuperAdmin)
 - `POST /users` - Create user with avatar upload (Admin/SuperAdmin)
 - `GET /users/me` - Get current user profile
@@ -556,6 +561,7 @@ export default swaggerSpec;
 - `DELETE /users/:id` - Delete user (SuperAdmin only)
 
 #### **🏢 Company Management Routes** (`/api/companies`)
+
 - `GET /companies` - List companies with pagination & filtering
 - `GET /companies/:id` - Get single company details
 - `POST /companies` - Create company with logo upload & location (address, lat, lng)
@@ -565,6 +571,7 @@ export default swaggerSpec;
 - `DELETE /companies/:id/logo` - Remove company logo
 
 #### **📊 Dashboard Routes** (`/api/dashboard`)
+
 - `GET /dashboard/stats` - Dashboard statistics by role
 - `GET /dashboard/admins` - List admin users (SuperAdmin)
 - `POST /dashboard/admins` - Create admin user (SuperAdmin)
@@ -574,6 +581,7 @@ export default swaggerSpec;
 - `GET /dashboard/companies-by-capital` - Companies sorted by capital
 
 #### **📋 History Routes** (`/api/history`)
+
 - `GET /history` - Action history with pagination & filtering
 - `GET /history/:id` - Get single action history entry
 
@@ -790,7 +798,7 @@ RefreshToken (Many)    ActionHistory (Many)
   │                           │
   └─── Cleanup Job ───────────┘
        (node-cron)
-       
+
 File Storage Structure:
 /public/
 ├── users/
@@ -863,18 +871,18 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   status: "loading" | "authenticated" | "unauthenticated";
-  
+
   // Derived state
-  role: string | null;              // user?.role || null
-  isAuthenticated: boolean;         // status === "authenticated"
-  loading: boolean;                 // status === "loading" (backward compatibility)
-  
+  role: string | null; // user?.role || null
+  isAuthenticated: boolean; // status === "authenticated"
+  loading: boolean; // status === "loading" (backward compatibility)
+
   // Actions
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (updatedUser: User) => void;
-  clearCache: () => void;          // React Query cache invalidation
+  clearCache: () => void; // React Query cache invalidation
 }
 
 interface User {

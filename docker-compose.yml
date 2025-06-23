@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: mashchuk_crm
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  backend:
+    build: ./apps/backend
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/mashchuk_crm
+      NODE_ENV: production
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      PORT: 3001
+    depends_on:
+      - db
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./apps/backend/public:/app/public # Для загрузки файлов
+  frontend:
+    build: ./apps/frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
