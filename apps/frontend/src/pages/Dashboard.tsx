@@ -5,8 +5,8 @@ import { StatsCard } from "../components/ui/StatsCard";
 import { DashboardSkeleton } from "../components/ui/DashboardSkeleton";
 import { HistorySkeleton } from "../components/ui/HistorySkeleton";
 import { useAuth } from "../contexts/AuthContext";
-import { DashboardCompaniesList } from "../components/companies/DashboardCompaniesList";
-import CompaniesPriceChart from "../components/companies/CompaniesPriceChart";
+import { DashboardCompaniesList } from "../components/companies/dashboard/DashboardCompaniesList";
+import CompaniesPriceChart from "../components/companies/dashboard/CompaniesPriceChart";
 import { useDashboardQueries } from "../hooks/useDashboardQueries";
 // helpers
 import {
@@ -38,9 +38,7 @@ export const Dashboard: React.FC = () => {
       <div className="space-y-6 animate-fade-in">
         <div>
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-          <p className="text-gray-400 mt-1">
-            Welcome back, {user?.firstName}.
-          </p>
+          <p className="text-gray-400 mt-1">Welcome back, {user?.firstName}.</p>
         </div>
         {/* Stats Section for admin and superadmin */}
         {(user?.role === "SuperAdmin" || user?.role === "Admin") && (
@@ -61,17 +59,19 @@ export const Dashboard: React.FC = () => {
             )}
             {user?.role === "SuperAdmin" && (
               <StatsCard
-              title="Total Companies"
-              value={stats?.totalCompanies?.toLocaleString() || "0"}
-              icon={<Building2 className="w-6 h-6 text-emerald-500" />}
+                title="Total Companies"
+                value={stats?.totalCompanies?.toLocaleString() || "0"}
+                icon={<Building2 className="w-6 h-6 text-emerald-500" />}
               />
             )}
             {user?.role === "SuperAdmin" && (
-            <StatsCard
-              title="Total Capital"
-              value={`$${(shortenNumber(stats?.totalCapital || 0)).toLocaleString()}`}
-              icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
-            />
+              <StatsCard
+                title="Total Capital"
+                value={`$${shortenNumber(
+                  stats?.totalCapital || 0
+                ).toLocaleString()}`}
+                icon={<DollarSign className="w-6 h-6 text-emerald-500" />}
+              />
             )}
           </div>
         )}
@@ -109,7 +109,8 @@ export const Dashboard: React.FC = () => {
                         </div>
                         <div>
                           <span className="text-sm font-medium text-white truncate block max-md:max-w-28">
-                            {action.action.charAt(0).toUpperCase() + action.action.slice(1)}
+                            {action.action.charAt(0).toUpperCase() +
+                              action.action.slice(1)}
                             {action.type}
                             {action.target && (
                               <span className="text-primary-400 ml-1">
@@ -140,7 +141,7 @@ export const Dashboard: React.FC = () => {
           )}
 
           {/* price chart for user and admin */}
-          {(user?.role === "User" || user?.role === 'Admin') && (
+          {(user?.role === "User" || user?.role === "Admin") && (
             <Card>
               <h3 className="text-lg font-semibold text-white mb-4">
                 Companies Price Chart
@@ -148,7 +149,7 @@ export const Dashboard: React.FC = () => {
               <CompaniesPriceChart />
             </Card>
           )}
-          {/* companies by capital card */}          
+          {/* companies by capital card */}
           <Card>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-white">
@@ -157,23 +158,23 @@ export const Dashboard: React.FC = () => {
               <span
                 className="cursor-pointer hover:text-emerald-300 text-emerald-400  text-xs"
                 onClick={() => navigate("/companies")}
-                >
+              >
                 View all &rarr;
               </span>
-            </div>                
-        <DashboardCompaniesList
-          companies={companiesByCapital}
-          isLoading={isCompaniesByCapitalLoading}
-          emptyText={
-            user?.role === "SuperAdmin"
-              ? "No companies found"
-              : "You don't have any companies yet"
-          }
-          showOwner={user?.role === "SuperAdmin"}
-          // onCompanyClick={() => navigate("/companies")}
-         />
+            </div>
+            <DashboardCompaniesList
+              companies={companiesByCapital}
+              isLoading={isCompaniesByCapitalLoading}
+              emptyText={
+                user?.role === "SuperAdmin"
+                  ? "No companies found"
+                  : "You don't have any companies yet"
+              }
+              showOwner={user?.role === "SuperAdmin"}
+              // onCompanyClick={() => navigate("/companies")}
+            />
           </Card>
-          </div>
+        </div>
       </div>
     </>
   );

@@ -1,6 +1,6 @@
 import { Building2 } from "lucide-react";
-import CompaniesDashboardSkeleton from "./CompaniesDashboardSkeleton";
-import { DashboardCompany } from "../../types";
+import CompaniesDashboardSkeleton from "../dashboard/CompaniesDashboardSkeleton";
+import { DashboardCompany } from "../../../types";
 
 interface Props {
   companies: DashboardCompany[];
@@ -15,7 +15,7 @@ export const DashboardCompaniesList: React.FC<Props> = ({
   isLoading,
   emptyText,
   showOwner = false,
-//   onCompanyClick,
+  //   onCompanyClick,
 }) => (
   <div className="space-y-3">
     {isLoading ? (
@@ -29,7 +29,7 @@ export const DashboardCompaniesList: React.FC<Props> = ({
         <div
           key={company.id}
           className="flex items-center justify-between p-3 bg-dark-800 rounded-lg"
-        //   onClick={onCompanyClick}
+          //   onClick={onCompanyClick}
         >
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 mt-0.5">

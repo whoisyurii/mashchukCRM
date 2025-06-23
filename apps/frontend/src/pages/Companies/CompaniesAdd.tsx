@@ -1,14 +1,14 @@
-import React, { useState, useRef } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
-import { Upload, Save, ArrowLeft } from 'lucide-react';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { companyService } from '../../services/companyService';
-import { useAuth } from '../../contexts/AuthContext';
-import CompanyLocationAdd from '../../components/companies/CompanyLocationAdd';
+import React, { useState, useRef } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { Upload, Save, ArrowLeft } from "lucide-react";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { companyService } from "../../services/companyService";
+import { useAuth } from "../../contexts/AuthContext";
+import CompanyLocationAdd from "../../components/companies/details/CompanyLocationAdd";
 
 const CompaniesAdd = () => {
   const navigate = useNavigate();
@@ -16,13 +16,13 @@ const CompaniesAdd = () => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
-    name: '',
-    service: '',
-    capital: '',
-    ownerId: ''
+    name: "",
+    service: "",
+    capital: "",
+    ownerId: "",
   });
   const [logo, setLogo] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string>('');
+  const [logoPreview, setLogoPreview] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [location, setLocation] = useState<{
     latitude: number;
@@ -33,34 +33,37 @@ const CompaniesAdd = () => {
   const createCompanyMutation = useMutation({
     mutationFn: companyService.createCompany,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companies'] });
-      toast.success('Company created successfully!');
-      navigate('/companies');
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      toast.success("Company created successfully!");
+      navigate("/companies");
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to create company');
-    }
+      toast.error(error.message || "Failed to create company");
+    },
   });
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Company name is required';
+      newErrors.name = "Company name is required";
     } else if (formData.name.trim().length < 3) {
-      newErrors.name = 'Company name must be at least 3 characters';
+      newErrors.name = "Company name must be at least 3 characters";
     }
 
     if (!formData.service.trim()) {
-      newErrors.service = 'Service is required';
+      newErrors.service = "Service is required";
     } else if (formData.service.trim().length < 3) {
-      newErrors.service = 'Service must be at least 3 characters';
+      newErrors.service = "Service must be at least 3 characters";
     }
 
     if (!formData.capital.trim()) {
-      newErrors.capital = 'Capital is required';
-    } else if (formData.capital.trim().length < 4 || !/^\d+$/.test(formData.capital)) {
-      newErrors.capital = 'Capital must be at least 4 digits';
+      newErrors.capital = "Capital is required";
+    } else if (
+      formData.capital.trim().length < 4 ||
+      !/^\d+$/.test(formData.capital)
+    ) {
+      newErrors.capital = "Capital must be at least 4 digits";
     }
 
     setErrors(newErrors);
@@ -68,28 +71,28 @@ const CompaniesAdd = () => {
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     const formDataToSend = new FormData();
-    formDataToSend.append('name', formData.name);
-    formDataToSend.append('service', formData.service);
-    formDataToSend.append('capital', formData.capital);
-    formDataToSend.append('status', 'Active');
-    
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("service", formData.service);
+    formDataToSend.append("capital", formData.capital);
+    formDataToSend.append("status", "Active");
+
     if (formData.ownerId) {
-      formDataToSend.append('ownerId', formData.ownerId);
+      formDataToSend.append("ownerId", formData.ownerId);
     }
-    
+
     if (logo) {
-      formDataToSend.append('logo', logo);
+      formDataToSend.append("logo", logo);
     }
 
     // Add location data if provided
     if (location) {
-      formDataToSend.append('address', location.address);
-      formDataToSend.append('latitude', location.latitude.toString());
-      formDataToSend.append('longitude', location.longitude.toString());
+      formDataToSend.append("address", location.address);
+      formDataToSend.append("latitude", location.latitude.toString());
+      formDataToSend.append("longitude", location.longitude.toString());
     }
 
     createCompanyMutation.mutate(formDataToSend);
@@ -108,17 +111,19 @@ const CompaniesAdd = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
-  const handleLocationChange = (locationData: {
-    latitude: number;
-    longitude: number;
-    address: string;
-  } | null) => {
+  const handleLocationChange = (
+    locationData: {
+      latitude: number;
+      longitude: number;
+      address: string;
+    } | null
+  ) => {
     setLocation(locationData);
   };
 
@@ -128,11 +133,13 @@ const CompaniesAdd = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-white">Add New Company</h1>
-          <p className="text-gray-400 mt-1">Create a new company in the system</p>
+          <p className="text-gray-400 mt-1">
+            Create a new company in the system
+          </p>
         </div>
         <Button
           variant="outline"
-          onClick={() => navigate('/companies')}
+          onClick={() => navigate("/companies")}
           className="flex items-center gap-2"
         >
           <ArrowLeft size={16} />
@@ -143,7 +150,6 @@ const CompaniesAdd = () => {
       {/* Form */}
       <Card>
         <div className="p-6">
-          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Grid Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -166,11 +172,10 @@ const CompaniesAdd = () => {
                         size="sm"
                         onClick={() => {
                           setLogo(null);
-                          setLogoPreview('');
+                          setLogoPreview("");
                         }}
                         className="absolute top-2 right-2"
                         // className="mt-2"
-
                       >
                         Remove
                       </Button>
@@ -213,11 +218,15 @@ const CompaniesAdd = () => {
                     </label>
                     <Input
                       value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
                       placeholder="Enter company name"
-                      className={errors.name ? 'border-red-500' : ''}
+                      className={errors.name ? "border-red-500" : ""}
                     />
-                    {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
+                    {errors.name && (
+                      <p className="text-red-400 text-sm mt-1">{errors.name}</p>
+                    )}
                   </div>
 
                   <div>
@@ -226,11 +235,17 @@ const CompaniesAdd = () => {
                     </label>
                     <Input
                       value={formData.service}
-                      onChange={(e) => handleInputChange('service', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("service", e.target.value)
+                      }
                       placeholder="Enter service type"
-                      className={errors.service ? 'border-red-500' : ''}
+                      className={errors.service ? "border-red-500" : ""}
                     />
-                    {errors.service && <p className="text-red-400 text-sm mt-1">{errors.service}</p>}
+                    {errors.service && (
+                      <p className="text-red-400 text-sm mt-1">
+                        {errors.service}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -243,11 +258,17 @@ const CompaniesAdd = () => {
                     <Input
                       type="number"
                       value={formData.capital}
-                      onChange={(e) => handleInputChange('capital', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("capital", e.target.value)
+                      }
                       placeholder="Enter capital amount"
-                      className={errors.capital ? 'border-red-500' : ''}
+                      className={errors.capital ? "border-red-500" : ""}
                     />
-                    {errors.capital && <p className="text-red-400 text-sm mt-1">{errors.capital}</p>}
+                    {errors.capital && (
+                      <p className="text-red-400 text-sm mt-1">
+                        {errors.capital}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -256,17 +277,19 @@ const CompaniesAdd = () => {
                     </label>
                     <Input
                       value={formData.ownerId}
-                      onChange={(e) => handleInputChange('ownerId', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("ownerId", e.target.value)
+                      }
                       placeholder={`Leave empty to assign to yourself, ${user?.firstName} ${user?.lastName}`}
                     />
                   </div>
-                </div>            
+                </div>
               </div>
             </div>
 
             {/* Location Section */}
             <div className="mt-6">
-              <CompanyLocationAdd 
+              <CompanyLocationAdd
                 onLocationChange={handleLocationChange}
                 initialLocation={null}
               />
@@ -277,7 +300,7 @@ const CompaniesAdd = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/companies')}
+                onClick={() => navigate("/companies")}
                 disabled={createCompanyMutation.isPending}
               >
                 Cancel
@@ -288,7 +311,9 @@ const CompaniesAdd = () => {
                 className="flex items-center gap-2"
               >
                 <Save size={16} />
-                {createCompanyMutation.isPending ? 'Creating...' : 'Create Company'}
+                {createCompanyMutation.isPending
+                  ? "Creating..."
+                  : "Create Company"}
               </Button>
             </div>
           </form>

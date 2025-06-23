@@ -54,7 +54,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       <div className="flex items-center gap-1 md:gap-2">
         {/* Previous page button */}
         <Button
-          className="max-md:w-6 md:h-3"
+          className="max-md:w-6 max-md:h-3"
           variant="outline"
           size="icon"
           onClick={() => onPageChange(currentPage - 1)}
@@ -77,7 +77,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
         {/* Next page button */}
         <Button
-          className="max-md:w-6 md:h-3"
+          className="max-md:w-6 max-md:h-3"
           variant="outline"
           size="icon"
           onClick={() => onPageChange(currentPage + 1)}
