@@ -48,12 +48,13 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div className="flex items-center justify-between pt-4 border-t border-dark-700">
-      <div className="text-sm text-gray-400">
+      <div className="text-sm max-md:hidden text-gray-400">
         Showing {startItem} to {endItem} of {totalItems} results
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 md:gap-2">
         {/* Previous page button */}
         <Button
+          className="max-md:w-6 md:h-3"
           variant="outline"
           size="icon"
           onClick={() => onPageChange(currentPage - 1)}
@@ -76,6 +77,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
         {/* Next page button */}
         <Button
+          className="max-md:w-6 md:h-3"
           variant="outline"
           size="icon"
           onClick={() => onPageChange(currentPage + 1)}

@@ -1,15 +1,11 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Link, Navigate } from "react-router-dom";
-import { Building2 } from "lucide-react";
+import { Workflow } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
-
-interface LoginForm {
-  email: string;
-  password: string;
-}
+import { LoginForm } from "./index";
 
 export const LoginPage: React.FC = () => {
   const { login, user } = useAuth();
@@ -40,7 +36,7 @@ export const LoginPage: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center">
-            <Building2 className="w-12 h-12 text-emerald-500" />
+            <Workflow className="w-12 h-12 text-emerald-400 flex-shrink-0" />
           </div>
           <h2 className="mt-6 text-3xl font-bold text-white">
             Sign in to your account

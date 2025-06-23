@@ -17,7 +17,7 @@ export const Companies: React.FC = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setSearch(searchInput);
-    }, 650);
+    }, 700);
     return () => clearTimeout(handler);
   }, [searchInput]);
 
@@ -27,7 +27,7 @@ export const Companies: React.FC = () => {
     search,
     sortBy,
     sortOrder,
-    limit: 5,
+    limit: 4,
   });
 
   const handleSort = (column: string) => {
@@ -52,10 +52,10 @@ export const Companies: React.FC = () => {
         </div>
         {/* commented out in case if user can't create companies, but in task it's different */}
         {/* {(user?.role === "SuperAdmin" || user?.role === "Admin") && ( */}
-          <Button onClick={() => navigate("/companies/add-new")}>
-            <Plus className="w-4 h-4 mr-2" />
-            New Company
-          </Button>
+        <Button onClick={() => navigate("/companies/add-new")}>
+          <Plus className="w-4 h-4 mr-0 md:mr-2" />
+          <span className="max-md:hidden">New Company</span>
+        </Button>
         {/* )} */}
       </div>
       <CompaniesCard

@@ -140,10 +140,10 @@ export const CompanyDetail: React.FC = () => {
             onClick={() => navigate("/companies")}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Companies
+            <span className="max-md:hidden">Back to Companies</span>
           </Button>
           <h1 className="text-2xl font-bold text-white">{company.name}</h1>
-          <Badge variant="success">{company.status}</Badge>
+          <Badge variant="success" className="max-md:hidden">{company.status}</Badge>
         </div>
         {canEdit && !isEditing && (
           <Button
@@ -151,8 +151,8 @@ export const CompanyDetail: React.FC = () => {
             size="sm"
             onClick={() => setIsEditing(true)}
           >
-            <Edit2 className="w-4 h-4 mr-2" />
-            Edit Company
+            <Edit2 className="w-4 h-4 mr-2 max-md:mr-0" />
+           <span className="max-md:hidden">Edit Company</span>
           </Button>
         )}
       </div>

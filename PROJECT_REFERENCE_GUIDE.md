@@ -123,6 +123,8 @@ MashchukCRM/
 │   │       │   │   ├── 📄 CompanyModal.tsx    # Create company modal
 │   │       │   │   ├── 📄 CompaniesCard.tsx   # Companies list component
 │   │       │   │   ├── 📄 CompanyDetail.tsx   # Company detail view
+│   │       │   │   ├── 📄 CompanyLocationAdd.tsx     # Add/select company location (Leaflet map, geocoding)
+│   │       │   │   ├── 📄 CompanyLocationDisplay.tsx # Display company location (map, address, coords)
 │   │       │   │   └── 📄 index.ts            # Exports & types
 │   │       │   └── 📁 users/      # User-specific components
 │   │       │       ├── 📄 UserCard.tsx        # User card component
@@ -148,19 +150,19 @@ MashchukCRM/
 │   │       │       ├── 📄 Users.tsx           # Users list page
 │   │       │       └── 📄 UsersAdd.tsx        # Add new user page
 │   │       ├── 📁 services/       # API services (API layer between FE and BE with clean functions)
-│   │       │   ├── 📄 api.ts                 # Axios instance&config (centralized api calls for folder)
-│   │       │   ├── 📄 authService.ts         # Authentication services (/auth/ endpoints; AuthContext)
-│   │       │   ├── 📄 companyService.ts      # Company services (CRUD companies; logo upload)
-│   │       │   ├── 📄 dashboardService.ts    # Dashboard services
-│   │       │   ├── 📄 historyService.ts      # History services (logs from BD)
-│   │       │   └── 📄 userService.ts         # User services (CRUD users, FormData avatar)
+│   │       │   ├── 📄 api.ts                  # Axios instance&config (centralized api calls for folder)
+│   │       │   ├── 📄 authService.ts          # Authentication services (/auth/ endpoints; AuthContext)
+│   │       │   ├── 📄 companyService.ts       # Company services (CRUD companies; logo upload)
+│   │       │   ├── 📄 dashboardService.ts     # Dashboard services
+│   │       │   ├── 📄 historyService.ts       # History services (logs from BD)
+│   │       │   └── 📄 userService.ts          # User services (CRUD users, FormData avatar)
 │   │       ├── 📁 types/          # TypeScript interfaces
 │   │       └── 📁 utils/          # Utility functions (FE helpers)
-│   │           ├── 📄 action-helpers.tsx     # History util functions (conditional colors, icons)
-│   │           ├── 📄 filtering-helpers.ts   # Filtering utils (filters, pagination)
-│   │           ├── 📄 shortener-helpers.ts   # String shortening (numbers and names shortener)
-│   │           ├── 📄 toast-helpers.ts       # Toast notifications
-│   │           └── 📄 user-helpers.ts        # User-related utilities
+│   │           ├── 📄 action-helpers.tsx      # History util functions (conditional colors, icons)
+│   │           ├── 📄 filtering-helpers.ts    # Filtering utils (filters, pagination)
+│   │           ├── 📄 shortener-helpers.ts    # String shortening (numbers and names shortener)
+│   │           ├── 📄 toast-helpers.ts        # Toast notifications
+│   │           └── 📄 user-helpers.ts         # User-related utilities
 │   │
 │   └── 📁 backend/                    # Express API
 │       ├── 📄 package.json            # Backend dependencies
@@ -474,8 +476,8 @@ HTTP Response
 ├── /companies              # Company management
 │   ├── GET /               # List companies with pagination & filters
 │   ├── GET /:id            # Get single company
-│   ├── POST /              # Create company with logo upload
-│   ├── PUT /:id            # Update company
+│   ├── POST /              # Create company with logo upload & location (address, lat, lng)
+│   ├── PUT /:id            # Update company (now supports location fields)
 │   ├── DELETE /:id         # Delete company
 │   ├── POST /:id/logo      # Upload company logo
 │   └── DELETE /:id/logo    # Delete company logo
@@ -556,7 +558,7 @@ export default swaggerSpec;
 #### **🏢 Company Management Routes** (`/api/companies`)
 - `GET /companies` - List companies with pagination & filtering
 - `GET /companies/:id` - Get single company details
-- `POST /companies` - Create company with logo upload
+- `POST /companies` - Create company with logo upload & location (address, lat, lng)
 - `PUT /companies/:id` - Update company information
 - `DELETE /companies/:id` - Delete company
 - `POST /companies/:id/logo` - Upload/update company logo
@@ -780,7 +782,7 @@ User (1) ────────── (Many) Company
   │ avatar: String?           │ logoUrl: String?
   │ /public/users/            │ /public/companies/
   │                           │
-  │ (1)                  (Many)│
+  │ (1)                 (Many)│
   │                           │
   ▼                           ▼
 RefreshToken (Many)    ActionHistory (Many)
@@ -1054,17 +1056,17 @@ Axios Instance (/api.ts)
 Backend Express Route
      │
      ▼
-┌─────────────────────────────────────────┐
-│           Middleware Stack              │
-├─────────────────────────────────────────┤
-│ 1. CORS ────────────────────────────────│
-│ 2. Body Parser ─────────────────────────│
-│ 3. Passport.js Init ────────────────────│
-│ 4. Route Matching ──────────────────────│
-│ 5. Authentication (Passport.js JWT Strategy) ──────────│
-│ 6. Authorization (role check) ──────────│
-│ 7. File Upload (if needed) ─────────────│
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│           Middleware Stack                  │
+├─────────────────────────────────────────────┤
+│ 1. CORS ────────────────────────────────────│
+│ 2. Body Parser ─────────────────────────────│
+│ 3. Passport.js Init ────────────────────────│
+│ 4. Route Matching ──────────────────────────│
+│ 5. Authentication (Passport.js JWT Strategy)│
+│ 6. Authorization (role check) ──────────────│
+│ 7. File Upload (if needed) ─────────────────│
+└─────────────────────────────────────────────┘
      │
      ▼
 Route Handler Function

@@ -4,8 +4,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline" | "ghost";
   size?: "sm" | "md" | "lg" | "icon";
   children: React.ReactNode;
-  fixed?: boolean; // new prop for fixed width/height
-  loading?: boolean; // loading state
+  fixed?: boolean;
+  loading?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({

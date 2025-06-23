@@ -42,14 +42,14 @@ export const Header: React.FC = () => {
   return (
     <header className="bg-dark-900 h-20 px-6 flex items-center">
       <div className="flex items-center justify-between w-full">
-        <div className="max-md:hidden flex items-center gap-2 text-emerald-400">
+        <div className="flex items-center gap-2 text-emerald-400">
           <span className="text-sm font-medium">{date}</span>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="relative ml-4" ref={dropdownRef}>
             <button
-            // onBlur={() => setShowDropdown(!showDropdown)}
+              // onBlur={() => setShowDropdown(!showDropdown)}
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-dark-800 transition-colors"
             >

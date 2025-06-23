@@ -45,9 +45,10 @@ export const Users: React.FC = () => {
             <p className="text-gray-400 mt-1">
               Manage users and their permissions
             </p>
-          </div>          <Button onClick={() => navigate("/users/add-new")}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add User
+          </div>{" "}
+          <Button onClick={() => navigate("/users/add-new")}>
+            <Plus className="w-4 h-4 mr-2 max-md:mr-0" />
+            <span className="max-md:hidden">Add User</span>
           </Button>
         </div>
 
@@ -118,7 +119,9 @@ export const Users: React.FC = () => {
                     <td className="py-4 px-4 text-gray-300">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="py-4 px-4">                      <div className="flex justify-end gap-2">
+                    <td className="py-4 px-4">
+                      {" "}
+                      <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
                           variant="ghost"
@@ -141,7 +144,8 @@ export const Users: React.FC = () => {
             totalItems={filteredUsers.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
-          />        </Card>
+          />{" "}
+        </Card>
       </div>
     </>
   );

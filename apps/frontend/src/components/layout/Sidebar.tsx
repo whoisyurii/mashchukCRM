@@ -14,8 +14,13 @@ import { useAuth } from "../../contexts/AuthContext";
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Companies", href: "/companies", icon: Building2 },
-  { name: "Users", href: "/users", icon: Users, user: ["SuperAdmin", "Admin"]},
-  { name: "History", href: "/history", icon: History, user: ["SuperAdmin", "Admin"]},
+  { name: "Users", href: "/users", icon: Users, user: ["SuperAdmin", "Admin"] },
+  {
+    name: "History",
+    href: "/history",
+    icon: History,
+    user: ["SuperAdmin", "Admin"],
+  },
   { name: "Profile", href: "/profile", icon: Settings },
 ];
 
@@ -29,7 +34,7 @@ export const Sidebar: React.FC = () => {
 
   const filteredNavigation = navigation.filter(
     (item) =>
-      !item.user || (user?.role === "Admin" || user?.role === "SuperAdmin")
+      !item.user || user?.role === "Admin" || user?.role === "SuperAdmin"
   );
 
   return (
@@ -37,7 +42,7 @@ export const Sidebar: React.FC = () => {
       <div className="h-20 px-6 max-md:px-4 flex items-center">
         <button className="flex items-center gap-2" onClick={handleLogoClick}>
           <Workflow className="w-8 h-8 text-emerald-400 flex-shrink-0" />
-          <span className="text-xl font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden">
+          <span className="text-xl font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden max-md:hidden">
             MyCRM
           </span>
         </button>

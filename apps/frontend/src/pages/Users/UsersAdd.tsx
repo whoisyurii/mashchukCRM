@@ -1,11 +1,11 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Save, ArrowLeft, Upload } from 'lucide-react';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { useAuth } from '../../contexts/AuthContext';
-import { useCreateUser } from '../../hooks/useUsersQueries';
+import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Save, ArrowLeft, Upload } from "lucide-react";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { useAuth } from "../../contexts/AuthContext";
+import { useCreateUser } from "../../hooks/useUsersQueries";
 
 const UsersAdd = () => {
   const navigate = useNavigate();
@@ -13,18 +13,18 @@ const UsersAdd = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    role: 'User'
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    role: "User",
   });
   const [avatar, setAvatar] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>('');
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Check if user has permission
-  if (!user || (user.role !== 'SuperAdmin' && user.role !== 'Admin')) {
+  if (!user || (user.role !== "SuperAdmin" && user.role !== "Admin")) {
     return (
       <div className="space-y-6 animate-fade-in">
         <Card>
@@ -48,27 +48,27 @@ const UsersAdd = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = "First name is required";
     } else if (formData.firstName.trim().length < 2) {
-      newErrors.firstName = 'First name must be at least 2 characters';
+      newErrors.firstName = "First name must be at least 2 characters";
     }
 
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = "Last name is required";
     } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = 'Last name must be at least 2 characters';
+      newErrors.lastName = "Last name must be at least 2 characters";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     setErrors(newErrors);
@@ -77,27 +77,27 @@ const UsersAdd = () => {
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     const formDataToSend = new FormData();
     // append data fields into the form -> key-value pairs
-    formDataToSend.append('firstName', formData.firstName.trim());
-    formDataToSend.append('lastName', formData.lastName.trim());
-    formDataToSend.append('email', formData.email.trim().toLowerCase());
-    formDataToSend.append('password', formData.password);
-    formDataToSend.append('role', formData.role);
-    
+    formDataToSend.append("firstName", formData.firstName.trim());
+    formDataToSend.append("lastName", formData.lastName.trim());
+    formDataToSend.append("email", formData.email.trim().toLowerCase());
+    formDataToSend.append("password", formData.password);
+    formDataToSend.append("role", formData.role);
+
     if (avatar) {
-      formDataToSend.append('avatar', avatar);
+      formDataToSend.append("avatar", avatar);
     }
 
     createUserMutation.mutate(formDataToSend);
   };
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -119,15 +119,15 @@ const UsersAdd = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-white">Add New User</h1>
-          <p className="text-gray-400 mt-1">Create a new user account in the system</p>
+          <p className="text-gray-400 mt-1">Create a new user account</p>
         </div>
         <Button
           variant="outline"
-          onClick={() => navigate('/users')}
-          className="flex items-center gap-2"
+          onClick={() => navigate("/users")}
+          className="flex items-center gap-2 max-md:ml-2"
         >
           <ArrowLeft size={16} />
-          Back to Users
+          <span className="max-md:hidden">Back to Users</span>
         </Button>
       </div>
 
@@ -136,7 +136,8 @@ const UsersAdd = () => {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Grid Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">              {/* User Avatar Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* User Avatar Section */}
               <div className="lg:col-span-1">
                 <label className="block text-sm font-medium text-gray-300 mb-4">
                   User Avatar (Optional)
@@ -155,7 +156,7 @@ const UsersAdd = () => {
                         size="sm"
                         onClick={() => {
                           setAvatar(null);
-                          setAvatarPreview('');
+                          setAvatarPreview("");
                         }}
                         className="absolute top-0 right-0"
                       >
@@ -163,24 +164,26 @@ const UsersAdd = () => {
                       </Button>
                     </div>
                   ) : (
-                    <div className="w-32 h-32 bg-dark-800 rounded-full flex items-center justify-center border-2 border-dashed border-gray-700 cursor-pointer hover:border-gray-600"
-                         onClick={() => fileInputRef.current?.click()}>
+                    <div
+                      className="w-32 h-32 bg-dark-800 rounded-full flex items-center justify-center border-2 border-dashed border-gray-700 cursor-pointer hover:border-gray-600"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
                       <div className="text-center">
                         <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                         <p className="text-xs text-gray-500">Click to upload</p>
                       </div>
                     </div>
                   )}
-                  
+
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => fileInputRef.current?.click()}
                     className="text-sm"
                   >
-                    {avatarPreview ? 'Change Avatar' : 'Upload Avatar'}
+                    {avatarPreview ? "Change Avatar" : "Upload Avatar"}
                   </Button>
-                  
+
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -188,7 +191,7 @@ const UsersAdd = () => {
                     onChange={handleAvatarUpload}
                     className="hidden"
                   />
-                  
+
                   <p className="text-xs text-gray-500 text-center">
                     PNG, JPG, WebP, GIF up to 5MB
                   </p>
@@ -205,11 +208,17 @@ const UsersAdd = () => {
                     </label>
                     <Input
                       value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("firstName", e.target.value)
+                      }
                       placeholder="Enter first name"
-                      className={errors.firstName ? 'border-red-500' : ''}
+                      className={errors.firstName ? "border-red-500" : ""}
                     />
-                    {errors.firstName && <p className="text-red-400 text-sm mt-1">{errors.firstName}</p>}
+                    {errors.firstName && (
+                      <p className="text-red-400 text-sm mt-1">
+                        {errors.firstName}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -218,11 +227,17 @@ const UsersAdd = () => {
                     </label>
                     <Input
                       value={formData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("lastName", e.target.value)
+                      }
                       placeholder="Enter last name"
-                      className={errors.lastName ? 'border-red-500' : ''}
+                      className={errors.lastName ? "border-red-500" : ""}
                     />
-                    {errors.lastName && <p className="text-red-400 text-sm mt-1">{errors.lastName}</p>}
+                    {errors.lastName && (
+                      <p className="text-red-400 text-sm mt-1">
+                        {errors.lastName}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -235,11 +250,17 @@ const UsersAdd = () => {
                     <Input
                       type="email"
                       value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
                       placeholder="Enter email address"
-                      className={errors.email ? 'border-red-500' : ''}
+                      className={errors.email ? "border-red-500" : ""}
                     />
-                    {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
+                    {errors.email && (
+                      <p className="text-red-400 text-sm mt-1">
+                        {errors.email}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -248,11 +269,13 @@ const UsersAdd = () => {
                     </label>
                     <select
                       value={formData.role}
-                      onChange={(e) => handleInputChange('role', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("role", e.target.value)
+                      }
                       className="w-full rounded-md border border-gray-700 bg-dark-800 text-white p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="User">User</option>
-                      {user?.role === 'SuperAdmin' && (
+                      {user?.role === "SuperAdmin" && (
                         <>
                           <option value="Admin">Admin</option>
                           <option value="SuperAdmin">SuperAdmin</option>
@@ -270,11 +293,17 @@ const UsersAdd = () => {
                   <Input
                     type="password"
                     value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
                     placeholder="Enter password (min 6 characters)"
-                    className={errors.password ? 'border-red-500' : ''}
+                    className={errors.password ? "border-red-500" : ""}
                   />
-                  {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password}</p>}
+                  {errors.password && (
+                    <p className="text-red-400 text-sm mt-1">
+                      {errors.password}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -284,7 +313,7 @@ const UsersAdd = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/users')}
+                onClick={() => navigate("/users")}
                 disabled={createUserMutation.isPending}
               >
                 Cancel
@@ -295,7 +324,7 @@ const UsersAdd = () => {
                 className="flex items-center gap-2"
               >
                 <Save size={16} />
-                {createUserMutation.isPending ? 'Creating...' : 'Create User'}
+                {createUserMutation.isPending ? "Creating..." : "Create User"}
               </Button>
             </div>
           </form>

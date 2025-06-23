@@ -1,18 +1,11 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Link, Navigate } from "react-router-dom";
-import { Building2 } from "lucide-react";
+import { Workflow } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
-
-interface RegisterForm {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+import { RegisterForm } from "./index";
 
 export const RegisterPage: React.FC = () => {
   const { register: registerUser, user } = useAuth();
@@ -50,7 +43,7 @@ export const RegisterPage: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center">
-            <Building2 className="w-12 h-12 text-emerald-500" />
+            <Workflow className="w-12 h-12 text-emerald-400 flex-shrink-0" />
           </div>
           <h2 className="mt-6 text-3xl font-bold text-white">
             Create your account

@@ -39,7 +39,7 @@ export const Dashboard: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           <p className="text-gray-400 mt-1">
-            Welcome back, {user?.role} {user?.firstName}.
+            Welcome back, {user?.firstName}.
           </p>
         </div>
         {/* Stats Section for admin and superadmin */}
