@@ -54,7 +54,7 @@ A modern CRM system for managing companies, users, and business operations.
   </tr>
 </table>
 
-- Dashboard, company management, and more (see `/apps/frontend/public/` for images)
+- Dashboard, company management, mobile view
 
 ---
 
