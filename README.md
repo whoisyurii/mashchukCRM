@@ -41,11 +41,18 @@ A modern CRM system for managing companies, users, and business operations.
 
 ## 🖼️ Screenshots
 
-<div align="center">
-  <img src="apps/frontend/public/project1.png" alt="Dashboard" width="70%"/>
-  <img src="apps/frontend/public/project2.png" alt="Add Company" width="70%"/>
-  <img src="apps/frontend/public/project3.png" alt="Mobile Dashboard" width="30%"/>
-</div>
+<table>
+  <tr>
+    <td align="center"><b>Dashboard</b></td>
+    <td align="center"><b>Add Company</b></td>
+    <td align="center"><b>Mobile Dashboard</b></td>
+  </tr>
+  <tr>
+    <td><img src="apps/frontend/public/project1.png" alt="Dashboard" width="350"/></td>
+    <td><img src="apps/frontend/public/project2.png" alt="Add Company" width="350"/></td>
+    <td><img src="apps/frontend/public/project3.png" alt="Mobile Dashboard" width="180"/></td>
+  </tr>
+</table>
 
 - Dashboard, company management, and more (see `/apps/frontend/public/` for images)
 
