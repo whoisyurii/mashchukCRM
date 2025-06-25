@@ -7,6 +7,7 @@ import companyRoutes from "./routes/companies.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import userRoutes from "./routes/users.js";
 import historyRoutes from "./routes/history.js";
+import { startTokenCleanupJob } from "./jobs/tokenCleanup.js";
 // swagger imports
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUI from 'swagger-ui-express';
@@ -41,6 +42,8 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+
+startTokenCleanupJob(); // Start the scheduled token cleanup job
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

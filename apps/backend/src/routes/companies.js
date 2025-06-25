@@ -400,14 +400,6 @@ router.get("/:id", authenticateJWT, async (req, res) => {
 // Create company
 router.post("/", authenticateJWT, upload.single('logo'), async (req, res) => {
   try {
-    // Check if user has permission to create companies
-    // if (req.user.role === "User") {
-    //   return res.status(401).json({
-    //     message:
-    //       "Access denied. Only SuperAdmin and Admin can create companies.",
-    //   });
-    // }
-
     const { name, service, capital, status, ownerId, address, latitude, longitude } = req.body;
     const logoFile = req.file;
 
@@ -419,7 +411,6 @@ router.post("/", authenticateJWT, upload.single('logo'), async (req, res) => {
 
     // Determine userId for the company
     const userId = ownerId || req.user.id;
-    console.log(`[DEBUG] Creating company with userId: ${userId}, current user: ${req.user.id}, role: ${req.user.role}`);
 
     const newCompany = await prisma.company.create({
       data: {

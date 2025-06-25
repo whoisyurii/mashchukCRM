@@ -4,7 +4,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcryptjs";
 import prisma from "../prisma.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // left a fallback for demonstration purposes
 
 // JWT Strategy для защищенных роутов
 passport.use(new JwtStrategy({

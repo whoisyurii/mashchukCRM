@@ -2,8 +2,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import prisma from "../prisma.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-const REFRESH_SECRET = process.env.REFRESH_SECRET || "your-refresh-secret";
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // left a fallback for demonstration purposes
 
 // Token expiration times
 const ACCESS_TOKEN_EXPIRY = "15m"; // 15 minutes
