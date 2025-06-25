@@ -46,49 +46,6 @@ const upload = multer({
 
 const router = express.Router();
 
-/**
- * @swagger
- * /users:
- *   get:
- *     summary: Get all users
- *     description: Retrieve list of all users (Admin/SuperAdmin only)
- *     tags:
- *       - Users
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Users retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   email:
- *                     type: string
- *                   firstName:
- *                     type: string
- *                   lastName:
- *                     type: string
- *                   role:
- *                     type: string
- *                     enum: [SuperAdmin, Admin, User]
- *                   avatar:
- *                     type: string
- *                   createdAt:
- *                     type: string
- *                     format: date-time
- *       403:
- *         description: Access denied - Admin/SuperAdmin only
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Get all users (admin only)
 router.get(
   "/",
@@ -115,83 +72,6 @@ router.get(
   }
 );
 
-/**
- * @swagger
- * /users:
- *   post:
- *     summary: Create new user
- *     description: Create a new user account with optional avatar upload (Admin/SuperAdmin only)
- *     tags:
- *       - Users
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *               - firstName
- *               - lastName
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: User email address
- *               password:
- *                 type: string
- *                 format: password
- *                 description: User password
- *               firstName:
- *                 type: string
- *                 description: User first name
- *               lastName:
- *                 type: string
- *                 description: User last name
- *               role:
- *                 type: string
- *                 enum: [SuperAdmin, Admin, User]
- *                 default: User
- *                 description: User role
- *               avatar:
- *                 type: string
- *                 format: binary
- *                 description: User avatar image file (JPEG, PNG, GIF, WebP - max 5MB)
- *     responses:
- *       201:
- *         description: User created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 email:
- *                   type: string
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 role:
- *                   type: string
- *                 avatar:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *       400:
- *         description: User already exists
- *       403:
- *         description: Access denied or insufficient permissions for role assignment
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Create new user (SuperAdmin and Admin)
 router.post(
   "/",
@@ -270,44 +150,6 @@ router.post(
   }
 );
 
-/**
- * @swagger
- * /users/me:
- *   get:
- *     summary: Get current user profile
- *     description: Retrieve current authenticated user's profile information
- *     tags:
- *       - Users
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: User profile retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 email:
- *                   type: string
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 role:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *       404:
- *         description: User not found
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Get current user profile
 router.get("/me", authenticateJWT, async (req, res) => {
   try {
@@ -334,60 +176,6 @@ router.get("/me", authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /users/me:
- *   put:
- *     summary: Update current user profile
- *     description: Update current authenticated user's profile information
- *     tags:
- *       - Users
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
- *               avatar:
- *                 type: string
- *     responses:
- *       200:
- *         description: Profile updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 email:
- *                   type: string
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 role:
- *                   type: string
- *                 avatar:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Update user profile
 router.put("/me", authenticateJWT, async (req, res) => {
   try {
@@ -428,72 +216,6 @@ router.put("/me", authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /users/{id}:
- *   put:
- *     summary: Update user by ID
- *     description: Update user account information by ID (Admin/SuperAdmin only)
- *     tags:
- *       - Users
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
- *               role:
- *                 type: string
- *                 enum: [SuperAdmin, Admin, User]
- *               avatar:
- *                 type: string
- *     responses:
- *       200:
- *         description: User updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 email:
- *                   type: string
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 role:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *       404:
- *         description: User not found
- *       403:
- *         description: Access denied or insufficient permissions
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Update user by ID (SuperAdmin and Admin)
 router.put(
   "/:id",
@@ -579,53 +301,6 @@ router.put(
   }
 );
 
-/**
- * @swagger
- * /users/change-password:
- *   put:
- *     summary: Change user password
- *     description: Change current user's password
- *     tags:
- *       - Users
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - currentPassword
- *               - newPassword
- *             properties:
- *               currentPassword:
- *                 type: string
- *                 format: password
- *                 description: Current password
- *               newPassword:
- *                 type: string
- *                 format: password
- *                 description: New password
- *     responses:
- *       200:
- *         description: Password changed successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *       400:
- *         description: Current password and new password are required
- *       401:
- *         description: Current password is incorrect or unauthorized
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
 // Change password
 router.put("/change-password", authenticateJWT, async (req, res) => {
   try {
@@ -684,44 +359,6 @@ router.put("/change-password", authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /users/{id}:
- *   delete:
- *     summary: Delete user
- *     description: Delete a user account (SuperAdmin only)
- *     tags:
- *       - Users
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID
- *     responses:
- *       200:
- *         description: User deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *       400:
- *         description: Cannot delete your own account
- *       404:
- *         description: User not found
- *       403:
- *         description: Access denied - SuperAdmin only
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Delete user (SuperAdmin only)
 router.delete(
   "/:id",

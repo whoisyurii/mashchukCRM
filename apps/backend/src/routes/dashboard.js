@@ -7,41 +7,7 @@ import prisma from "../prisma.js";
 
 const router = express.Router();
 
-/**
- * @swagger
- * /dashboard/stats:
- *   get:
- *     summary: Get dashboard statistics
- *     description: Retrieve dashboard statistics based on user role (different data for different roles)
- *     tags:
- *       - Dashboard
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Dashboard statistics retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 totalUsers:
- *                   type: integer
- *                   description: Total number of users (Admin/SuperAdmin only)
- *                 totalCompanies:
- *                   type: integer
- *                   description: Total number of companies
- *                 activeCompanies:
- *                   type: integer
- *                   description: Number of active companies
- *                 totalCapital:
- *                   type: number
- *                   description: Total capital amount
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
+
 // Get dashboard statistics
 router.get("/stats", authenticateJWT, async (req, res) => {
   try {
@@ -105,46 +71,7 @@ router.get("/stats", authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /dashboard/admins:
- *   get:
- *     summary: Get list of admin users
- *     description: Retrieve list of all admin users (SuperAdmin only)
- *     tags:
- *       - Dashboard
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Admin users retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   email:
- *                     type: string
- *                   firstName:
- *                     type: string
- *                   lastName:
- *                     type: string
- *                   role:
- *                     type: string
- *                   createdAt:
- *                     type: string
- *                     format: date-time
- *       403:
- *         description: Access denied - SuperAdmin only
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
+
 // Get admins list (SuperAdmin only)
 router.get(
   "/admins",
@@ -171,72 +98,6 @@ router.get(
   }
 );
 
-/**
- * @swagger
- * /dashboard/admins:
- *   post:
- *     summary: Create new admin user
- *     description: Create a new admin user account (SuperAdmin only)
- *     tags:
- *       - Dashboard
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - firstName
- *               - lastName
- *               - password
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: Admin email address
- *               firstName:
- *                 type: string
- *                 description: Admin first name
- *               lastName:
- *                 type: string
- *                 description: Admin last name
- *               password:
- *                 type: string
- *                 format: password
- *                 description: Admin password
- *     responses:
- *       201:
- *         description: Admin created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 email:
- *                   type: string
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 role:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *       400:
- *         description: User already exists
- *       403:
- *         description: Access denied - SuperAdmin only
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Create new admin (SuperAdmin only)
 router.post(
   "/admins",
@@ -297,67 +158,6 @@ router.post(
   }
 );
 
-/**
- * @swagger
- * /dashboard/admins/{id}:
- *   put:
- *     summary: Update admin user
- *     description: Update admin user information (SuperAdmin only)
- *     tags:
- *       - Dashboard
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Admin user ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
- *     responses:
- *       200:
- *         description: Admin updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 email:
- *                   type: string
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 role:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *       404:
- *         description: Admin not found
- *       403:
- *         description: Access denied - SuperAdmin only
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Update admin (SuperAdmin only)
 router.put(
   "/admins/:id",
@@ -411,42 +211,6 @@ router.put(
   }
 );
 
-/**
- * @swagger
- * /dashboard/admins/{id}:
- *   delete:
- *     summary: Delete admin user
- *     description: Delete an admin user account (SuperAdmin only)
- *     tags:
- *       - Dashboard
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Admin user ID
- *     responses:
- *       200:
- *         description: Admin deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *       404:
- *         description: Admin not found
- *       403:
- *         description: Access denied - SuperAdmin only
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Delete admin (SuperAdmin only)
 router.delete(
   "/admins/:id",
@@ -490,45 +254,6 @@ router.delete(
   }
 );
 
-/**
- * @swagger
- * /dashboard/user-companies:
- *   get:
- *     summary: Get user's assigned companies
- *     description: Retrieve companies assigned to the current user (User role only)
- *     tags:
- *       - Dashboard
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: User companies retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   name:
- *                     type: string
- *                   service:
- *                     type: string
- *                   capital:
- *                     type: number
- *                   status:
- *                     type: string
- *                   logoUrl:
- *                     type: string
- *       403:
- *         description: Access denied - User role only
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Get user's companies (User/Admin role)
 router.get(
   "/user-companies",
@@ -566,55 +291,6 @@ router.get(
   }
 );
 
-/**
- * @swagger
- * /dashboard/companies-by-capital:
- *   get:
- *     summary: Get companies sorted by capital
- *     description: Retrieve companies ordered by capital amount in descending order
- *     tags:
- *       - Dashboard
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Maximum number of companies to return
- *     responses:
- *       200:
- *         description: Companies retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                   name:
- *                     type: string
- *                   capital:
- *                     type: number
- *                   status:
- *                     type: string
- *                   service:
- *                     type: string
- *                   user:
- *                     type: object
- *                     properties:
- *                       firstName:
- *                         type: string
- *                       lastName:
- *                         type: string
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Get companies sorted by capital descending (for all roles)
 router.get("/companies-by-capital", authenticateJWT, async (req, res) => {
   try {

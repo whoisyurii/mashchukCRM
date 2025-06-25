@@ -1,0 +1,329 @@
+/users:
+  get:
+    summary: Get all users with pagination and filtering
+    description: Retrieve users with pagination, search, and filtering capabilities (Admin/SuperAdmin only)
+    tags:
+      - Users
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+        description: Page number for pagination
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 10
+        description: Number of items per page
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search term for username, email, or name
+      - in: query
+        name: role
+        schema:
+          type: string
+          enum: [User, Admin, SuperAdmin]
+        description: Filter by user role
+      - in: query
+        name: sortBy
+        schema:
+          type: string
+          default: createdAt
+        description: Field to sort by
+      - in: query
+        name: sortOrder
+        schema:
+          type: string
+          enum: [asc, desc]
+          default: desc
+        description: Sort order
+    responses:
+      '200':
+        description: Users retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      username:
+                        type: string
+                      email:
+                        type: string
+                      firstName:
+                        type: string
+                      lastName:
+                        type: string
+                      role:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      _count:
+                        type: object
+                        properties:
+                          ownedCompanies:
+                            type: integer
+                pagination:
+                  type: object
+                  properties:
+                    page:
+                      type: integer
+                    limit:
+                      type: integer
+                    total:
+                      type: integer
+                    totalPages:
+                      type: integer
+      '401':
+        description: Unauthorized
+      '403':
+        description: Access denied - insufficient permissions
+      '500':
+        description: Server error
+  post:
+    summary: Create new user
+    description: Create a new user (Admin/SuperAdmin only)
+    tags:
+      - Users
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - username
+              - email
+              - password
+            properties:
+              username:
+                type: string
+                description: Username for the new user
+              email:
+                type: string
+                format: email
+                description: Email address
+              password:
+                type: string
+                minLength: 6
+                description: Password (minimum 6 characters)
+              firstName:
+                type: string
+                description: First name
+              lastName:
+                type: string
+                description: Last name
+              role:
+                type: string
+                enum: [User, Admin, SuperAdmin]
+                default: User
+                description: User role
+    responses:
+      '201':
+        description: User created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                role:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+      '400':
+        description: Bad request - validation error
+      '401':
+        description: Unauthorized
+      '403':
+        description: Access denied - insufficient permissions
+      '409':
+        description: Conflict - user already exists
+      '500':
+        description: Server error
+
+/users/{id}:
+  get:
+    summary: Get single user by ID
+    description: Retrieve detailed information about a specific user (Admin/SuperAdmin only)
+    tags:
+      - Users
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: User ID
+    responses:
+      '200':
+        description: User retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                role:
+                  type: string
+                createdAt:
+                  type: string
+                  format: date-time
+                ownedCompanies:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      service:
+                        type: string
+                      status:
+                        type: string
+      '401':
+        description: Unauthorized
+      '403':
+        description: Access denied - insufficient permissions
+      '404':
+        description: User not found
+      '500':
+        description: Server error
+  put:
+    summary: Update user
+    description: Update user information (Admin/SuperAdmin only, or own profile)
+    tags:
+      - Users
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: User ID
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              email:
+                type: string
+                format: email
+              firstName:
+                type: string
+              lastName:
+                type: string
+              role:
+                type: string
+                enum: [User, Admin, SuperAdmin]
+              password:
+                type: string
+                minLength: 6
+                description: New password (optional)
+    responses:
+      '200':
+        description: User updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                role:
+                  type: string
+      '400':
+        description: Bad request - validation error
+      '401':
+        description: Unauthorized
+      '403':
+        description: Access denied - insufficient permissions
+      '404':
+        description: User not found
+      '409':
+        description: Conflict - username/email already exists
+      '500':
+        description: Server error
+  delete:
+    summary: Delete user
+    description: Delete a user (SuperAdmin only)
+    tags:
+      - Users
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: User ID
+    responses:
+      '200':
+        description: User deleted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      '401':
+        description: Unauthorized
+      '403':
+        description: Access denied - insufficient permissions
+      '404':
+        description: User not found
+      '500':
+        description: Server error

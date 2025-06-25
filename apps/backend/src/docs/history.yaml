@@ -1,0 +1,285 @@
+/history:
+  get:
+    summary: Get action history with pagination and filtering
+    description: Retrieve action history with pagination, search, and filtering capabilities
+    tags:
+      - History
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+        description: Page number for pagination
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 10
+        description: Number of items per page
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search term for action or entity
+      - in: query
+        name: action
+        schema:
+          type: string
+          enum: [CREATE, UPDATE, DELETE, LOGIN, LOGOUT]
+        description: Filter by action type
+      - in: query
+        name: entityType
+        schema:
+          type: string
+          enum: [User, Company]
+        description: Filter by entity type
+      - in: query
+        name: userId
+        schema:
+          type: string
+        description: Filter by user ID
+      - in: query
+        name: entityId
+        schema:
+          type: string
+        description: Filter by entity ID
+      - in: query
+        name: dateFrom
+        schema:
+          type: string
+          format: date
+        description: Filter from date (YYYY-MM-DD)
+      - in: query
+        name: dateTo
+        schema:
+          type: string
+          format: date
+        description: Filter to date (YYYY-MM-DD)
+      - in: query
+        name: sortBy
+        schema:
+          type: string
+          default: timestamp
+        description: Field to sort by
+      - in: query
+        name: sortOrder
+        schema:
+          type: string
+          enum: [asc, desc]
+          default: desc
+        description: Sort order
+    responses:
+      '200':
+        description: History retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      action:
+                        type: string
+                      entityType:
+                        type: string
+                      entityId:
+                        type: string
+                      userId:
+                        type: string
+                      timestamp:
+                        type: string
+                        format: date-time
+                      details:
+                        type: object
+                        description: Additional action details
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          username:
+                            type: string
+                          email:
+                            type: string
+                      company:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          name:
+                            type: string
+                          service:
+                            type: string
+                pagination:
+                  type: object
+                  properties:
+                    page:
+                      type: integer
+                    limit:
+                      type: integer
+                    total:
+                      type: integer
+                    totalPages:
+                      type: integer
+                summary:
+                  type: object
+                  properties:
+                    totalActions:
+                      type: integer
+                    actionBreakdown:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          action:
+                            type: string
+                          count:
+                            type: integer
+                    entityBreakdown:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          entityType:
+                            type: string
+                          count:
+                            type: integer
+      '401':
+        description: Unauthorized
+      '500':
+        description: Server error
+
+/history/export:
+  get:
+    summary: Export history data
+    description: Export action history data in CSV format
+    tags:
+      - History
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum: [csv, json]
+          default: csv
+        description: Export format
+      - in: query
+        name: action
+        schema:
+          type: string
+          enum: [CREATE, UPDATE, DELETE, LOGIN, LOGOUT]
+        description: Filter by action type
+      - in: query
+        name: entityType
+        schema:
+          type: string
+          enum: [User, Company]
+        description: Filter by entity type
+      - in: query
+        name: dateFrom
+        schema:
+          type: string
+          format: date
+        description: Filter from date (YYYY-MM-DD)
+      - in: query
+        name: dateTo
+        schema:
+          type: string
+          format: date
+        description: Filter to date (YYYY-MM-DD)
+    responses:
+      '200':
+        description: History data exported successfully
+        content:
+          text/csv:
+            schema:
+              type: string
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+      '401':
+        description: Unauthorized
+      '500':
+        description: Server error
+
+/history/{id}:
+  get:
+    summary: Get single history entry by ID
+    description: Retrieve detailed information about a specific history entry
+    tags:
+      - History
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: History entry ID
+    responses:
+      '200':
+        description: History entry retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                action:
+                  type: string
+                entityType:
+                  type: string
+                entityId:
+                  type: string
+                userId:
+                  type: string
+                timestamp:
+                  type: string
+                  format: date-time
+                details:
+                  type: object
+                  description: Detailed action information
+                user:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    username:
+                      type: string
+                    email:
+                      type: string
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                company:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    service:
+                      type: string
+                    status:
+                      type: string
+      '401':
+        description: Unauthorized
+      '404':
+        description: History entry not found
+      '500':
+        description: Server error

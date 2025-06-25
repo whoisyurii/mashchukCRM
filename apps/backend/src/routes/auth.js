@@ -12,49 +12,6 @@ import {
 
 const router = express.Router();
 
-/**
- * @swagger
- * /auth/login:
- *   post:
- *     summary: User login
- *     tags:
- *       - Authentication
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
- *             required:
- *               - email
- *               - password
- *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   type: object
- *                 accessToken:
- *                   type: string
- *                 refreshToken:
- *                   type: string
- *                 expiresIn:
- *                   type: string
- *       401:
- *         description: Invalid credentials
- *       500:
- *         description: Server error
- */
 // Login через Passport Local Strategy
 router.post("/login", (req, res, next) => {
   authenticateLocal(req, res, async (err) => {
@@ -96,55 +53,6 @@ router.post("/login", (req, res, next) => {
   });
 });
 
-/**
- * @swagger
- * /auth/register:
- *   post:
- *     summary: User registration
- *     tags:
- *       - Authentication
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
- *             required:
- *               - email
- *               - password
- *               - firstName
- *               - lastName
- *     responses:
- *       201:
- *         description: Registration successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   type: object
- *                 accessToken:
- *                   type: string
- *                 refreshToken:
- *                   type: string
- *                 expiresIn:
- *                   type: string
- *       400:
- *         description: User already exists
- *       500:
- *         description: Server error
- */
 // Register with refresh token support
 router.post("/register", async (req, res) => {
   try {
@@ -198,39 +106,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /auth/refresh:
- *   post:
- *     summary: Refresh access token
- *     tags:
- *       - Authentication
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               refreshToken:
- *                 type: string
- *             required:
- *               - refreshToken
- *     responses:
- *       200:
- *         description: Token refreshed successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 accessToken:
- *                   type: string
- *                 expiresIn:
- *                   type: string
- *       401:
- *         description: Invalid refresh token
- */
 // Refresh access token
 router.post("/refresh", async (req, res) => {
   try {
@@ -256,38 +131,6 @@ router.post("/refresh", async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /auth/logout:
- *   post:
- *     summary: User logout
- *     tags:
- *       - Authentication
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               refreshToken:
- *                 type: string
- *     responses:
- *       200:
- *         description: Logout successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *       500:
- *         description: Server error
- */
 // Logout через Passport JWT
 router.post('/logout', authenticateJWT, async (req, res) => {
   try {
@@ -327,44 +170,6 @@ router.post('/logout', authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /auth/profile-passport:
- *   get:
- *     summary: Get user profile (Passport.js example)
- *     description: Alternative endpoint to get user profile using Passport.js JWT authentication
- *     tags:
- *       - Authentication
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: User profile retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     email:
- *                       type: string
- *                     firstName:
- *                       type: string
- *                     lastName:
- *                       type: string
- *                     role:
- *                       type: string
- *                 message:
- *                   type: string
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Alternative Passport.js protected route (example)
 router.get("/profile-passport", authenticateJWT, async (req, res) => {
   try {
@@ -378,44 +183,6 @@ router.get("/profile-passport", authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /auth/verify:
- *   get:
- *     summary: Verify JWT token
- *     description: Verify if the provided JWT token is valid and return user information
- *     tags:
- *       - Authentication
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Token is valid
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     email:
- *                       type: string
- *                     firstName:
- *                       type: string
- *                     lastName:
- *                       type: string
- *                     role:
- *                       type: string
- *                 authenticated:
- *                   type: boolean
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Verify через Passport JWT
 router.get("/verify", authenticateJWT, async (req, res) => {
   try {
@@ -429,45 +196,6 @@ router.get("/verify", authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /auth/profile:
- *   get:
- *     summary: Get user profile
- *     description: Get current authenticated user's profile information
- *     tags:
- *       - Authentication
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: User profile retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 email:
- *                   type: string
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 role:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *                 updatedAt:
- *                   type: string
- *                   format: date-time
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Profile через Passport JWT
 router.get("/profile", authenticateJWT, async (req, res) => {
   try {

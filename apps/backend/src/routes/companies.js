@@ -44,105 +44,6 @@ const upload = multer({
 
 const router = express.Router();
 
-/**
- * @swagger
- * /companies:
- *   get:
- *     summary: Get all companies with pagination and filtering
- *     description: Retrieve companies with pagination, search, sorting, and filtering capabilities
- *     tags:
- *       - Companies
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number for pagination
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 5
- *         description: Number of items per page
- *       - in: query
- *         name: search
- *         schema:
- *           type: string
- *         description: Search term for company name or service
- *       - in: query
- *         name: sortBy
- *         schema:
- *           type: string
- *           default: createdAt
- *         description: Field to sort by
- *       - in: query
- *         name: sortOrder
- *         schema:
- *           type: string
- *           enum: [asc, desc]
- *           default: desc
- *         description: Sort order
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *         description: Filter by company status
- *       - in: query
- *         name: minCapital
- *         schema:
- *           type: number
- *         description: Minimum capital filter
- *       - in: query
- *         name: maxCapital
- *         schema:
- *           type: number
- *         description: Maximum capital filter
- *     responses:
- *       200:
- *         description: Companies retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                       name:
- *                         type: string
- *                       service:
- *                         type: string
- *                       capital:
- *                         type: number
- *                       status:
- *                         type: string
- *                       logoUrl:
- *                         type: string
- *                       owner:
- *                         type: object
- *                 pagination:
- *                   type: object
- *                   properties:
- *                     page:
- *                       type: integer
- *                     limit:
- *                       type: integer
- *                     total:
- *                       type: integer
- *                     totalPages:
- *                       type: integer
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Get all companies with pagination, search, and filtering
 router.get("/", authenticateJWT, async (req, res) => {
   try {
@@ -237,56 +138,7 @@ router.get("/", authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /companies/{id}:
- *   get:
- *     summary: Get single company by ID
- *     description: Retrieve detailed information about a specific company
- *     tags:
- *       - Companies
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Company ID
- *     responses:
- *       200:
- *         description: Company retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 name:
- *                   type: string
- *                 service:
- *                   type: string
- *                 capital:
- *                   type: number
- *                 status:
- *                   type: string
- *                 logoUrl:
- *                   type: string
- *                 owner:
- *                   type: object
- *                 actionHistory:
- *                   type: array
- *                   items:
- *                     type: object
- *       404:
- *         description: Company not found
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
+
 // Get single company
 router.get("/:id", authenticateJWT, async (req, res) => {
   try {
@@ -327,74 +179,7 @@ router.get("/:id", authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /companies:
- *   post:
- *     summary: Create new company
- *     description: Create a new company with optional logo upload (Admin/SuperAdmin only)
- *     tags:
- *       - Companies
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - service
- *               - capital
- *             properties:
- *               name:
- *                 type: string
- *                 description: Company name
- *               service:
- *                 type: string
- *                 description: Company service description
- *               capital:
- *                 type: number
- *                 description: Company capital amount
- *               status:
- *                 type: string
- *                 description: Company status
- *                 default: Active
- *               ownerId:
- *                 type: string
- *                 description: Owner user ID
- *               logo:
- *                 type: string
- *                 format: binary
- *                 description: Company logo image file
- *     responses:
- *       201:
- *         description: Company created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 name:
- *                   type: string
- *                 service:
- *                   type: string
- *                 capital:
- *                   type: number
- *                 status:
- *                   type: string
- *                 logoUrl:
- *                   type: string
- *                 owner:
- *                   type: object
- *       401:
- *         description: Access denied - insufficient permissions
- *       500:
- *         description: Server error
- */
+
 // Create company
 router.post("/", authenticateJWT, upload.single('logo'), async (req, res) => {
   try {
@@ -456,69 +241,6 @@ router.post("/", authenticateJWT, upload.single('logo'), async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /companies/{id}:
- *   put:
- *     summary: Update company
- *     description: Update company information (Owner/Admin/SuperAdmin only)
- *     tags:
- *       - Companies
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Company ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               service:
- *                 type: string
- *               capital:
- *                 type: number
- *               status:
- *                 type: string
- *               ownerId:
- *                 type: string
- *     responses:
- *       200:
- *         description: Company updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 name:
- *                   type: string
- *                 service:
- *                   type: string
- *                 capital:
- *                   type: number
- *                 status:
- *                   type: string
- *                 owner:
- *                   type: object
- *       403:
- *         description: Access denied - can only edit owned companies
- *       404:
- *         description: Company not found
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Update company
 router.put("/:id", authenticateJWT, async (req, res) => {
   try {
@@ -580,40 +302,6 @@ router.put("/:id", authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /companies/{id}:
- *   delete:
- *     summary: Delete company
- *     description: Delete a company (Admin/SuperAdmin only)
- *     tags:
- *       - Companies
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Company ID
- *     responses:
- *       200:
- *         description: Company deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *       404:
- *         description: Company not found
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Delete company
 router.delete("/:id", authenticateJWT, async (req, res) => {
   try {
@@ -651,61 +339,6 @@ router.delete("/:id", authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /companies/{id}/logo:
- *   post:
- *     summary: Upload company logo
- *     description: Upload or update company logo (Owner/Admin/SuperAdmin only)
- *     tags:
- *       - Companies
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Company ID
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             required:
- *               - logo
- *             properties:
- *               logo:
- *                 type: string
- *                 format: binary
- *                 description: Logo image file (JPEG, PNG, GIF, WebP - max 5MB)
- *     responses:
- *       200:
- *         description: Logo uploaded successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 logoUrl:
- *                   type: string
- *                 company:
- *                   type: object
- *       400:
- *         description: No file uploaded
- *       403:
- *         description: Access denied
- *       404:
- *         description: Company not found
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Upload company logo
 router.post(
   "/:id/logo",
@@ -798,44 +431,6 @@ router.post(
   }
 );
 
-/**
- * @swagger
- * /companies/{id}/logo:
- *   delete:
- *     summary: Delete company logo
- *     description: Remove company logo (Owner/Admin/SuperAdmin only)
- *     tags:
- *       - Companies
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Company ID
- *     responses:
- *       200:
- *         description: Logo deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 company:
- *                   type: object
- *       404:
- *         description: Company not found or no logo to delete
- *       403:
- *         description: Access denied
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
 // Delete company logo
 router.delete("/:id/logo", authenticateJWT, async (req, res) => {
   try {
