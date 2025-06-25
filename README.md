@@ -58,6 +58,21 @@ A modern CRM system for managing companies, users, and business operations.
 
 ---
 
+## 🧪 Demo Accounts & Roles
+
+To gain access, seed the local database with demo users and roles using the provided seed script. Default credentials are set in `apps/backend/prisma/seed.js`.
+
+| Role         | Email                  | Password      |
+|--------------|------------------------|---------------|
+| SuperAdmin   | admin@mycrm.com        | password123   |
+| Admin        | manager@mycrm.com      | password123   |
+| User         | user@mycrm.com         | password123   |
+| User         | emily.user@mycrm.com   | password123   |
+
+> **Note:** You can preview or change demo passwords in [`apps/backend/prisma/seed.js`](apps/backend/prisma/seed.js).
+
+---
+
 ## 🛠️ Getting Started
 
 ### Local Development
@@ -89,7 +104,3 @@ A modern CRM system for managing companies, users, and business operations.
    - Backend API: http://localhost:5000
 
 ---
-
-## 📄 License
-
-MIT
