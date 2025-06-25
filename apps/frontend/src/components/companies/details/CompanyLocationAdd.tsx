@@ -1,11 +1,10 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { MapPin } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix default markers
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as any)._getIconUrl; // cannot specify another type here
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -33,7 +32,7 @@ const CompanyLocationAdd: React.FC<CompanyLocationAddProps> = ({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mapRef = useRef<L.Map | null>(null);
 
-  // Reverse geocode by lat/lng
+  // reverse geocode by lat/lng
   const reverseGeocode = async (lat: number, lng: number) => {
     setIsGeocoding(true);
     try {
@@ -74,7 +73,7 @@ const CompanyLocationAdd: React.FC<CompanyLocationAddProps> = ({
   // Helper to move map to new coords
   const FlyToOnLocation = ({ lat, lng }: { lat: number; lng: number }) => {
     const map = useMap();
-    React.useEffect(() => {
+    useEffect(() => {
       map.flyTo([lat, lng], 13);
     }, [lat, lng, map]);
     return null;
@@ -164,7 +163,7 @@ const CompanyLocationAdd: React.FC<CompanyLocationAddProps> = ({
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Location (Click on map to set marker)
           </label>
-          <div className="border border-dark-600 rounded-lg overflow-hidden">
+          <div className="rounded-lg overflow-hidden">
             <MapContainer
               center={location ? [location.latitude, location.longitude] : [46.4825, 30.7233]}
               zoom={location ? 13 : 10}

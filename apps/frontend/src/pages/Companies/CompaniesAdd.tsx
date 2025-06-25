@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -143,7 +143,7 @@ const CompaniesAdd = () => {
           className="flex items-center gap-2"
         >
           <ArrowLeft size={16} />
-          Back to Companies
+          <span className="max-md:hidden">Back to Comapnies</span>
         </Button>
       </div>
 
@@ -181,14 +181,14 @@ const CompaniesAdd = () => {
                       </Button>
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center">
-                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="border-2 border-dashed border-gray-700 rounded-lg text-center">
+                      <Upload className="mx-auto mt-2 h-12 w-12 text-gray-400" />
                       <div className="mt-2">
                         <Button
                           type="button"
                           variant="outline"
                           onClick={() => fileInputRef.current?.click()}
-                          className="mt-2"
+                          // className="mt-2"
                         >
                           Upload Logo
                         </Button>
@@ -218,8 +218,8 @@ const CompaniesAdd = () => {
                     </label>
                     <Input
                       value={formData.name}
-                      onChange={(e) =>
-                        handleInputChange("name", e.target.value)
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleInputChange("name", e.target.value)
                       }
                       placeholder="Enter company name"
                       className={errors.name ? "border-red-500" : ""}
@@ -235,7 +235,7 @@ const CompaniesAdd = () => {
                     </label>
                     <Input
                       value={formData.service}
-                      onChange={(e) =>
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleInputChange("service", e.target.value)
                       }
                       placeholder="Enter service type"
@@ -258,7 +258,7 @@ const CompaniesAdd = () => {
                     <Input
                       type="number"
                       value={formData.capital}
-                      onChange={(e) =>
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleInputChange("capital", e.target.value)
                       }
                       placeholder="Enter capital amount"
@@ -277,7 +277,7 @@ const CompaniesAdd = () => {
                     </label>
                     <Input
                       value={formData.ownerId}
-                      onChange={(e) =>
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleInputChange("ownerId", e.target.value)
                       }
                       placeholder={`Leave empty to assign to yourself, ${user?.firstName} ${user?.lastName}`}
