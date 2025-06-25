@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -40,7 +40,7 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
     if (editingUser) {
       setFormData({
         email: editingUser.email || "",
-        password: "", // Password is always empty for security
+        password: "", // password is always empty for security
         firstName: editingUser.firstName || "",
         lastName: editingUser.lastName || "",
         role: editingUser.role || "User",
@@ -65,20 +65,15 @@ export const AddUserModal: React.FC<AddUserModalProps> = ({
   });
   const addUserMutation = useMutation({
     mutationFn: (userData: typeof formData) => {
-      console.log("Mutation data:", userData);
-      console.log("Editing user:", editingUser);
       if (editingUser) {
-        // For editing, remove password field if it's empty and companyIds for now
+        // For editing, I removed password field if it's empty and companyIds for now
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password, companyIds, ...updateData } = userData;
-        const finalData = password ? { ...updateData, password } : updateData;
-        console.log("Update data:", finalData);
-        return dashboardService.updateUser(editingUser.id, finalData);
+        const finalData = password ? { ...updateData, password } : updateData;        return dashboardService.updateUser(editingUser.id, finalData);
       }
       return dashboardService.createUser(userData);
     },
     onSuccess: (data) => {
-      console.log("Mutation success:", data);
       onClose();
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
