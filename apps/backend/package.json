@@ -16,6 +16,10 @@
     "db:studio": "prisma studio",
     "studio": "dotenv -e .env -- prisma studio"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+    
+  },
   "dependencies": {
     "@prisma/client": "^6.9.0",
     "bcryptjs": "^2.4.3",
