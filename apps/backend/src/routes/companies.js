@@ -1,12 +1,10 @@
 import express from "express";
 import multer from "multer";
 import path from "path";
-import fs from "fs";
+import fs from "fs"; // file system operations
 import { authenticateJWT } from "../middleware/passport.js";
-import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
-
-const prisma = new PrismaClient();
+import prisma from "../prisma.js";
 
 // i'm using multer to manage logo uploads
 const storage = multer.diskStorage({

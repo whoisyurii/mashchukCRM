@@ -2,10 +2,8 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import { authenticateJWT } from "../middleware/passport.js";
 import { requireRole } from "../middleware/auth.js";
-import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
-
-const prisma = new PrismaClient();
+import prisma from "../prisma.js";
 
 const router = express.Router();
 

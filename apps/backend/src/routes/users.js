@@ -5,10 +5,8 @@ import fs from "fs";
 import bcrypt from "bcryptjs";
 import { authenticateJWT } from "../middleware/passport.js";
 import { requireRole, requireOwnerOrAdmin } from "../middleware/auth.js";
-import { PrismaClient } from "@prisma/client";
 import { createActionHistory } from "./history.js";
-
-const prisma = new PrismaClient();
+import prisma from "../prisma.js"; 
 
 // Multer configuration for avatar uploads
 const storage = multer.diskStorage({
