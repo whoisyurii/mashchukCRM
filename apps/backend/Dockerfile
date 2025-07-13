@@ -12,7 +12,7 @@ COPY .env.example ./
 
 # Copy the source code
 COPY src ./src
-COPY public ./public
+# COPY public ./public
 
 # Install global dependencies
 RUN npm install
