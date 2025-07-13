@@ -4,7 +4,7 @@
 
 **MashchukCRM** is a full-stack monorepo for company management:
 
-- **Frontend:** React + TypeScript + Vite + TailwindCSS v3 + React Query (@tanstack/react-query)
+- **Frontend:** React + TypeScript + Vite + TailwindCSS + React Query (@tanstack/react-query)
 - **Backend:** Node.js + Express + Prisma + PostgreSQL
 - **Auth:** JWT + Passport.js (Local & JWT Strategies) + Refresh Tokens + Backend validation
 - **CI/CD:** GitHub Actions

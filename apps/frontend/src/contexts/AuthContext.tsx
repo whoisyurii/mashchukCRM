@@ -55,12 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const storedToken = localStorage.getItem("token");
     if (!storedToken) throw new Error("No token");
     
-    try {
-      const response = await authService.verifyToken();
-      return response;
-    } catch (error) {
-      throw error;
-    }
+    const response = await authService.verifyToken();
+    return response;
   };
 
   // tanstack query to validate current user
