@@ -1,5 +1,5 @@
 import { api } from "./api";
-import { AuthResponse, LoginRequest, RegisterRequest } from "../types";
+import { AuthResponse, LoginRequest, RegisterRequest, User } from "../types";
 
 export const authService = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
@@ -19,7 +19,7 @@ export const authService = {
     return response.data;
   },
 
-  verifyToken: async (): Promise<{ user: any; authenticated: boolean }> => {
+  verifyToken: async (): Promise<{ user: User; authenticated: boolean }> => {
     const response = await api.get("/auth/verify");
     return response.data;
   },
