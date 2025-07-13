@@ -38,11 +38,11 @@ export const Sidebar: React.FC = () => {
   );
 
   return (
-    <div className="w-20 max-md:w-16 md:hover:w-56 bg-dark-900 flex flex-col transition-all duration-300 group">
+    <div className="max-md:w-16 w-56 bg-dark-900  flex flex-col transition-all duration-300 group">
       <div className="h-20 px-6 max-md:px-4 flex items-center">
         <button className="flex items-center gap-2" onClick={handleLogoClick}>
           <Workflow className="w-8 h-8 text-emerald-400 flex-shrink-0" />
-          <span className="text-xl font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden max-md:hidden">
+          <span className="text-xl font-semibold duration-300 whitespace-nowrap overflow-hidden max-md:hidden">
             MyCRM
           </span>
         </button>
@@ -62,7 +62,7 @@ export const Sidebar: React.FC = () => {
             }
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden">
+            <span className="whitespace-nowrap overflow-hidden">
               {item.name}
             </span>
           </NavLink>
@@ -75,7 +75,7 @@ export const Sidebar: React.FC = () => {
           className="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg text-sm font-medium text-red-500 hover:text-red-400 hover:bg-dark-800 transition-all duration-300"
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden">
+          <span className=" whitespace-nowrap overflow-hidden">
             Sign Out
           </span>
         </button>

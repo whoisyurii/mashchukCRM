@@ -231,7 +231,7 @@ MashchukCRM/
     "recharts": "^2.15.3",           # Charts and graphs
     "swagger-jsdoc": "^6.2.8",       # Swagger documentation
     "swagger-ui-express": "^5.0.1",  # Swagger UI middleware
-    "tailwindcss": "^3.4.1"          # CSS framework (v3)
+    "tailwindcss": "^3.4.1"          # CSS framework
   }
 }
 ```

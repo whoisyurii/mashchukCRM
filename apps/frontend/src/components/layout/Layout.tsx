@@ -12,7 +12,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Sidebar />
       <div className="flex-1 flex flex-col h-screen max-h-screen overflow-hidden">
         <Header />
-        <main className="flex-1 p-6 overflow-auto min-h-0 bg-gradient-to-b from-dark-900 to-emerald-600 ">
+        <main className="flex-1 p-6 overflow-auto min-h-0 border-t-2 border-l-2 rounded-xl border-emerald-700 bg-emerald-900">
           {children}
         </main>
       </div>
